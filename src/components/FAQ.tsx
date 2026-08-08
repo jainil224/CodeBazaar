@@ -37,56 +37,88 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faqs" className="py-24 px-6 relative z-10 border-t border-white/5 bg-black/20">
-      <div className="max-w-[800px] mx-auto">
-        {/* Title */}
-        <div className="text-center mb-16">
-          <h2 className="text-xs uppercase tracking-widest font-bold text-purple-400 font-mono flex items-center justify-center gap-1.5">
-            <HelpCircle className="w-4.5 h-4.5" />
-            <span>Got Questions?</span>
-          </h2>
-          <h3 className="text-3xl sm:text-4xl font-bold text-white mt-2">Frequently Asked Questions</h3>
-          <p className="text-white/60 max-w-[500px] mx-auto mt-4 text-base">
-            Find answers to licensing, downloads, and payments.
-          </p>
-        </div>
+    <section id="faqs" className="relative z-10 overflow-hidden bg-[#020316]">
 
-        {/* Accordions */}
-        <div className="space-y-4">
-          {FAQS.map((faq, idx) => {
-            const isOpen = openIndex === idx;
+      {/* ── Exact same background image as Footer, flipped vertically ── */}
+      <img
+        src="https://res.cloudinary.com/dgqd54pbl/image/upload/v1786176344/ChatGPT_Image_Aug_8_2026_01_35_01_PM_ftehcv.png"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover object-top select-none pointer-events-none"
+        style={{ transform: 'scaleY(-1)', opacity: 0.9 }}
+      />
 
-            return (
-              <div 
-                key={idx}
-                className="bg-white/[0.02] border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 hover:border-white/15"
-              >
-                {/* Accordion Trigger */}
-                <button
-                  onClick={() => toggleFAQ(idx)}
-                  className="w-full text-left p-6 flex items-center justify-between gap-4 text-white hover:text-purple-300 transition-colors focus:outline-none cursor-pointer"
+      {/* Top fade — blends from the section above into this bg */}
+      <div
+        aria-hidden="true"
+        className="absolute top-0 left-0 right-0 pointer-events-none z-10"
+        style={{
+          height: '140px',
+          background: 'linear-gradient(to bottom, #020316 0%, rgba(2,3,22,0.75) 45%, transparent 100%)',
+        }}
+      />
+
+      {/* Content sits above everything */}
+      <div className="relative z-20 py-24 px-6">
+        <div className="max-w-[800px] mx-auto">
+
+          {/* Title */}
+          <div className="text-center mb-16">
+            <h2 className="text-xs uppercase tracking-widest font-bold text-purple-300 font-mono flex items-center justify-center gap-1.5">
+              <HelpCircle className="w-4 h-4" />
+              <span>Got Questions?</span>
+            </h2>
+            <h3 className="text-3xl sm:text-4xl font-bold text-white mt-2">Frequently Asked Questions</h3>
+            <p className="text-white/55 max-w-[500px] mx-auto mt-4 text-base">
+              Find answers to licensing, downloads, and payments.
+            </p>
+          </div>
+
+          {/* Accordions */}
+          <div className="space-y-4">
+            {FAQS.map((faq, idx) => {
+              const isOpen = openIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="rounded-2xl overflow-hidden transition-all duration-300"
+                  style={{
+                    background: isOpen ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
+                    border: isOpen
+                      ? '1px solid rgba(168,85,247,0.35)'
+                      : '1px solid rgba(255,255,255,0.08)',
+                    backdropFilter: 'blur(14px)',
+                  }}
                 >
-                  <span className="font-semibold text-sm sm:text-base">{faq.question}</span>
-                  {isOpen ? (
-                    <ChevronUp className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-white/40 flex-shrink-0" />
-                  )}
-                </button>
+                  {/* Trigger */}
+                  <button
+                    onClick={() => toggleFAQ(idx)}
+                    className="w-full text-left p-6 flex items-center justify-between gap-4 text-white hover:text-purple-300 transition-colors focus:outline-none cursor-pointer"
+                  >
+                    <span className="font-semibold text-sm sm:text-base">{faq.question}</span>
+                    {isOpen ? (
+                      <ChevronUp className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-white/40 flex-shrink-0" />
+                    )}
+                  </button>
 
-                {/* Accordion Panel */}
-                <div 
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                    isOpen ? 'max-h-[300px] border-t border-white/5' : 'max-h-0'
-                  }`}
-                >
-                  <div className="p-6 text-sm text-white/60 leading-relaxed bg-white/[0.01]">
-                    {faq.answer}
+                  {/* Panel */}
+                  <div
+                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                      isOpen ? 'max-h-[300px]' : 'max-h-0'
+                    }`}
+                    style={{ borderTop: isOpen ? '1px solid rgba(168,85,247,0.15)' : 'none' }}
+                  >
+                    <div className="p-6 text-sm text-white/60 leading-relaxed">
+                      {faq.answer}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
         </div>
       </div>
     </section>
