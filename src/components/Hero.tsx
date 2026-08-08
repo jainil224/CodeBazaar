@@ -35,8 +35,23 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
 
-        {/* Subtle bottom black shadow overlay */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/60 to-transparent z-10 pointer-events-none" />
+        {/* Warm violet bottom fade — matches HowItWorks top blend colour */}
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 right-0 pointer-events-none"
+          style={{
+            height: '220px',
+            zIndex: 10,
+            background: `linear-gradient(
+              to bottom,
+              transparent              0%,
+              rgba(80,  28, 185, 0.12) 35%,
+              rgba(90,  35, 195, 0.55) 62%,
+              rgba(100, 42, 205, 0.82) 80%,
+              rgba(105, 45, 210, 0.95) 100%
+            )`,
+          }}
+        />
         {/* Subtle top vignette */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/30 to-transparent z-10 pointer-events-none" />
       </div>

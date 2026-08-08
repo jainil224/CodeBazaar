@@ -587,13 +587,26 @@ export default function HowItWorks() {
       {/* Animated crosshatch chaks grid background layer */}
       <div className="hero-grid" aria-hidden="true" />
 
-      {/* Deep black top shade — fades from solid black into transparent */}
+      {/* ── Top section blend ─────────────────────────────────────────────
+          Picks up the hero image's warm violet/purple at the boundary and
+          flows smoothly into the section's own atmospheric background.
+          NO black — pure colour continuity.
+      ──────────────────────────────────────────────────────────────── */}
       <div
         aria-hidden="true"
-        className="absolute top-0 left-0 right-0 pointer-events-none z-30"
+        className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{
-          height: '180px',
-          background: 'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0.60) 40%, rgba(0,0,0,0.30) 65%, rgba(0,0,0,0.08) 85%, transparent 100%)',
+          height: '260px',
+          zIndex: 25,
+          background: `linear-gradient(
+            to bottom,
+            rgba(105, 45, 210, 0.92)  0%,
+            rgba(90,  35, 195, 0.78) 18%,
+            rgba(70,  25, 175, 0.58) 36%,
+            rgba(50,  18, 145, 0.36) 55%,
+            rgba(30,  12, 100, 0.14) 74%,
+            transparent              100%
+          )`,
         }}
       />
 
