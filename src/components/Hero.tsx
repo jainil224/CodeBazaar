@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import { Code2, ArrowRight } from 'lucide-react';
 
 interface HeroProps {
@@ -24,76 +24,21 @@ const NavButton = ({ children, href, onClick, className = '' }: { children: Reac
 };
 
 export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick }: HeroProps) {
-  const [isPlayingReverse, setIsPlayingReverse] = useState(false);
-  const forwardVideoRef = useRef<HTMLVideoElement>(null);
-  const reverseVideoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (isPlayingReverse) {
-      if (reverseVideoRef.current) {
-        reverseVideoRef.current.currentTime = 0;
-        reverseVideoRef.current.play().catch(() => {});
-      }
-      if (forwardVideoRef.current) {
-        forwardVideoRef.current.pause();
-      }
-    } else {
-      if (forwardVideoRef.current) {
-        forwardVideoRef.current.currentTime = 0;
-        forwardVideoRef.current.play().catch(() => {});
-      }
-      if (reverseVideoRef.current) {
-        reverseVideoRef.current.pause();
-      }
-    }
-  }, [isPlayingReverse]);
-
   return (
     <section className="relative min-h-svh w-full overflow-hidden flex flex-col justify-between">
-      {/* ── Background Video ─────────────────── */}
+      {/* ── Background Image ─────────────────── */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none select-none" aria-hidden="true">
-        {/* Forward Video */}
-        <video
-          ref={forwardVideoRef}
-          autoPlay
-          muted
-          playsInline
-          onEnded={() => setIsPlayingReverse(true)}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${
-            isPlayingReverse ? 'opacity-0 z-0' : 'opacity-100 z-10'
-          }`}
-        >
-          <source 
-            src="https://res.cloudinary.com/dgqd54pbl/video/upload/Animate_image_simply_and_minimally_202608081400_gwr_video_mvp-upscaled-2x_xufxnm.mp4" 
-            type="video/mp4" 
-          />
-        </video>
-
-        {/* Reverse Video */}
-        <video
-          ref={reverseVideoRef}
-          muted
-          playsInline
-          onEnded={() => setIsPlayingReverse(false)}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${
-            isPlayingReverse ? 'opacity-100 z-10' : 'opacity-0 z-0'
-          }`}
-        >
-          <source 
-            src="https://res.cloudinary.com/dgqd54pbl/video/upload/e_reverse/Animate_image_simply_and_minimally_202608081400_gwr_video_mvp-upscaled-2x_xufxnm.mp4" 
-            type="video/mp4" 
-          />
-        </video>
-
-        {/* Fallback to original image */}
-        <img 
-          src="/hero-bg.png" 
-          alt="Background Gradient" 
-          className="absolute inset-0 w-full h-full object-cover -z-10"
+        {/* Primary Background Image */}
+        <img
+          src="https://res.cloudinary.com/dgqd54pbl/image/upload/v1786185717/ChatGPT_Image_Aug_8_2026_11_38_38_AM_ht0wzn.png"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
 
         {/* Subtle bottom black shadow overlay */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/40 to-transparent z-20 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/60 to-transparent z-10 pointer-events-none" />
+        {/* Subtle top vignette */}
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/30 to-transparent z-10 pointer-events-none" />
       </div>
 
       {/* Navigation Bar */}

@@ -116,12 +116,40 @@ export default function App() {
   return (
     <div className="bg-[#020316] text-white min-h-screen relative font-sans antialiased selection:bg-purple-500 selection:text-white">
       {/* Hero Header & Nav */}
-      <Hero 
-        currentUser={currentUser}
-        onLoginClick={() => setIsAuthOpen(true)}
-        onLogout={handleLogout}
-        onAdminClick={() => setIsAdminOpen(true)}
-      />
+      <div className="relative">
+        <Hero 
+          currentUser={currentUser}
+          onLoginClick={() => setIsAuthOpen(true)}
+          onLogout={handleLogout}
+          onAdminClick={() => setIsAdminOpen(true)}
+        />
+        {/* ── Section Bridge Gradient ─────────────────────────────────────
+            Blends the warm violet/purple bottom of the Hero image smoothly
+            into the deep indigo/navy top of the HowItWorks section.
+            Positioned to straddle the boundary of both sections.
+        ─────────────────────────────────────────────────────────────── */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            bottom: '-80px',
+            left: 0,
+            right: 0,
+            height: '160px',
+            zIndex: 20,
+            pointerEvents: 'none',
+            background: `linear-gradient(
+              to bottom,
+              rgba(90, 40, 200, 0) 0%,
+              rgba(75, 30, 170, 0.55) 20%,
+              rgba(55, 20, 140, 0.80) 40%,
+              rgba(38, 14, 100, 0.92) 60%,
+              rgba(20, 8, 60, 0.98) 80%,
+              #01020F 100%
+            )`,
+          }}
+        />
+      </div>
 
       {/* How it works section */}
       <HowItWorks />

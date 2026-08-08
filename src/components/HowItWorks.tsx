@@ -314,22 +314,45 @@ export default function HowItWorks() {
 
 
         /* =========================================================
-           4. Grid disabled
-           The reference image has NO visible grid.
+           4. MOVING CROSSHATCH GRID (CHAKS) LINES
            ========================================================= */
 
         .hero-grid {
-          display: none;
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+          background-size: 40px 40px;
+          mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, black 30%, transparent 80%);
+          -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, black 30%, transparent 80%);
+          z-index: 0;
+          pointer-events: none;
+          animation: grid-move 15s linear infinite;
+        }
+
+        @keyframes grid-move {
+          0%   { background-position: 0 0; }
+          100% { background-position: 40px 40px; }
         }
 
 
         /* =========================================================
-           5. Splash disabled
-           The reference image has NO central splash.
+           5. Splash (re-enabled for beam animation)
            ========================================================= */
 
         .splash {
-          display: none !important;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 100px;
+          height: 100px;
+          transform: translate(-50%, -50%) scale(0.4);
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(236, 72, 153, 0.6) 0%, transparent 70%);
+          opacity: 0;
+          pointer-events: none;
+          z-index: 2;
         }
 
 
@@ -561,8 +584,18 @@ export default function HowItWorks() {
           }
       `}</style>
 
-      {/* Subtle top black shadow overlay */}
-      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none" />
+      {/* Animated crosshatch chaks grid background layer */}
+      <div className="hero-grid" aria-hidden="true" />
+
+      {/* Deep black top shade — fades from solid black into transparent */}
+      <div
+        aria-hidden="true"
+        className="absolute top-0 left-0 right-0 pointer-events-none z-30"
+        style={{
+          height: '180px',
+          background: 'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0.60) 40%, rgba(0,0,0,0.30) 65%, rgba(0,0,0,0.08) 85%, transparent 100%)',
+        }}
+      />
 
       {/* Glowing Neon Gradient Divider Line matching both sections (Subtle) */}
       <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-indigo-500/50 via-purple-500/50 via-pink-500/50 to-transparent shadow-[0_0_8px_rgba(168,85,247,0.4)] z-20 pointer-events-none" />
