@@ -616,9 +616,9 @@ export default function HowItWorks() {
       <div className="max-w-[1200px] mx-auto relative z-10">
         {/* Title */}
         <div className="text-center mb-16">
-          <h2 className="text-xs uppercase tracking-widest font-bold text-purple-400 font-mono">Simple Workflow</h2>
-          <h3 className="text-3xl sm:text-4xl font-bold text-white mt-2">How to Get Your Purchased Code</h3>
-          <p className="text-white/60 max-w-[600px] mx-auto mt-4 text-base">
+          <h2 className="text-xs uppercase tracking-widest font-bold font-mono" style={{ color: '#1a1a2e' }}>Simple Workflow</h2>
+          <h3 className="text-3xl sm:text-4xl font-bold mt-2" style={{ color: '#000000' }}>How to Get Your Purchased Code</h3>
+          <p className="max-w-[600px] mx-auto mt-4 text-base" style={{ color: '#1c1c2e' }}>
             Get access to premium code configurations in three straightforward steps.
           </p>
         </div>
