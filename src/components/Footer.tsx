@@ -9,14 +9,14 @@ export default function Footer() {
       />
 
       {/* Content Overlay */}
-      <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20 z-20 font-mono text-white/50 text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] tracking-[0.12em] md:tracking-[0.15em] uppercase">
+      <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20 z-20 font-mono text-white/70 text-[9px] sm:text-[11px] md:text-[13px] lg:text-[14px] tracking-[0.12em] md:tracking-[0.15em] uppercase">
         
-        {/* Top Columns: Product links and Navigation */}
-        <div className="grid grid-cols-4 gap-4 text-left">
+        {/* Top Columns: Product links and Navigation (Pushed down using responsive top padding) */}
+        <div className="grid grid-cols-4 gap-4 text-left pt-24 sm:pt-36 md:pt-48 lg:pt-60">
           {/* Column 1 */}
           <div className="space-y-2 sm:space-y-4">
-            <h4 className="text-white font-semibold">Products</h4>
-            <ul className="space-y-1 sm:space-y-2 text-white/40">
+            <h4 className="text-white font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px]">Products</h4>
+            <ul className="space-y-1.5 sm:space-y-2.5 text-white/60">
               <li><a href="#projects" className="hover:text-white transition-colors">Web Apps</a></li>
               <li><a href="#projects" className="hover:text-white transition-colors">UI Kits</a></li>
               <li><a href="#projects" className="hover:text-white transition-colors">Complete SaaS</a></li>
@@ -25,8 +25,8 @@ export default function Footer() {
 
           {/* Column 2 */}
           <div className="space-y-2 sm:space-y-4">
-            <h4 className="text-white font-semibold">Workflow</h4>
-            <ul className="space-y-1 sm:space-y-2 text-white/40">
+            <h4 className="text-white font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px]">Workflow</h4>
+            <ul className="space-y-1.5 sm:space-y-2.5 text-white/60">
               <li><a href="#how-to-get-code" className="hover:text-white transition-colors">How it works</a></li>
               <li><a href="#how-to-get-code" className="hover:text-white transition-colors">Verification</a></li>
               <li><a href="#how-to-get-code" className="hover:text-white transition-colors">Download Code</a></li>
@@ -35,8 +35,8 @@ export default function Footer() {
 
           {/* Column 3 */}
           <div className="space-y-2 sm:space-y-4">
-            <h4 className="text-white font-semibold">Company</h4>
-            <ul className="space-y-1 sm:space-y-2 text-white/40">
+            <h4 className="text-white font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px]">Company</h4>
+            <ul className="space-y-1.5 sm:space-y-2.5 text-white/60">
               <li><a href="#projects" className="hover:text-white transition-colors">About Us</a></li>
               <li><a href="#projects" className="hover:text-white transition-colors">Careers</a></li>
               <li><a href="#projects" className="hover:text-white transition-colors">Blog</a></li>
@@ -46,8 +46,8 @@ export default function Footer() {
 
           {/* Column 4: Socials */}
           <div className="space-y-2 sm:space-y-4">
-            <h4 className="text-white font-semibold">Connect</h4>
-            <ul className="space-y-1 sm:space-y-2 text-white/40">
+            <h4 className="text-white font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px]">Connect</h4>
+            <ul className="space-y-1.5 sm:space-y-2.5 text-white/60">
               <li><a href="#" className="hover:text-white transition-colors">Discord</a></li>
               <li><a href="#" className="hover:text-white transition-colors">X (Twitter)</a></li>
               <li><a href="#" className="hover:text-white transition-colors">LinkedIn</a></li>
