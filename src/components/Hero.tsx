@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Code2, ArrowRight } from 'lucide-react';
 
 interface HeroProps {
@@ -24,94 +24,73 @@ const NavButton = ({ children, href, onClick, className = '' }: { children: Reac
 };
 
 export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick }: HeroProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlayingReverse, setIsPlayingReverse] = useState(false);
+  const forwardVideoRef = useRef<HTMLVideoElement>(null);
+  const reverseVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    let isReversing = false;
-    let animationFrameId: number;
-    let lastTime = performance.now();
-
-    const handlePlayDirection = () => {
-      if (!video) return;
-      const now = performance.now();
-      const delta = (now - lastTime) / 1000;
-      lastTime = now;
-
-      if (isReversing) {
-        if (video.currentTime > 0.05) {
-          // Play backward by manually decrementing current time based on frame delta
-          video.currentTime = Math.max(0, video.currentTime - delta);
-          animationFrameId = requestAnimationFrame(handlePlayDirection);
-        } else {
-          // Reached the beginning, transition back to forward playback
-          video.currentTime = 0;
-          isReversing = false;
-          video.play().catch(() => {});
-        }
-      } else {
-        if (video.ended || video.currentTime >= video.duration - 0.05) {
-          // Reached the end, switch to backward reversing state
-          video.pause();
-          isReversing = true;
-          lastTime = performance.now();
-          animationFrameId = requestAnimationFrame(handlePlayDirection);
-        } else {
-          // Continue monitoring forward playback
-          animationFrameId = requestAnimationFrame(handlePlayDirection);
-        }
+    if (isPlayingReverse) {
+      if (reverseVideoRef.current) {
+        reverseVideoRef.current.currentTime = 0;
+        reverseVideoRef.current.play().catch(() => {});
       }
-    };
-
-    const onPlay = () => {
-      lastTime = performance.now();
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(handlePlayDirection);
-    };
-
-    const onPause = () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-
-    video.addEventListener('play', onPlay);
-    video.addEventListener('pause', onPause);
-    
-    // Fallback trigger if autoplay is already playing
-    if (!video.paused) {
-      onPlay();
+      if (forwardVideoRef.current) {
+        forwardVideoRef.current.pause();
+      }
+    } else {
+      if (forwardVideoRef.current) {
+        forwardVideoRef.current.currentTime = 0;
+        forwardVideoRef.current.play().catch(() => {});
+      }
+      if (reverseVideoRef.current) {
+        reverseVideoRef.current.pause();
+      }
     }
-
-    return () => {
-      video.removeEventListener('play', onPlay);
-      video.removeEventListener('pause', onPause);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
+  }, [isPlayingReverse]);
 
   return (
     <section className="relative min-h-svh w-full overflow-hidden flex flex-col justify-between">
       {/* ── Background Video ─────────────────── */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none select-none" aria-hidden="true">
+        {/* Forward Video */}
         <video
-          ref={videoRef}
+          ref={forwardVideoRef}
           autoPlay
           muted
           playsInline
-          className="w-full h-full object-cover"
+          onEnded={() => setIsPlayingReverse(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${
+            isPlayingReverse ? 'opacity-0 z-0' : 'opacity-100 z-10'
+          }`}
         >
           <source 
             src="https://res.cloudinary.com/dgqd54pbl/video/upload/Animate_image_simply_and_minimally_202608081400_gwr_video_mvp-upscaled-2x_xufxnm.mp4" 
             type="video/mp4" 
           />
-          {/* Fallback to original image if video fails to load/play */}
-          <img 
-            src="/hero-bg.png" 
-            alt="Background Gradient" 
-            className="w-full h-full object-cover"
+        </video>
+
+        {/* Reverse Video */}
+        <video
+          ref={reverseVideoRef}
+          muted
+          playsInline
+          onEnded={() => setIsPlayingReverse(false)}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${
+            isPlayingReverse ? 'opacity-100 z-10' : 'opacity-0 z-0'
+          }`}
+        >
+          <source 
+            src="https://res.cloudinary.com/dgqd54pbl/video/upload/e_reverse/Animate_image_simply_and_minimally_202608081400_gwr_video_mvp-upscaled-2x_xufxnm.mp4" 
+            type="video/mp4" 
           />
         </video>
+
+        {/* Fallback to original image */}
+        <img 
+          src="/hero-bg.png" 
+          alt="Background Gradient" 
+          className="absolute inset-0 w-full h-full object-cover -z-10"
+        />
       </div>
 
       {/* Navigation Bar */}
