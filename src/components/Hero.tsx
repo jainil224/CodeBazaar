@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { Code2, ArrowRight } from 'lucide-react';
 
 interface HeroProps {
@@ -23,14 +24,80 @@ const NavButton = ({ children, href, onClick, className = '' }: { children: Reac
 };
 
 export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick }: HeroProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let isReversing = false;
+    let animationFrameId: number;
+    let lastTime = performance.now();
+
+    const handlePlayDirection = () => {
+      if (!video) return;
+      const now = performance.now();
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+
+      if (isReversing) {
+        if (video.currentTime > 0.05) {
+          // Play backward by manually decrementing current time based on frame delta
+          video.currentTime = Math.max(0, video.currentTime - delta);
+          animationFrameId = requestAnimationFrame(handlePlayDirection);
+        } else {
+          // Reached the beginning, transition back to forward playback
+          video.currentTime = 0;
+          isReversing = false;
+          video.play().catch(() => {});
+        }
+      } else {
+        if (video.ended || video.currentTime >= video.duration - 0.05) {
+          // Reached the end, switch to backward reversing state
+          video.pause();
+          isReversing = true;
+          lastTime = performance.now();
+          animationFrameId = requestAnimationFrame(handlePlayDirection);
+        } else {
+          // Continue monitoring forward playback
+          animationFrameId = requestAnimationFrame(handlePlayDirection);
+        }
+      }
+    };
+
+    const onPlay = () => {
+      lastTime = performance.now();
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(handlePlayDirection);
+    };
+
+    const onPause = () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+
+    video.addEventListener('play', onPlay);
+    video.addEventListener('pause', onPause);
+    
+    // Fallback trigger if autoplay is already playing
+    if (!video.paused) {
+      onPlay();
+    }
+
+    return () => {
+      video.removeEventListener('play', onPlay);
+      video.removeEventListener('pause', onPause);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
   return (
     <section className="relative min-h-svh w-full overflow-hidden flex flex-col justify-between">
       {/* ── Background Video ─────────────────── */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none select-none" aria-hidden="true">
         <video
+          ref={videoRef}
           autoPlay
           muted
-          loop
           playsInline
           className="w-full h-full object-cover"
         >
