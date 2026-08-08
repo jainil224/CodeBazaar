@@ -37,16 +37,12 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faqs" className="relative z-10 overflow-hidden bg-[#020316]">
-
-      {/* ── Exact same background image as Footer, flipped vertically ── */}
-      <img
-        src="https://res.cloudinary.com/dgqd54pbl/image/upload/v1786176344/ChatGPT_Image_Aug_8_2026_01_35_01_PM_ftehcv.png"
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover object-top select-none pointer-events-none"
-        style={{ transform: 'scaleY(-1)', opacity: 0.9 }}
-      />
+    <section id="faqs" className="relative z-10 overflow-hidden" style={{
+      backgroundImage: 'url("/purple curve.png")',
+      backgroundSize: '110% 110%',
+      backgroundPosition: 'center bottom',
+      backgroundRepeat: 'no-repeat'
+    }}>
 
       {/* Top fade — blends from the section above into this bg */}
       <div
