@@ -123,6 +123,9 @@ export default function App() {
         onAdminClick={() => setIsAdminOpen(true)}
       />
 
+      {/* How it works section */}
+      <HowItWorks />
+
       {/* Featured Projects Grid */}
       <FeaturedProjects 
         currentUser={currentUser}
@@ -130,9 +133,6 @@ export default function App() {
         onTriggerAuth={() => setIsAuthOpen(true)}
         onPurchaseSuccess={handlePurchaseSuccess}
       />
-
-      {/* How it works section */}
-      <HowItWorks />
 
       {/* What we deliver guarantees */}
       <WhatWeDeliver />
