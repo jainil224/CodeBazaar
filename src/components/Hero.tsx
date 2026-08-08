@@ -91,6 +91,9 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
           alt="Background Gradient" 
           className="absolute inset-0 w-full h-full object-cover -z-10"
         />
+
+        {/* Subtle bottom black shadow overlay */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/40 to-transparent z-20 pointer-events-none" />
       </div>
 
       {/* Navigation Bar */}

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { UserCheck, CreditCard, FolderArchive } from 'lucide-react';
 
 export default function HowItWorks() {
@@ -6,8 +6,8 @@ export default function HowItWorks() {
   const leftNodeRef = useRef<HTMLDivElement>(null);
   const centerNodeRef = useRef<HTMLDivElement>(null);
   const rightNodeRef = useRef<HTMLDivElement>(null);
-  const glowPathRef = useRef<SVGPathElement>(null);
-  const corePathRef = useRef<SVGPathElement>(null);
+  const beamGlowRef = useRef<SVGPathElement>(null);
+  const beamCoreRef = useRef<SVGPathElement>(null);
   const gradientRef = useRef<SVGLinearGradientElement>(null);
   const splashRef = useRef<HTMLDivElement>(null);
 
@@ -16,8 +16,8 @@ export default function HowItWorks() {
     const leftNode = leftNodeRef.current;
     const centerNode = centerNodeRef.current;
     const rightNode = rightNodeRef.current;
-    const glowPath = glowPathRef.current;
-    const corePath = corePathRef.current;
+    const glowPath = beamGlowRef.current;
+    const corePath = beamCoreRef.current;
     const gradient = gradientRef.current;
     const splash = splashRef.current;
 
@@ -47,93 +47,104 @@ export default function HowItWorks() {
 
     // Animation Loop State Machine
     let animationFrameId: number;
-    let startTime = performance.now();
-    let currentState: 'p1' | 'splash' | 'p2' | 'idle' = 'p1';
+    let lastStateChange = performance.now();
+    let state: 'p1' | 'splash' | 'p2' | 'idle' = 'p1';
 
-    const loop = (time: number) => {
-      const elapsed = time - startTime;
+    // Beam SVG gradient update inside requestAnimationFrame loop
+    const animate = (now: number) => {
+      const elapsed = now - lastStateChange;
+      const gradient = gradientRef.current;
+      const glowPath = beamGlowRef.current;
+      const corePath = beamCoreRef.current;
 
-      if (currentState === 'p1') {
-        const duration = 800;
-        const progress = Math.min(1, elapsed / duration);
-        const percentage = progress * 0.5; // 0 -> 0.5
+      if (!pipeline || !leftNode || !centerNode || !rightNode || !glowPath || !corePath || !gradient || !splash) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+
+      if (state === 'p1') {
+        // Phase 1: Left Node -> Center Node (0% to 50%)
+        const t = Math.min(1, elapsed / 800);
+        const percentage = t * 0.5;
+        const center = percentage * 100;
 
         // Manage beam opacity
         glowPath.style.opacity = '0.6';
         corePath.style.opacity = '1';
 
-        // Animate gradient positions
-        const center = percentage * 100;
-        gradient.setAttribute('x1', `${center - 5}%`);
-        gradient.setAttribute('x2', `${center + 5}%`);
+        if (gradient) {
+          gradient.setAttribute('x1', `${center - 5}%`);
+          gradient.setAttribute('x2', `${center + 5}%`);
+        }
 
         // Node 1 active state
-        if (progress < 0.8) {
+        if (t < 0.8) {
           leftNode.classList.add('active');
         } else {
           leftNode.classList.remove('active');
         }
 
-        if (progress >= 1) {
+        if (t >= 1) {
           // Transition to splash
-          currentState = 'splash';
-          startTime = time;
+          state = 'splash';
+          lastStateChange = now;
           glowPath.style.opacity = '0';
           corePath.style.opacity = '0';
           splash.classList.add('animate');
         }
-      } else if (currentState === 'splash') {
+      } else if (state === 'splash') {
         const duration = 800;
         const progress = Math.min(1, elapsed / duration);
 
         if (progress >= 1) {
           // Transition to p2
-          currentState = 'p2';
-          startTime = time;
+          state = 'p2';
+          lastStateChange = now;
           splash.classList.remove('animate');
           glowPath.style.opacity = '0.6';
           corePath.style.opacity = '1';
         }
-      } else if (currentState === 'p2') {
-        const duration = 800;
-        const progress = Math.min(1, elapsed / duration);
-        const percentage = 0.5 + progress * 0.5; // 0.5 -> 1.0
-
-        // Animate gradient positions
+      } else if (state === 'p2') {
+        // Phase 2: Center Node -> Right Node (50% to 100%)
+        const t = Math.min(1, elapsed / 800);
+        const percentage = 0.5 + t * 0.5;
         const center = percentage * 100;
-        gradient.setAttribute('x1', `${center - 5}%`);
-        gradient.setAttribute('x2', `${center + 5}%`);
+
+        if (gradient) {
+          gradient.setAttribute('x1', `${center - 5}%`);
+          gradient.setAttribute('x2', `${center + 5}%`);
+        }
 
         // Node 3 active state
-        if (progress > 0.2) {
+        if (t > 0.2) {
           rightNode.classList.add('active');
         } else {
           rightNode.classList.remove('active');
         }
 
-        if (progress >= 1) {
+        if (t >= 1) {
           // Transition to idle
           rightNode.classList.remove('active');
-          currentState = 'idle';
-          startTime = time;
+          state = 'idle';
+          lastStateChange = now;
           glowPath.style.opacity = '0';
           corePath.style.opacity = '0';
         }
-      } else if (currentState === 'idle') {
+      } else if (state === 'idle') {
         const duration = 1000;
         const progress = Math.min(1, elapsed / duration);
 
         if (progress >= 1) {
           // Reset loop to p1
-          currentState = 'p1';
-          startTime = time;
+          state = 'p1';
+          lastStateChange = now;
         }
       }
 
-      animationFrameId = requestAnimationFrame(loop);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
-    animationFrameId = requestAnimationFrame(loop);
+    animationFrameId = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('resize', updatePath);
@@ -163,40 +174,186 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how-to-get-code" className="py-24 px-6 relative z-10 border-t border-white/5 bg-[#0a0a0f] overflow-hidden">
+    <section id="how-to-get-code" className="py-24 px-6 relative z-10 bg-[#0a0a0f] overflow-hidden hero-card">
       {/* Dynamic Scoped Styles */}
       <style>{`
-        /* Pulsing Background Gradient Arc */
-        #how-to-get-code::before {
+        /* =========================================================
+           CODEBAZAAR HERO BACKGROUND (UPSIDE DOWN FLIPPED)
+           Soft Lavender → Violet → Indigo → Dark Navy
+           ========================================================= */
+
+        /* 1. Main atmospheric gradient */
+        .hero-card::before {
           content: "";
           position: absolute;
           inset: 0;
+
           background:
-            radial-gradient(circle at 50% -70%,
-              transparent 60%,
-              rgba(139, 92, 246, 0.03) 63%,
-              rgba(139, 92, 246, 0.08) 65%,
-              rgba(139, 92, 246, 0.16) 67%,
-              rgba(99, 102, 241, 0.28) 69%,
-              rgba(99, 102, 241, 0.40) 71%,
-              rgba(59, 130, 246, 0.52) 73%,
-              rgba(59, 130, 246, 0.64) 75%,
-              rgba(59, 130, 246, 0.74) 77%,
-              rgba(139, 92, 246, 0.82) 79%,
-              rgba(167, 139, 250, 0.92) 85%,
-              rgba(196, 181, 253, 0.88) 87%,
-              rgba(224, 231, 255, 0.92) 91%,
-              rgba(238, 242, 255, 0.98) 93%,
-              #ffffff 95%),
-            radial-gradient(circle at 50% 35%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            /* Soft lavender glow at the very top (flipped) */
+            radial-gradient(
+              ellipse 100% 45% at 50% -10%,
+              rgba(190, 165, 255, 0.95) 0%,
+              rgba(145, 105, 255, 0.82) 20%,
+              rgba(105, 55, 245, 0.72) 40%,
+              transparent 72%
+            ),
+
+            /* Main purple atmospheric glow at the top (flipped) */
+            radial-gradient(
+              ellipse 90% 55% at 50% 15%,
+              rgba(92, 42, 235, 0.95) 0%,
+              rgba(67, 30, 180, 0.85) 35%,
+              rgba(35, 20, 105, 0.75) 62%,
+              transparent 82%
+            ),
+
+            /* Deep indigo transition at the top (flipped) */
+            radial-gradient(
+              ellipse 120% 70% at 50% 30%,
+              rgba(35, 20, 105, 0.9) 0%,
+              rgba(20, 14, 70, 0.88) 45%,
+              transparent 78%
+            ),
+
+            /* Very subtle blue-violet atmospheric light at the top (flipped) */
+            radial-gradient(
+              ellipse 80% 50% at 85% 25%,
+              rgba(82, 48, 220, 0.35) 0%,
+              transparent 70%
+            ),
+
+            /* Base dark navy (flipped to 0deg) */
+            linear-gradient(
+              0deg,
+              #01020F 0%,
+              #02031A 24%,
+              #08062C 48%,
+              #17105A 68%,
+              #3B1FC4 84%,
+              #8F6DFF 100%
+            );
+
           z-index: 0;
           pointer-events: none;
-          animation: bg-pulse 8s ease-in-out infinite alternate;
+
+          /* Very subtle atmospheric movement */
+          animation: codebazaar-atmosphere 14s ease-in-out infinite alternate;
         }
 
-        @keyframes bg-pulse {
-          0% { opacity: 0.75; }
-          100% { opacity: 1; }
+
+        /* =========================================================
+           2. Extremely subtle atmospheric animation
+           ========================================================= */
+
+        @keyframes codebazaar-atmosphere {
+          0% {
+            opacity: 0.96;
+            transform: scale(1);
+            filter: brightness(0.96);
+          }
+
+          50% {
+            opacity: 1;
+            transform: scale(1.015);
+            filter: brightness(1);
+          }
+
+          100% {
+            opacity: 0.98;
+            transform: scale(1.025);
+            filter: brightness(1.04);
+          }
+        }
+
+
+        /* =========================================================
+           3. Optional soft ambient light layer
+           Adds the smooth glowing purple area near the top (flipped)
+           ========================================================= */
+
+        .hero-card::after {
+          content: "";
+          position: absolute;
+          left: -10%;
+          right: -10%;
+          top: -20%;
+
+          height: 55%;
+
+          background:
+            radial-gradient(
+              ellipse at center,
+              rgba(116, 67, 255, 0.65) 0%,
+              rgba(89, 42, 225, 0.45) 32%,
+              rgba(62, 30, 175, 0.2) 55%,
+              transparent 75%
+            );
+
+          filter: blur(45px);
+
+          opacity: 0.75;
+
+          z-index: 0;
+          pointer-events: none;
+
+          animation: top-purple-glow 10s ease-in-out infinite alternate;
+        }
+
+
+        @keyframes top-purple-glow {
+          0% {
+            transform: translateX(-2%) scale(0.98);
+            opacity: 0.65;
+          }
+
+          100% {
+            transform: translateX(2%) scale(1.03);
+            opacity: 0.82;
+          }
+        }
+
+
+        /* =========================================================
+           4. Grid disabled
+           The reference image has NO visible grid.
+           ========================================================= */
+
+        .hero-grid {
+          display: none;
+        }
+
+
+        /* =========================================================
+           5. Splash disabled
+           The reference image has NO central splash.
+           ========================================================= */
+
+        .splash {
+          display: none !important;
+        }
+
+
+        /* =========================================================
+           6. Keep hero content above the background
+           ========================================================= */
+
+        .hero-card > * {
+          position: relative;
+          z-index: 1;
+        }
+        .hero-card > .absolute {
+          position: absolute;
+        }
+
+
+        /* =========================================================
+           7. Prevent background animation from affecting content
+           ========================================================= */
+
+        .hero-card {
+          position: relative;
+          overflow: hidden;
+          isolation: isolate;
         }
 
         /* Pipeline styling */
@@ -206,7 +363,7 @@ export default function HowItWorks() {
           align-items: center;
           justify-content: center;
           max-width: 700px;
-          margin: 0 auto 52px;
+          margin: 0 auto 64px;
           z-index: 1;
         }
 
@@ -386,7 +543,7 @@ export default function HowItWorks() {
         @media (max-width: 860px) {
           .icon-pipeline {
             gap: 0;
-            margin-bottom: 40px;
+            margin-top: 40px;
           }
           .pipeline-line {
             width: 80px;
@@ -402,8 +559,13 @@ export default function HowItWorks() {
             width: 52px;
             height: 52px;
           }
-        }
       `}</style>
+
+      {/* Subtle top black shadow overlay */}
+      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none" />
+
+      {/* Glowing Neon Gradient Divider Line matching both sections (Subtle) */}
+      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-indigo-500/50 via-purple-500/50 via-pink-500/50 to-transparent shadow-[0_0_8px_rgba(168,85,247,0.4)] z-20 pointer-events-none" />
 
       <div className="max-w-[1200px] mx-auto relative z-10">
         {/* Title */}
@@ -415,7 +577,7 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        {/* Animated Icon Pipeline Centerpiece */}
+        {/* Animated Icon Pipeline Centerpiece (Moved after title) */}
         <div className="icon-pipeline" ref={pipelineRef}>
           <svg className="beam-svg">
             <filter id="glow">
@@ -429,8 +591,8 @@ export default function HowItWorks() {
               <stop offset="80%" className="beam-stop-end" stopColor="#c084fc" stopOpacity="0.8" />
               <stop offset="100%" className="beam-stop-end" stopColor="#c084fc" stopOpacity="0" />
             </linearGradient>
-            <path ref={glowPathRef} fill="none" stroke="url(#beam-gradient)" strokeWidth="3" filter="url(#glow)" style={{ opacity: 0 }} />
-            <path ref={corePathRef} fill="none" stroke="url(#beam-gradient)" strokeWidth="1" style={{ opacity: 0 }} />
+            <path ref={beamGlowRef} fill="none" stroke="url(#beam-gradient)" strokeWidth="3" filter="url(#glow)" style={{ opacity: 0 }} />
+            <path ref={beamCoreRef} fill="none" stroke="url(#beam-gradient)" strokeWidth="1" style={{ opacity: 0 }} />
           </svg>
 
           {/* Left Node: Authenticate */}
@@ -456,9 +618,9 @@ export default function HowItWorks() {
           </div>
         </div>
 
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative mt-12">
-          {steps.map((step, idx) => (
+        {/* Steps Grid (Moved to down side of centerpiece animation) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative mb-12">
+          {steps.map((step) => (
             <div 
               key={step.num}
               className="relative p-8 bg-white/[0.02] border border-white/10 rounded-[32px] hover:border-white/20 transition-all flex flex-col"
