@@ -56,8 +56,8 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom copyright & policy row */}
-        <div className="flex items-center justify-between gap-4 pt-4 sm:pt-8 border-t border-white/5">
+        {/* Bottom copyright & policy row (Suspended exactly above the giant watermark via percentage bottom padding) */}
+        <div className="flex items-center justify-between gap-4 pt-4 sm:pt-8 border-t border-white/5 pb-[24%] sm:pb-[20%] md:pb-[18%] lg:pb-[16%]">
           <div className="text-white/40">
             © 2026 CODEBAZAAR. ALL RIGHTS RESERVED.
           </div>
