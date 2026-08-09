@@ -2,7 +2,7 @@ import { Terminal, Code2, Download, ShoppingBag, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
-import { GradientBars } from './ui/gradient-bars-background';
+import ProceduralGroundBackground from './ui/procedural-ground-background';
 
 interface Project {
   id: string;
@@ -112,8 +112,8 @@ export default function FeaturedProjects({
   };
 
   return (
-    <section id="projects" className="py-24 relative z-10 w-full overflow-hidden">
-      <GradientBars numBars={15} gradientFrom="rgba(168, 85, 247, 0.2)" />
+    <section id="projects" className="py-24 relative z-10 w-full overflow-hidden bg-[#0A0A0A]">
+      <ProceduralGroundBackground />
       
       <div className="relative z-10 max-w-[1200px] mx-auto px-6">
         {/* Title */}
