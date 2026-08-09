@@ -56,7 +56,7 @@ export default function Footer() {
           </div>
 
           {/* Social Links: Horizontal Row spanning the right side */}
-          <div className="col-span-2 md:col-span-6 flex justify-between items-start gap-4 md:gap-0 pt-0 md:pt-[2px] font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px] text-black">
+          <div className="col-span-2 md:col-span-6 flex flex-wrap justify-center sm:justify-between items-center gap-6 sm:gap-4 md:gap-0 pt-4 md:pt-[2px] font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px] text-black w-full">
             <a href="#" className="hover:text-black/75 transition-colors">LinkedIn</a>
             <a href="#" className="hover:text-black/75 transition-colors">X</a>
             <a href="#" className="hover:text-black/75 transition-colors">Instagram</a>
@@ -65,11 +65,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom copyright & policy row */}
-        <div className="flex items-center justify-between gap-4 pt-8 sm:pt-10 lg:pt-12 border-t border-black/25 text-black font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px] w-full mt-8 sm:mt-10 lg:mt-12 relative z-10 mb-2">
-          <div>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 pt-8 sm:pt-10 lg:pt-12 border-t border-black/25 text-black font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px] w-full mt-8 sm:mt-10 lg:mt-12 relative z-10 mb-2 text-center md:text-left">
+          <div className="order-2 md:order-1">
             © 2026 CODEBAZAAR. ALL RIGHTS RESERVED.
           </div>
-          <div className="flex gap-4 sm:gap-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 order-1 md:order-2">
             <a href="#projects" className="hover:text-black/75 transition-colors">Terms & Conditions</a>
             <a href="#projects" className="hover:text-black/75 transition-colors">Privacy Policy</a>
           </div>
