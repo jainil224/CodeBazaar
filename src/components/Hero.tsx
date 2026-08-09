@@ -1,5 +1,6 @@
 import React from 'react';
-import { Code2, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import siteLogo from '@/assets/logo.svg';
 
 interface HeroProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
@@ -9,15 +10,16 @@ interface HeroProps {
 }
 
 const NavButton = ({ children, href, onClick, className = '' }: { children: React.ReactNode, href?: string, onClick?: () => void, className?: string }) => {
+  const baseClasses = "bg-transparent border-none cursor-pointer font-sans text-[12px] font-semibold uppercase text-white/70 tracking-[0.06em] transition-all duration-300 hover:text-white hover:bg-white/10 px-4 py-2 rounded-full";
   if (href) {
     return (
-      <a href={href} className={`bg-transparent border-none cursor-pointer font-sans text-[15px] font-medium uppercase text-white/80 tracking-[0.04em] transition-opacity hover:opacity-55 hover:text-white ${className}`}>
+      <a href={href} className={`${baseClasses} ${className}`}>
         {children}
       </a>
     );
   }
   return (
-    <button onClick={onClick} className={`bg-transparent border-none cursor-pointer font-sans text-[15px] font-medium uppercase text-white/80 tracking-[0.04em] transition-opacity hover:opacity-55 hover:text-white ${className}`}>
+    <button onClick={onClick} className={`${baseClasses} ${className}`}>
       {children}
     </button>
   );
@@ -33,55 +35,48 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
       </div>
 
       {/* Navigation Bar */}
-      <nav className="relative z-[2] max-w-[1360px] w-full mx-auto flex items-center justify-between px-20 pt-6 pb-4 max-md:px-6 max-md:pt-5">
-        {/* Logo */}
-        <div className="flex items-center gap-2 select-none">
-          <Code2 className="w-8 h-8 text-primary-indigo max-md:w-6 max-md:h-6" />
-          <span className="font-display text-[40px] text-white leading-none max-md:text-[32px] bg-gradient-to-r from-primary-blue via-primary-pink to-primary-orange bg-clip-text text-transparent">
-            codebazaar
-          </span>
-        </div>
+      <div className="absolute top-0 left-0 right-0 w-full flex justify-center pt-6 z-[20] px-4">
+        <nav className="w-full max-w-[1100px] flex items-center justify-between px-6 py-3 bg-white/[0.04] border border-white/10 backdrop-blur-xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          {/* Logo */}
+          <div className="flex items-center gap-2 select-none">
+            <img src={siteLogo} alt="CodeBazaar Logo" className="w-12 h-12 max-md:w-9 max-md:h-9" />
+            <span className="font-display text-[26px] text-white tracking-tight leading-none max-md:text-[22px]">
+              codebazaar
+            </span>
+          </div>
 
-        {/* Center Links */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex gap-8 max-md:hidden">
-          <NavButton href="#projects">Browse Templates</NavButton>
-          <NavButton href="#how-to-get-code">How It Works</NavButton>
-          <NavButton href="#faqs">FAQs</NavButton>
-        </div>
+          {/* Center Links */}
+          <div className="flex gap-2 max-md:hidden absolute left-1/2 -translate-x-1/2">
+            <NavButton href="#projects">Browse Templates</NavButton>
+            <NavButton href="#how-to-get-code">How It Works</NavButton>
+            <NavButton href="#faqs">FAQs</NavButton>
+          </div>
 
         {/* Right Links & CTAs */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           {currentUser ? (
             <>
               {currentUser.role === 'admin' && (
                 <button 
                   onClick={onAdminClick}
-                  className="bg-primary-indigo/20 border border-primary-indigo/35 text-primary-pink cursor-pointer font-sans text-[13px] font-semibold uppercase tracking-[0.04em] px-4 py-2 rounded-xl hover:bg-primary-indigo/40 active:scale-95 transition-all"
+                  className="bg-primary-indigo/20 border border-primary-indigo/35 text-primary-pink cursor-pointer font-sans text-[12px] font-semibold uppercase tracking-[0.06em] px-4 py-2 rounded-full hover:bg-primary-indigo/40 active:scale-95 transition-all"
                 >
-                  Admin Panel
+                  Admin
                 </button>
               )}
-              <span className="text-white/60 text-sm max-md:hidden">
+              <span className="text-white/60 text-sm max-md:hidden pl-2 pr-4 border-r border-white/10">
                 Hi, <strong className="text-white font-medium">{currentUser.name}</strong>
               </span>
-              <button 
-                onClick={onLogout}
-                className="bg-transparent border-none cursor-pointer font-sans text-[15px] font-semibold uppercase text-white/80 tracking-[0.04em] transition-opacity hover:opacity-55"
-              >
-                Logout
-              </button>
+              <NavButton onClick={onLogout}>Logout</NavButton>
             </>
           ) : (
             <>
+              <div className="max-md:hidden">
+                <NavButton onClick={onLoginClick}>Login</NavButton>
+              </div>
               <button 
                 onClick={onLoginClick}
-                className="bg-transparent border-none cursor-pointer font-sans text-[15px] font-semibold uppercase text-white/80 tracking-[0.04em] transition-opacity hover:opacity-55 max-md:hidden"
-              >
-                Login
-              </button>
-              <button 
-                onClick={onLoginClick}
-                className="bg-white text-wandor-dark border-none cursor-pointer font-sans text-[15px] font-medium uppercase tracking-[0.04em] px-5 py-3.5 rounded-full transition-all hover:bg-white/90 active:scale-95 shadow-[0_4px_12px_rgba(255,255,255,0.1)]"
+                className="bg-white text-black font-sans text-[12px] font-bold uppercase tracking-[0.06em] px-6 py-3 rounded-full transition-all hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95 shadow-[0_4px_12px_rgba(255,255,255,0.1)] cursor-pointer"
               >
                 Get Started
               </button>
@@ -89,6 +84,7 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
           )}
         </div>
       </nav>
+    </div>
 
       {/* Hero Body */}
       <div className="relative z-[2] flex-1 flex flex-col items-center justify-center px-6 text-center max-w-[950px] mx-auto py-20">

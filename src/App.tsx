@@ -8,6 +8,9 @@ import Footer from '@/components/Footer';
 import AuroraAuth from '@/components/AuroraAuth';
 import AdminDashboard from '@/components/AdminDashboard';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc, collection, onSnapshot, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/firebase';
 
 interface Transaction {
   id: string;
@@ -58,58 +61,73 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
-  // Load from localStorage or seed
+  // Load from Firebase
   useEffect(() => {
-    const cachedUser = localStorage.getItem('cb_user');
-    if (cachedUser) {
-      setCurrentUser(JSON.parse(cachedUser));
-    }
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const userRef = doc(db, 'users', firebaseUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setCurrentUser({
+            email: userData.email,
+            name: userData.name,
+            role: userData.role
+          });
+          setPurchasedIds(userData.purchasedIds || []);
+        }
+      } else {
+        setCurrentUser(null);
+        setPurchasedIds([]);
+      }
+    });
 
-    const cachedPurchased = localStorage.getItem('cb_purchased');
-    if (cachedPurchased) {
-      setPurchasedIds(JSON.parse(cachedPurchased));
-    }
+    const unsubscribeTxs = onSnapshot(collection(db, 'transactions'), (snapshot) => {
+      const txs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Transaction[];
+      txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      if (txs.length === 0) {
+        SEED_TRANSACTIONS.forEach(tx => {
+          setDoc(doc(db, 'transactions', tx.id), tx);
+        });
+      } else {
+        setTransactions(txs);
+      }
+    });
 
-    const cachedTxs = localStorage.getItem('cb_txs');
-    if (cachedTxs) {
-      setTransactions(JSON.parse(cachedTxs));
-    } else {
-      setTransactions(SEED_TRANSACTIONS);
-      localStorage.setItem('cb_txs', JSON.stringify(SEED_TRANSACTIONS));
-    }
+    return () => {
+      unsubscribeAuth();
+      unsubscribeTxs();
+    };
   }, []);
 
-  const handleLoginSuccess = (user: UserSession) => {
-    setCurrentUser(user);
-    localStorage.setItem('cb_user', JSON.stringify(user));
+  const handleLogout = async () => {
+    await signOut(auth);
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem('cb_user');
-  };
+  const handlePurchaseSuccess = async (projectId: string, projectTitle: string) => {
+    if (!currentUser || !auth.currentUser) return;
 
-  const handlePurchaseSuccess = (projectId: string, projectTitle: string) => {
-    if (!currentUser) return;
-
-    // Add to purchased project IDs list
+    // Update in local state for fast UI response
     const updatedPurchases = [...purchasedIds, projectId];
     setPurchasedIds(updatedPurchases);
-    localStorage.setItem('cb_purchased', JSON.stringify(updatedPurchases));
 
-    // Register transaction log
+    // Update user profile in Firestore
+    await setDoc(doc(db, 'users', auth.currentUser.uid), {
+      purchasedIds: updatedPurchases
+    }, { merge: true });
+
+    // Register transaction log in Firestore
+    const newTxId = `pay_${Math.random().toString(36).substring(2, 14).toUpperCase()}`;
     const newTx: Transaction = {
-      id: `pay_${Math.random().toString(36).substring(2, 14).toUpperCase()}`,
+      id: newTxId,
       userEmail: currentUser.email,
       userName: currentUser.name,
       projectTitle,
       amount: 50,
       date: new Date().toISOString()
     };
-
-    const updatedTxs = [newTx, ...transactions];
-    setTransactions(updatedTxs);
-    localStorage.setItem('cb_txs', JSON.stringify(updatedTxs));
+    await setDoc(doc(db, 'transactions', newTxId), newTx);
 
     alert(`Payment successful! "${projectTitle}" codebase is now unlocked for download.`);
   };
@@ -153,7 +171,6 @@ export default function App() {
       {isAuthOpen && (
         <AuroraAuth 
           onClose={() => setIsAuthOpen(false)}
-          onSuccess={handleLoginSuccess}
         />
       )}
 

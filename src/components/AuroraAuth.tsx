@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Circle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, googleProvider, db } from '@/firebase';
 
 interface UserSession {
   email: string;
@@ -10,10 +13,9 @@ interface UserSession {
 
 interface AuroraAuthProps {
   onClose: () => void;
-  onSuccess: (user: UserSession) => void;
 }
 
-export default function AuroraAuth({ onClose, onSuccess }: AuroraAuthProps) {
+export default function AuroraAuth({ onClose }: AuroraAuthProps) {
   const [isSignUp, setIsSignUp] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -43,7 +45,7 @@ export default function AuroraAuth({ onClose, onSuccess }: AuroraAuthProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -52,24 +54,55 @@ export default function AuroraAuth({ onClose, onSuccess }: AuroraAuthProps) {
       return;
     }
 
-    const role = email.toLowerCase() === 'admin@codebazaar.com' ? 'admin' : 'user';
-    const fullName = isSignUp ? `${firstName} ${lastName}` : (role === 'admin' ? 'Administrator' : email.split('@')[0]);
+    try {
+      if (isSignUp) {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        const role = email.toLowerCase() === 'admin@codebazaar.com' ? 'admin' : 'user';
+        const fullName = `${firstName} ${lastName}`;
+        
+        await setDoc(doc(db, 'users', result.user.uid), {
+          email: result.user.email,
+          name: fullName,
+          role,
+          purchasedIds: []
+        });
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
 
-    onSuccess({
-      email,
-      name: fullName,
-      role
-    });
-    onClose();
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Authentication failed. Please try again.');
+    }
   };
 
-  const handleSocialLogin = (platform: string) => {
-    onSuccess({
-      email: `${platform.toLowerCase()}user@codebazaar.com`,
-      name: `${platform} User`,
-      role: 'user'
-    });
-    onClose();
+  const handleSocialLogin = async (platform: string) => {
+    if (platform === 'Google') {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          const role = user.email?.toLowerCase() === 'admin@codebazaar.com' ? 'admin' : 'user';
+          await setDoc(userRef, {
+            email: user.email || '',
+            name: user.displayName || 'Google User',
+            role,
+            purchasedIds: []
+          });
+        }
+        
+        onClose();
+      } catch (err: any) {
+        setError(err.message || 'Google authentication failed.');
+      }
+    } else {
+      // Mock for other platforms if needed
+      onClose();
+    }
   };
 
   return (

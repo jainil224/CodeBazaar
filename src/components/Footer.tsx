@@ -38,7 +38,7 @@ export default function Footer() {
             <div className="col-span-1 md:col-span-2 space-y-2 sm:space-y-4">
               <h4 className="text-white font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px]">Company</h4>
               <ul className="space-y-1.5 sm:space-y-2.5 text-white/60 font-semibold">
-                <li><a href="#projects" className="hover:text-white transition-colors">About CodeBazaar</a></li>
+                <li><a href="#projects" className="hover:text-white transition-colors">About <span className="serif-italic normal-case tracking-normal text-[12px] sm:text-[14px] md:text-[16px] lg:text-[17px]">CodeBazaar</span></a></li>
                 <li><a href="#projects" className="hover:text-white transition-colors">Our Projects</a></li>
                 <li><a href="#faqs" className="hover:text-white transition-colors">FAQ</a></li>
                 <li><a href="#projects" className="hover:text-white transition-colors">Contact Support</a></li>
@@ -57,7 +57,7 @@ export default function Footer() {
           {/* Bottom copyright & policy row */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 pt-8 sm:pt-10 lg:pt-12 border-t border-white/20 text-white/80 font-bold text-[10px] sm:text-[12px] md:text-[14px] lg:text-[15px] w-full mt-8 sm:mt-10 lg:mt-12 relative z-10 mb-2 text-center md:text-left">
             <div className="order-2 md:order-1">
-              © 2026 CODEBAZAAR. ALL RIGHTS RESERVED.
+              © 2026 <span className="serif-italic normal-case tracking-normal text-[12px] sm:text-[14px] md:text-[16px] lg:text-[18px]">CodeBazaar</span>. ALL RIGHTS RESERVED.
             </div>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 order-1 md:order-2">
               <a href="#projects" className="hover:text-white transition-colors">Terms & Conditions</a>
@@ -65,17 +65,11 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Bottom padding adjustment for footer graphic */}
-          <div className="w-full flex justify-center items-end mt-2 overflow-hidden rounded-b-[24px]">
-            <img 
-              src="https://res.cloudinary.com/dgqd54pbl/image/upload/v1786281492/ChatGPT_Image_Aug_9__2026__06_46_04_PM_upscaled-Photoroom_jims3i.png" 
-              alt="CodeBazaar Footer Graphic"
-              className="w-full h-auto object-cover object-bottom max-h-[380px]"
-              style={{ 
-                marginBottom: '-4.54%',
-                transform: 'translateY(4.54%)'
-              }}
-            />
+          {/* Huge Footer Text */}
+          <div className="w-full flex justify-center items-end mt-8 sm:mt-12 md:mt-16 rounded-b-[24px] pb-4 sm:pb-8 px-4">
+            <span className="serif-italic normal-case tracking-normal text-transparent bg-clip-text bg-gradient-to-b from-white/90 to-white/20 text-[13vw] sm:text-[14vw] md:text-[14.5vw] leading-[0.8] select-none whitespace-nowrap pr-[2vw]">
+              CodeBazaar
+            </span>
           </div>
         </div>
       </div>
