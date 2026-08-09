@@ -1,5 +1,6 @@
 import React from 'react';
 import { Code2, ArrowRight } from 'lucide-react';
+import AnimatedGradientBackground from './ui/animated-gradient-background';
 
 interface HeroProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
@@ -28,12 +29,7 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
     <section className="relative min-h-svh w-full overflow-hidden flex flex-col justify-between">
       {/* ── Background Image ─────────────────── */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none select-none" aria-hidden="true">
-        {/* Primary Background Image */}
-        <img
-          src="https://res.cloudinary.com/dgqd54pbl/image/upload/v1786185717/ChatGPT_Image_Aug_8_2026_11_38_38_AM_ht0wzn.png"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
+        <AnimatedGradientBackground />
 
         {/* Warm violet bottom fade — matches HowItWorks top blend colour */}
         <div
