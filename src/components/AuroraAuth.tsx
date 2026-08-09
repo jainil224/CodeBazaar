@@ -5,11 +5,6 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithP
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/firebase';
 
-interface UserSession {
-  email: string;
-  name: string;
-  role: 'admin' | 'user';
-}
 
 interface AuroraAuthProps {
   onClose: () => void;
