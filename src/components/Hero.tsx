@@ -31,20 +31,20 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none select-none" aria-hidden="true">
         <AnimatedGradientBackground />
 
-        {/* Warm violet bottom fade — matches HowItWorks top blend colour */}
+        {/* Cool transition fade — blends into the orange of HowItWorks */}
         <div
           aria-hidden="true"
           className="absolute bottom-0 left-0 right-0 pointer-events-none"
           style={{
-            height: '220px',
+            height: '250px',
             zIndex: 10,
             background: `linear-gradient(
               to bottom,
-              transparent              0%,
-              rgba(80,  28, 185, 0.12) 35%,
-              rgba(90,  35, 195, 0.55) 62%,
-              rgba(100, 42, 205, 0.82) 80%,
-              rgba(105, 45, 210, 0.95) 100%
+              transparent 0%,
+              rgba(168, 85, 247, 0.2) 30%,
+              rgba(236, 72, 153, 0.4) 60%,
+              rgba(255, 109, 0, 0.8) 85%,
+              rgba(255, 109, 0, 1) 100%
             )`,
           }}
         />

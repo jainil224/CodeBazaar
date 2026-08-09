@@ -2,6 +2,7 @@ import { Terminal, Code2, Download, ShoppingBag, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
+import { GradientBars } from './ui/gradient-bars-background';
 
 interface Project {
   id: string;
@@ -111,8 +112,11 @@ export default function FeaturedProjects({
   };
 
   return (
-    <section id="projects" className="py-24 px-6 relative z-10 max-w-[1200px] mx-auto">
-      {/* Title */}
+    <section id="projects" className="py-24 relative z-10 w-full overflow-hidden">
+      <GradientBars numBars={15} gradientFrom="rgba(168, 85, 247, 0.2)" />
+      
+      <div className="relative z-10 max-w-[1200px] mx-auto px-6">
+        {/* Title */}
       <div className="text-center mb-16">
         <h2 className="text-xs uppercase tracking-widest font-bold text-purple-400 font-mono">Bazaar Showroom</h2>
         <h3 className="text-3xl sm:text-4xl font-bold text-white mt-2">Featured Project Templates</h3>
@@ -210,6 +214,7 @@ export default function FeaturedProjects({
             </div>
           );
         })}
+      </div>
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
 import React from "react";
+import AnimatedGradientBackground from "./ui/animated-gradient-background";
 import {
   Layers,
   Lock,
@@ -607,38 +608,15 @@ export default function HowItWorks() {
   return (
     <section
       id="how-to-get-code"
-      className="relative w-full overflow-hidden py-20 sm:py-24 lg:py-28 px-5 sm:px-6"
-      style={{
-        background: "#f7f7f9",
-      }}
+      className="relative w-full overflow-hidden pb-20 sm:pb-24 lg:pb-28 px-5 sm:px-6 bg-[#0A0A0A] z-10 -mt-[128px] pt-[208px] sm:pt-[224px] lg:pt-[240px]"
     >
       {/* ===================================================
           Background decoration
       =================================================== */}
 
-      <div
-        className="absolute pointer-events-none rounded-full"
-        style={{
-          width: 500,
-          height: 500,
-          top: -250,
-          left: -250,
-          background:
-            "radial-gradient(circle, rgba(139,92,246,0.07), transparent 68%)",
-        }}
-      />
-
-      <div
-        className="absolute pointer-events-none rounded-full"
-        style={{
-          width: 500,
-          height: 500,
-          right: -250,
-          bottom: -250,
-          background:
-            "radial-gradient(circle, rgba(59,130,246,0.06), transparent 68%)",
-        }}
-      />
+      <div className="absolute inset-0 w-full h-full pointer-events-none rotate-180 z-0 opacity-80">
+        <AnimatedGradientBackground />
+      </div>
 
       {/* ===================================================
           Header
@@ -649,7 +627,7 @@ export default function HowItWorks() {
           <span
             className="w-1.5 h-1.5 rounded-full"
             style={{
-              background: "#8b5cf6",
+              background: "#ffffff",
             }}
           />
 
@@ -660,7 +638,7 @@ export default function HowItWorks() {
               font-bold
               tracking-[0.16em]
               uppercase
-              text-violet-500
+              text-white
             "
           >
             Simple Workflow
@@ -674,7 +652,7 @@ export default function HowItWorks() {
             lg:text-[54px]
             font-bold
             tracking-[-0.045em]
-            text-slate-950
+            text-white
           "
           style={{
             lineHeight: 1.05,
@@ -682,7 +660,7 @@ export default function HowItWorks() {
         >
           How to Get Your
           <span
-            className="italic font-serif text-violet-500 ml-2"
+            className="italic font-serif text-white drop-shadow-sm ml-2"
           >
             Purchased Code
           </span>
@@ -694,7 +672,7 @@ export default function HowItWorks() {
             text-sm
             sm:text-base
             md:text-lg
-            text-slate-500
+            text-slate-300
             max-w-2xl
             mx-auto
             leading-relaxed
