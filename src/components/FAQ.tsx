@@ -37,22 +37,9 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faqs" className="relative z-10 overflow-hidden" style={{
-      backgroundImage: 'url("/purple curve.png")',
-      backgroundSize: '110% 110%',
-      backgroundPosition: 'center bottom',
-      backgroundRepeat: 'no-repeat'
-    }}>
+    <section id="faqs" className="relative z-10 overflow-hidden">
 
-      {/* Top fade — blends from the section above into this bg */}
-      <div
-        aria-hidden="true"
-        className="absolute top-0 left-0 right-0 pointer-events-none z-10"
-        style={{
-          height: '140px',
-          background: 'linear-gradient(to bottom, #020316 0%, rgba(2,3,22,0.75) 45%, transparent 100%)',
-        }}
-      />
+
 
       {/* Content sits above everything */}
       <div className="relative z-20 py-24 px-6">
@@ -60,7 +47,7 @@ export default function FAQ() {
 
           {/* Title */}
           <div className="text-center mb-16">
-            <h2 className="text-xs uppercase tracking-widest font-bold text-purple-300 font-mono flex items-center justify-center gap-1.5">
+            <h2 className="text-xs uppercase tracking-widest font-bold text-primary-indigo font-mono flex items-center justify-center gap-1.5">
               <HelpCircle className="w-4 h-4" />
               <span>Got Questions?</span>
             </h2>
@@ -89,11 +76,11 @@ export default function FAQ() {
                   {/* Trigger */}
                   <button
                     onClick={() => toggleFAQ(idx)}
-                    className="w-full text-left p-6 flex items-center justify-between gap-4 text-white hover:text-purple-300 transition-colors focus:outline-none cursor-pointer"
+                    className="w-full text-left p-6 flex items-center justify-between gap-4 text-white hover:text-primary-pink transition-colors focus:outline-none cursor-pointer"
                   >
                     <span className="font-semibold text-sm sm:text-base">{faq.question}</span>
                     {isOpen ? (
-                      <ChevronUp className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                      <ChevronUp className="w-5 h-5 text-primary-pink flex-shrink-0" />
                     ) : (
                       <ChevronDown className="w-5 h-5 text-white/40 flex-shrink-0" />
                     )}

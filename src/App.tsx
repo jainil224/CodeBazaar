@@ -7,6 +7,7 @@ import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
 import AuroraAuth from '@/components/AuroraAuth';
 import AdminDashboard from '@/components/AdminDashboard';
+import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
 
 interface Transaction {
   id: string;
@@ -114,34 +115,39 @@ export default function App() {
   };
 
   return (
-    <div className="bg-[#020316] text-white min-h-screen relative font-sans antialiased selection:bg-purple-500 selection:text-white">
-      {/* Hero Header & Nav */}
-      <Hero 
-        currentUser={currentUser}
-        onLoginClick={() => setIsAuthOpen(true)}
-        onLogout={handleLogout}
-        onAdminClick={() => setIsAdminOpen(true)}
-      />
+    <div className="bg-black text-white min-h-screen relative font-sans antialiased selection:bg-purple-500 selection:text-white overflow-x-hidden">
+      <AnimatedGradientBackground containerClassName="fixed inset-0 z-0 pointer-events-none" />
 
-      {/* How it works section */}
-      <HowItWorks />
+      {/* Main Content wrapper */}
+      <div className="relative z-10">
+        {/* Hero Header & Nav */}
+        <Hero 
+          currentUser={currentUser}
+          onLoginClick={() => setIsAuthOpen(true)}
+          onLogout={handleLogout}
+          onAdminClick={() => setIsAdminOpen(true)}
+        />
 
-      {/* Featured Projects Grid */}
-      <FeaturedProjects 
-        currentUser={currentUser}
-        purchasedIds={purchasedIds}
-        onTriggerAuth={() => setIsAuthOpen(true)}
-        onPurchaseSuccess={handlePurchaseSuccess}
-      />
+        {/* How it works section */}
+        <HowItWorks />
 
-      {/* What we deliver guarantees */}
-      <WhatWeDeliver />
+        {/* Featured Projects Grid */}
+        <FeaturedProjects 
+          currentUser={currentUser}
+          purchasedIds={purchasedIds}
+          onTriggerAuth={() => setIsAuthOpen(true)}
+          onPurchaseSuccess={handlePurchaseSuccess}
+        />
 
-      {/* Accordion FAQ details */}
-      <FAQ />
+        {/* What we deliver guarantees */}
+        <WhatWeDeliver />
 
-      {/* Bottom Footer links */}
-      <Footer />
+        {/* Accordion FAQ details */}
+        <FAQ />
+
+        {/* Bottom Footer links */}
+        <Footer />
+      </div>
 
       {/* Login & Sign Up view (covering screen when open) */}
       {isAuthOpen && (
@@ -152,11 +158,13 @@ export default function App() {
       )}
 
       {/* Admin Panel Dashboard dialog */}
-      <AdminDashboard 
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-        transactions={transactions}
-      />
+      {isAdminOpen && (
+        <AdminDashboard 
+          isOpen={isAdminOpen}
+          onClose={() => setIsAdminOpen(false)}
+          transactions={transactions}
+        />
+      )}
     </div>
   );
 }

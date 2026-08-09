@@ -64,7 +64,7 @@ const ProceduralGroundBackground: React.FC = () => {
         
         // Horizon Fog / Fade
         float fade = smoothstep(0.1, -1.0, uv.y);
-        finalColor *= (1.0 - length(uv) * 0.45) * (1.0 - fade);
+        finalColor *= (1.0 - fade);
 
         gl_FragColor = vec4(finalColor, 1.0);
       }
@@ -120,7 +120,7 @@ const ProceduralGroundBackground: React.FC = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 w-full h-full -z-10 bg-transparent rotate-180 opacity-70">
+    <div className="absolute inset-0 w-full h-full -z-10 bg-transparent rotate-180 opacity-50" style={{ mixBlendMode: 'screen' }}>
       <canvas
         ref={canvasRef}
         className="w-full h-full block touch-none"

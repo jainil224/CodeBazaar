@@ -6,6 +6,14 @@
   --font-dm: "DM Sans", sans-serif;
   --font-caveat: "Caveat", cursive;
   --color-brand-gray: #1A1A1A;
+  
+  --color-primary-dark: #0A0A0A;
+  --color-primary-blue: #2979FF;
+  --color-primary-pink: #FF80AB;
+  --color-primary-orange: #FF6D00;
+  --color-primary-yellow: #FFD600;
+  --color-primary-green: #00E676;
+  --color-primary-indigo: #3D5AFE;
 }
 
 body {

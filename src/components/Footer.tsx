@@ -18,7 +18,7 @@ export default function Footer() {
       />
 
       {/* Content Overlay */}
-      <div className="relative flex flex-col justify-between p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20 z-20 font-mono text-white/70 text-[9px] sm:text-[11px] md:text-[13px] lg:text-[14px] tracking-[0.12em] md:tracking-[0.15em] uppercase">
+      <div className="relative flex flex-col justify-between pt-4 px-4 pb-0 sm:pt-8 sm:px-8 sm:pb-0 md:pt-12 md:px-12 md:pb-0 lg:pt-16 lg:px-16 lg:pb-0 xl:pt-20 xl:px-20 xl:pb-0 z-20 font-mono text-white/70 text-[9px] sm:text-[11px] md:text-[13px] lg:text-[14px] tracking-[0.12em] md:tracking-[0.15em] uppercase">
         
         {/* Columns & Socials Grid (Responsive layout matching the reference spacing) */}
         <div className="grid grid-cols-2 md:grid-cols-12 gap-y-8 gap-x-4 text-left pt-8 sm:pt-12 md:pt-16 lg:pt-20 xl:pt-24">
@@ -76,11 +76,15 @@ export default function Footer() {
         </div>
 
         {/* Bottom padding adjustment to ensure footer has breathing room at the bottom */}
-        <div className="w-full flex justify-center items-end mt-2">
+        <div className="w-full flex justify-center items-end mt-2 overflow-hidden">
           <img 
-            src="https://res.cloudinary.com/dgqd54pbl/image/upload/v1786209032/ChatGPT_Image_Aug_8_2026_01_35_01_PM_ftehcv-Photoroom_1_yiucxo.png" 
+            src="https://res.cloudinary.com/dgqd54pbl/image/upload/v1786281492/ChatGPT_Image_Aug_9__2026__06_46_04_PM_upscaled-Photoroom_jims3i.png" 
             alt="CodeBazaar Footer Graphic"
             className="w-full h-auto object-cover object-bottom max-h-[400px]"
+            style={{ 
+              marginBottom: '-4.54%',
+              transform: 'translateY(4.54%)'
+            }}
           />
         </div>
       </div>

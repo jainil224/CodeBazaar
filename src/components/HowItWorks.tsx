@@ -1,5 +1,4 @@
 import React from "react";
-import AnimatedGradientBackground from "./ui/animated-gradient-background";
 import {
   Layers,
   Lock,
@@ -21,7 +20,6 @@ import {
   CheckCircle2,
   FolderDown,
   Archive,
-  ArrowRight,
 } from "lucide-react";
 
 /* =========================================================
@@ -608,15 +606,8 @@ export default function HowItWorks() {
   return (
     <section
       id="how-to-get-code"
-      className="relative w-full overflow-hidden pb-20 sm:pb-24 lg:pb-28 px-5 sm:px-6 bg-[#0A0A0A] z-10 -mt-[128px] pt-[208px] sm:pt-[224px] lg:pt-[240px]"
+      className="relative w-full overflow-hidden pb-20 sm:pb-24 lg:pb-28 px-5 sm:px-6 bg-transparent z-10 -mt-[128px] pt-[208px] sm:pt-[224px] lg:pt-[240px]"
     >
-      {/* ===================================================
-          Background decoration
-      =================================================== */}
-
-      <div className="absolute inset-0 w-full h-full pointer-events-none rotate-180 z-0 opacity-80">
-        <AnimatedGradientBackground />
-      </div>
 
       {/* ===================================================
           Header

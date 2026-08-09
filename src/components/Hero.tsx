@@ -1,6 +1,5 @@
 import React from 'react';
 import { Code2, ArrowRight } from 'lucide-react';
-import AnimatedGradientBackground from './ui/animated-gradient-background';
 
 interface HeroProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
@@ -29,25 +28,6 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
     <section className="relative min-h-svh w-full overflow-hidden flex flex-col justify-between">
       {/* ── Background Image ─────────────────── */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none select-none" aria-hidden="true">
-        <AnimatedGradientBackground />
-
-        {/* Cool transition fade — blends into the orange of HowItWorks */}
-        <div
-          aria-hidden="true"
-          className="absolute bottom-0 left-0 right-0 pointer-events-none"
-          style={{
-            height: '250px',
-            zIndex: 10,
-            background: `linear-gradient(
-              to bottom,
-              transparent 0%,
-              rgba(168, 85, 247, 0.2) 30%,
-              rgba(236, 72, 153, 0.4) 60%,
-              rgba(255, 109, 0, 0.8) 85%,
-              rgba(255, 109, 0, 1) 100%
-            )`,
-          }}
-        />
         {/* Subtle top vignette */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/30 to-transparent z-10 pointer-events-none" />
       </div>
@@ -56,8 +36,8 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
       <nav className="relative z-[2] max-w-[1360px] w-full mx-auto flex items-center justify-between px-20 pt-6 pb-4 max-md:px-6 max-md:pt-5">
         {/* Logo */}
         <div className="flex items-center gap-2 select-none">
-          <Code2 className="w-8 h-8 text-purple-400 max-md:w-6 max-md:h-6" />
-          <span className="font-display text-[40px] text-white leading-none max-md:text-[32px]">
+          <Code2 className="w-8 h-8 text-primary-indigo max-md:w-6 max-md:h-6" />
+          <span className="font-display text-[40px] text-white leading-none max-md:text-[32px] bg-gradient-to-r from-primary-blue via-primary-pink to-primary-orange bg-clip-text text-transparent">
             codebazaar
           </span>
         </div>
@@ -76,7 +56,7 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
               {currentUser.role === 'admin' && (
                 <button 
                   onClick={onAdminClick}
-                  className="bg-purple-600/30 border border-purple-500/40 text-purple-200 cursor-pointer font-sans text-[13px] font-semibold uppercase tracking-[0.04em] px-4 py-2 rounded-xl hover:bg-purple-600/50 active:scale-95 transition-all"
+                  className="bg-primary-indigo/20 border border-primary-indigo/35 text-primary-pink cursor-pointer font-sans text-[13px] font-semibold uppercase tracking-[0.04em] px-4 py-2 rounded-xl hover:bg-primary-indigo/40 active:scale-95 transition-all"
                 >
                   Admin Panel
                 </button>
@@ -113,12 +93,12 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
       {/* Hero Body */}
       <div className="relative z-[2] flex-1 flex flex-col items-center justify-center px-6 text-center max-w-[950px] mx-auto py-20">
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6 text-xs text-white/70 font-mono">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+          <span className="w-2 h-2 rounded-full bg-primary-green animate-pulse"></span>
           <span>Flat ₹50 Code Marketplace</span>
         </div>
         
         <h1 className="hero-title text-[clamp(40px,5.5vw,68px)] text-white leading-[1.1] mb-6 max-w-[900px]">
-          <span className="serif-italic underline decoration-[3.5px] underline-offset-[8px] md:underline-offset-[12px] decoration-purple-500">CodeBazaar</span>, Ready-to-Use Projects & Complete <span className="serif-italic underline decoration-[3.5px] underline-offset-[8px] md:underline-offset-[12px] decoration-purple-500">Source Code</span>
+          <span className="serif-italic underline decoration-[3.5px] underline-offset-[8px] md:underline-offset-[12px] decoration-primary-indigo">CodeBazaar</span>, Ready-to-Use Projects & Complete <span className="serif-italic underline decoration-[3.5px] underline-offset-[8px] md:underline-offset-[12px] decoration-primary-pink">Source Code</span>
         </h1>
         
         <p className="font-sans text-base sm:text-lg font-medium text-white/60 leading-relaxed max-w-[720px] mb-10">
@@ -129,7 +109,7 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <a 
             href="#projects"
-            className="group bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-8 rounded-2xl flex items-center gap-2.5 shadow-[0_8px_24px_rgba(105,56,255,0.3)] hover:shadow-[0_8px_32px_rgba(105,56,255,0.45)] active:scale-95 transition-all cursor-pointer text-sm uppercase tracking-wider"
+            className="group bg-gradient-to-r from-primary-indigo via-primary-pink to-primary-orange hover:brightness-110 text-white font-semibold py-4 px-8 rounded-2xl flex items-center gap-2.5 shadow-[0_8px_24px_rgba(61,90,254,0.3)] hover:shadow-[0_8px_32px_rgba(61,90,254,0.45)] active:scale-95 transition-all cursor-pointer text-sm uppercase tracking-wider"
           >
             <span>Start Exploring Now</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
