@@ -8,9 +8,11 @@ import Footer from '@/components/Footer';
 import AuroraAuth from '@/components/AuroraAuth';
 import AdminDashboard from '@/components/AdminDashboard';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
+import ProjectPlayground from '@/components/ProjectPlayground';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, collection, onSnapshot, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase';
+import { loadRazorpay } from './utils/razorpayLoader';
 
 interface Transaction {
   id: string;
@@ -60,6 +62,10 @@ export default function App() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [currentPlaygroundId, setCurrentPlaygroundId] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('project');
+  });
 
   // Load from Firebase
   useEffect(() => {
@@ -157,6 +163,51 @@ export default function App() {
     };
     await setDoc(doc(db, 'transactions', newTxId), newTx);
   };
+
+  const handlePurchasePlayground = async (projectId: string, projectTitle: string) => {
+    if (!currentUser) {
+      setIsAuthOpen(true);
+      return;
+    }
+    const isLoaded = await loadRazorpay();
+    if (!isLoaded) {
+      alert('Unable to connect to Razorpay. Please check your internet connection.');
+      return;
+    }
+    const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID;
+    if (!RAZORPAY_KEY) {
+      alert('Razorpay key is not configured.');
+      return;
+    }
+    const options = {
+      key: RAZORPAY_KEY,
+      amount: 5000,
+      currency: 'INR',
+      name: 'CodeBazaar',
+      description: `Purchase: ${projectTitle}`,
+      handler: function (response: { razorpay_payment_id: string }) {
+        handlePurchaseSuccess(projectId, projectTitle, response.razorpay_payment_id);
+      },
+      prefill: { name: currentUser.name, email: currentUser.email },
+      theme: { color: '#6938FF' }
+    };
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+  };
+
+  if (currentPlaygroundId) {
+    return (
+      <ProjectPlayground
+        projectId={currentPlaygroundId}
+        onClose={() => {
+          window.history.pushState({}, '', window.location.pathname);
+          setCurrentPlaygroundId(null);
+        }}
+        onPurchase={handlePurchasePlayground}
+        purchasedIds={purchasedIds}
+      />
+    );
+  }
 
   return (
     <div className="bg-black text-white min-h-screen relative font-sans antialiased selection:bg-purple-500 selection:text-white overflow-x-hidden">

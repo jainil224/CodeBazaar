@@ -270,8 +270,6 @@ export default function FeaturedProjects({
     }
   });
 
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-
   const toggleFavorite = (projectId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setFavorites(prev => {
@@ -283,13 +281,9 @@ export default function FeaturedProjects({
     });
   };
 
-  const handleShare = (project: Project, e: React.MouseEvent) => {
+  const handleOpenPlayground = (project: Project, e: React.MouseEvent) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/#projects`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setCopiedId(project.id);
-      setTimeout(() => setCopiedId(null), 2000);
-    });
+    window.open(`?project=${project.id}`, '_blank');
   };
 
   const handlePurchase = async (project: Project) => {
@@ -373,7 +367,6 @@ export default function FeaturedProjects({
             {PROJECTS.map((project) => {
               const isPurchased = purchasedIds.includes(project.id);
               const isFavorited = favorites.includes(project.id);
-              const isCopied = copiedId === project.id;
 
               return (
                 <div
@@ -468,15 +461,11 @@ export default function FeaturedProjects({
                     <div className="flex items-center gap-2">
                       {/* Live Preview / Share Square Button */}
                       <button
-                        onClick={(e) => handleShare(project, e)}
+                        onClick={(e) => handleOpenPlayground(project, e)}
                         className="w-12 h-12 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 hover:text-violet-600 flex items-center justify-center transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative"
-                        title={isCopied ? "Link Copied!" : "Share Project"}
+                        title="Open Demo Sandbox"
                       >
-                        {isCopied ? (
-                          <span className="text-[10px] font-bold text-violet-600 uppercase">Copied</span>
-                        ) : (
-                          <ExternalLink className="w-5 h-5" />
-                        )}
+                        <ExternalLink className="w-5 h-5" />
                       </button>
 
                       {/* Main Button (Explore / Download) */}
