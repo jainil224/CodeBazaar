@@ -272,8 +272,8 @@ export default function FeaturedProjects({
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const toggleFavorite = (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const toggleFavorite = (projectId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setFavorites(prev => {
       const updated = prev.includes(projectId)
         ? prev.filter(id => id !== projectId)
@@ -512,6 +512,8 @@ export default function FeaturedProjects({
           project={previewProject}
           isPurchased={purchasedIds.includes(previewProject.id)}
           isLoading={loadingId === previewProject.id}
+          isFavorited={favorites.includes(previewProject.id)}
+          onToggleFavorite={() => toggleFavorite(previewProject.id)}
           onClose={() => setPreviewProject(null)}
           onPurchase={() => {
             const proj = PROJECTS.find(p => p.id === previewProject.id);
