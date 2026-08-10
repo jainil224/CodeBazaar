@@ -76,16 +76,24 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
     setIsLoading(true);
     try {
       if (isSignUp) {
+        // Step 1: Create Firebase Auth account
         const result = await createUserWithEmailAndPassword(auth, email, password);
         const role = email.toLowerCase() === 'admin@codebazaar.com' ? 'admin' : 'user';
-        const fullName = `${firstName} ${lastName}`;
-        
-        await setDoc(doc(db, 'users', result.user.uid), {
-          email: result.user.email,
-          name: fullName,
-          role,
-          purchasedIds: []
-        });
+        const fullName = `${firstName.trim()} ${lastName.trim()}`;
+
+        // Step 2: Write profile to Firestore (separate try so auth isn't blocked)
+        try {
+          await setDoc(doc(db, 'users', result.user.uid), {
+            email: result.user.email,
+            name: fullName,
+            role,
+            purchasedIds: []
+          });
+        } catch (firestoreErr: any) {
+          // Auth succeeded — Firestore rules may not be updated yet.
+          // User is logged in; profile will be retried on next sign-in.
+          console.warn('Profile write blocked (update Firestore rules):', firestoreErr.code);
+        }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -94,6 +102,7 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
     } catch (err: any) {
       const msg = getFriendlyError(err.code);
       if (msg) setError(msg);
+      else setError('Authentication failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -104,22 +113,27 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
       setIsLoading(true);
       setError('');
       try {
+        // Step 1: Google Auth popup
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
-        
-        const userRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userRef);
 
-        if (!userSnap.exists()) {
-          const role = user.email?.toLowerCase() === 'admin@codebazaar.com' ? 'admin' : 'user';
-          await setDoc(userRef, {
-            email: user.email || '',
-            name: user.displayName || 'Google User',
-            role,
-            purchasedIds: []
-          });
+        // Step 2: Write profile to Firestore if new user (separate try)
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userSnap = await getDoc(userRef);
+          if (!userSnap.exists()) {
+            const role = user.email?.toLowerCase() === 'admin@codebazaar.com' ? 'admin' : 'user';
+            await setDoc(userRef, {
+              email: user.email || '',
+              name: user.displayName || 'Google User',
+              role,
+              purchasedIds: []
+            });
+          }
+        } catch (firestoreErr: any) {
+          console.warn('Profile write blocked (update Firestore rules):', firestoreErr.code);
         }
-        
+
         onClose();
       } catch (err: any) {
         const msg = getFriendlyError(err.code);
