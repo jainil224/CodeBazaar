@@ -1,4 +1,4 @@
-import { Code2, Download, Loader2, Eye, Layers, Zap, Shield, Smartphone } from 'lucide-react';
+import { Code2, Download, Layers, Zap, Shield, Smartphone, Heart, ShoppingBag, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
@@ -11,6 +11,8 @@ interface Project {
   description: string;
   tags: string[];
   price: string;
+  category: string;
+  version: string;
   glassMediaBg: string;
   glassAccentBg: string;
   glassTagBg: string;
@@ -32,6 +34,8 @@ const PROJECTS: Project[] = [
     description: 'Full marketplace landing page with animated hero, glassmorphism project cards, Razorpay checkout, Firebase auth, and admin dashboard.',
     tags: ['React', 'TypeScript', 'Firebase', 'Razorpay', 'Framer Motion', 'Tailwind'],
     price: '₹50',
+    category: 'Landing Page',
+    version: 'v2.0.0',
     glassMediaBg: 'bg-violet-500/15 border-violet-400/20',
     glassAccentBg: 'bg-violet-600/40 border-violet-400/30',
     glassTagBg: 'bg-violet-500/10 border-violet-400/20',
@@ -42,7 +46,7 @@ const PROJECTS: Project[] = [
       price: '₹50',
       description: 'Full marketplace landing page with animated hero, glassmorphism project cards, Razorpay checkout, Firebase auth, and admin dashboard.',
       longDescription:
-        'A complete, production-ready code marketplace platform built with React 19 and TypeScript. Features a stunning dark glassmorphism UI with animated gradient backgrounds, a full Firebase authentication system (email + Google OAuth), Razorpay live payment gateway, real-time Firestore transaction tracking, and a full admin dashboard. Includes smooth Framer Motion animations, responsive design, and an SEO-optimized structure. Everything you need to launch your own code-selling marketplace from day one.',
+        'A complete, production-ready code marketplace platform built with React 19 and TypeScript. Features a stunning dark glassmorphism UI with animated gradient backgrounds, a full Firebase authentication system (email + Google OAuth), Razorpay live payment gateway, real-time Firestore transaction tracking, and a full admin dashboard. Everything you need to launch your own code-selling marketplace from day one.',
       imageUrl: 'https://res.cloudinary.com/dgqd54pbl/image/upload/v1786349531/Screenshot_2026-08-10_134050_hovkve.png',
       tags: ['React 19', 'TypeScript', 'Firebase', 'Razorpay', 'Framer Motion', 'Tailwind CSS', 'Vite', 'Firestore'],
       techStack: [
@@ -77,10 +81,12 @@ const PROJECTS: Project[] = [
     description: 'Clean Next.js setup with modern auth flow, user dashboard, stripe gateway integration, and fully responsive tailwind shell.',
     tags: ['Next.js', 'Tailwind', 'Stripe', 'TypeScript'],
     price: '₹50',
+    category: 'SaaS setup',
+    version: 'v1.2.0',
     glassMediaBg: 'bg-emerald-500/15 border-emerald-400/20',
     glassAccentBg: 'bg-emerald-600/40 border-emerald-400/30',
     glassTagBg: 'bg-emerald-500/10 border-emerald-400/20',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
     detail: {
       id: 'proj-saas',
       title: 'SaaS Platform Boilerplate',
@@ -88,7 +94,7 @@ const PROJECTS: Project[] = [
       description: 'Clean Next.js setup with modern auth flow, user dashboard, stripe gateway integration, and fully responsive tailwind shell.',
       longDescription:
         'A production-ready SaaS starter kit built with Next.js 14 App Router. Comes with a complete authentication system, Stripe subscription billing, user dashboard, settings page, and a beautifully designed landing page. Skip months of boilerplate work and ship your SaaS product faster.',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
       tags: ['Next.js', 'Tailwind', 'Stripe', 'TypeScript'],
       techStack: [
         { category: 'Frontend', color: '#34d399', items: ['Next.js 14', 'TypeScript', 'Tailwind CSS'] },
@@ -117,10 +123,12 @@ const PROJECTS: Project[] = [
     description: 'Beautiful conversational user interface with stream parsing, markdown rendering, code highlighting, and vector memory.',
     tags: ['React', 'OpenAI', 'Framer Motion', 'Tailwind'],
     price: '₹50',
+    category: 'AI Interface',
+    version: 'v1.1.0',
     glassMediaBg: 'bg-amber-500/15 border-amber-400/20',
     glassAccentBg: 'bg-amber-600/40 border-amber-400/30',
     glassTagBg: 'bg-amber-500/10 border-amber-400/20',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1675557009875-436f09780264?auto=format&fit=crop&w=800&q=80',
     detail: {
       id: 'proj-ai-chat',
       title: 'AI Chat Bot Interface',
@@ -128,7 +136,7 @@ const PROJECTS: Project[] = [
       description: 'Beautiful conversational user interface with stream parsing, markdown rendering, code highlighting, and vector memory.',
       longDescription:
         'A stunning AI chat interface with streaming responses, markdown rendering, syntax-highlighted code blocks, and conversation memory. Built for OpenAI-compatible APIs. Customize the system prompt, model, and temperature from a clean settings panel.',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1675557009875-436f09780264?auto=format&fit=crop&w=800&q=80',
       tags: ['React', 'OpenAI', 'Framer Motion', 'Tailwind'],
       techStack: [
         { category: 'Frontend', color: '#fbbf24', items: ['React', 'TypeScript', 'Framer Motion', 'Tailwind CSS'] },
@@ -157,10 +165,12 @@ const PROJECTS: Project[] = [
     description: 'Fast, lightweight e-commerce storefront with cart persistence, category searching, mock invoice generation, and checkout.',
     tags: ['React', 'Context API', 'Lucide Icons', 'Vite'],
     price: '₹50',
+    category: 'E-Commerce',
+    version: 'v1.0.0',
     glassMediaBg: 'bg-cyan-500/15 border-cyan-400/20',
     glassAccentBg: 'bg-cyan-600/40 border-cyan-400/30',
     glassTagBg: 'bg-cyan-500/10 border-cyan-400/20',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
     detail: {
       id: 'proj-ecom',
       title: 'E-Commerce Storefront',
@@ -168,7 +178,7 @@ const PROJECTS: Project[] = [
       description: 'Fast, lightweight e-commerce storefront with cart persistence, category searching, mock invoice generation, and checkout.',
       longDescription:
         'A fast, lightweight e-commerce storefront built with React and Vite. Features a product grid, category filters, search, persistent cart using localStorage, and a full checkout flow with mock invoice PDF generation. No backend required — works entirely client-side.',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
       tags: ['React', 'Context API', 'Lucide Icons', 'Vite'],
       techStack: [
         { category: 'Frontend', color: '#22d3ee', items: ['React', 'TypeScript', 'Context API', 'Vite'] },
@@ -197,10 +207,12 @@ const PROJECTS: Project[] = [
     description: 'Stunning typography-focused agency website showcasing custom cursor behaviors, interactive project reels, and smooth transitions.',
     tags: ['HTML5', 'GSAP', 'Vite', 'CSS Gradients'],
     price: '₹50',
+    category: 'Portfolio',
+    version: 'v1.0.0',
     glassMediaBg: 'bg-purple-500/15 border-purple-400/20',
     glassAccentBg: 'bg-purple-600/40 border-purple-400/30',
     glassTagBg: 'bg-purple-500/10 border-purple-400/20',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80',
     detail: {
       id: 'proj-portfolio',
       title: 'Creative Studio Portfolio',
@@ -208,7 +220,7 @@ const PROJECTS: Project[] = [
       description: 'Stunning typography-focused agency website showcasing custom cursor behaviors, interactive project reels, and smooth transitions.',
       longDescription:
         'A jaw-dropping creative agency portfolio site with custom cursor, smooth GSAP scroll animations, horizontal project reel, magnetic button effects, and a dark, cinematic aesthetic. Built with plain HTML, CSS, and vanilla JS using Vite for optimal performance.',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80',
       tags: ['HTML5', 'GSAP', 'Vite', 'CSS Gradients'],
       techStack: [
         { category: 'Core', color: '#f472b6', items: ['HTML5', 'CSS3', 'Vanilla JS'] },
@@ -249,6 +261,37 @@ export default function FeaturedProjects({
     amount: number;
   } | null>(null);
 
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('codebazaar_favorites');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const toggleFavorite = (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavorites(prev => {
+      const updated = prev.includes(projectId)
+        ? prev.filter(id => id !== projectId)
+        : [...prev, projectId];
+      localStorage.setItem('codebazaar_favorites', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleShare = (project: Project, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/#projects`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopiedId(project.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
+
   const handlePurchase = async (project: Project) => {
     if (!currentUser) {
       onTriggerAuth();
@@ -280,7 +323,7 @@ export default function FeaturedProjects({
       handler: function (response: { razorpay_payment_id: string }) {
         setLoadingId(null);
         onPurchaseSuccess(project.id, project.title, response.razorpay_payment_id);
-        setPreviewProject(null); // close preview if open
+        setPreviewProject(null);
         setSuccessModal({
           open: true,
           projectId: project.id,
@@ -307,7 +350,8 @@ export default function FeaturedProjects({
     rzp.open();
   };
 
-  const handleDownload = (project: Project) => {
+  const handleDownload = (project: Project, e: React.MouseEvent) => {
+    e.stopPropagation();
     downloadProjectZip(project.title);
   };
 
@@ -328,114 +372,131 @@ export default function FeaturedProjects({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {PROJECTS.map((project) => {
               const isPurchased = purchasedIds.includes(project.id);
-              const isLoading = loadingId === project.id;
+              const isFavorited = favorites.includes(project.id);
+              const isCopied = copiedId === project.id;
 
               return (
                 <div
                   key={project.id}
-                  className="bg-white/[0.06] backdrop-blur-2xl border border-white/20 rounded-[36px] p-4 flex flex-col justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5),_inset_0_1px_1px_rgba(255,255,255,0.2)] hover:border-white/40 hover:bg-white/[0.09] hover:shadow-[0_25px_60px_rgba(105,56,255,0.25)] transition-all duration-300 group"
+                  className="bg-white text-zinc-900 rounded-[32px] overflow-hidden flex flex-col justify-between border border-zinc-200/80 shadow-[0_4px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_45px_rgba(105,56,255,0.15)] hover:border-violet-300 transition-all duration-300 group"
                 >
-                  {/* Media / Visual Box — clickable to open preview */}
+                  {/* Media Box */}
                   <div
-                    className={`relative w-full h-[260px] sm:h-[280px] rounded-[28px] overflow-hidden ${project.glassMediaBg} backdrop-blur-md border flex flex-col justify-between p-4 cursor-pointer`}
+                    className="relative w-full h-[240px] sm:h-[265px] overflow-hidden cursor-pointer bg-zinc-50 border-b border-zinc-100 flex items-center justify-center"
                     onClick={() => setPreviewProject(project.detail)}
-                    title="Click to preview"
                   >
-                    {/* Price Tag */}
-                    <div className="absolute top-0 right-0 bg-white/15 backdrop-blur-2xl border-b border-l border-white/25 text-white font-bold text-lg sm:text-xl px-5 py-2 rounded-bl-[22px] z-10 flex items-center justify-center shadow-sm">
-                      {project.price}
-                    </div>
+                    {project.imageUrl ? (
+                      <img
+                        src={project.imageUrl}
+                        alt={project.title}
+                        className="w-full h-full object-cover object-top group-hover:scale-103 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-violet-50 to-purple-50 flex flex-col items-center justify-center p-4">
+                        <Code2 className="w-12 h-12 text-violet-400" />
+                        <span className="text-xs font-semibold text-violet-400 mt-2 font-mono uppercase tracking-wider">Preview Pending</span>
+                      </div>
+                    )}
 
-                    {/* Preview hint badge */}
-                    <div className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full">
-                        <Eye className="w-3 h-3" />
-                        Click to Preview
-                      </span>
-                    </div>
-
-                    {/* Image Area */}
-                    <div className="flex-1 flex flex-col items-center justify-center relative z-0 p-2">
-                      {project.imageUrl ? (
-                        <div className="relative w-full h-full rounded-[20px] overflow-hidden">
-                          <img
-                            src={project.imageUrl}
-                            alt={project.title}
-                            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                          />
-                          {/* Hover overlay */}
-                          <div className="absolute inset-0 bg-violet-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <div className="bg-white/20 backdrop-blur-md rounded-full p-3 border border-white/30">
-                              <Eye className="w-6 h-6 text-white" />
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center">
-                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
-                            <Code2 className="w-10 h-10 sm:w-12 sm:h-12 text-white/90" />
-                          </div>
-                          <span className="text-[11px] font-mono tracking-wider text-white/70 uppercase mt-3 font-bold">
-                            Click to Preview
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Bottom accent strip */}
-                    <div className={`w-full ${project.glassAccentBg} backdrop-blur-md border text-white/95 text-xs font-semibold py-2.5 px-4 rounded-[18px] text-center tracking-wide shadow-sm z-10`}>
-                      Instant Source Code Download
-                    </div>
+                    {/* Floating Heart / Like Button */}
+                    <button
+                      onClick={(e) => toggleFavorite(project.id, e)}
+                      className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.15)] border border-zinc-100 flex items-center justify-center transition-all duration-200 z-10 hover:scale-105 active:scale-95"
+                    >
+                      <Heart
+                        className={`w-5 h-5 transition-colors ${
+                          isFavorited ? 'fill-red-500 text-red-500' : 'text-zinc-400 hover:text-red-500'
+                        }`}
+                      />
+                    </button>
                   </div>
 
                   {/* Card Content */}
-                  <div className="pt-5 px-2 pb-2 flex flex-col gap-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <h4
-                        className="text-xl sm:text-2xl font-bold text-white group-hover:text-primary-pink transition-colors leading-tight cursor-pointer"
-                        onClick={() => setPreviewProject(project.detail)}
-                      >
-                        {project.title}
-                      </h4>
-
-                      {isPurchased ? (
-                        <button
-                          onClick={() => handleDownload(project)}
-                          className="underline underline-offset-4 font-bold text-white hover:text-emerald-400 transition-colors text-sm flex items-center gap-1 shrink-0 cursor-pointer"
-                        >
-                          <Download className="w-4 h-4" />
-                          <span>Download ↗</span>
-                        </button>
-                      ) : (
-                        <button
-                          disabled={isLoading}
-                          onClick={() => handlePurchase(project)}
-                          className="underline underline-offset-4 font-bold text-white hover:text-primary-pink transition-colors text-sm flex items-center gap-1 shrink-0 cursor-pointer"
-                        >
-                          {isLoading ? (
-                            <span className="flex items-center gap-1">
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading...
-                            </span>
-                          ) : (
-                            <span>Order Now ↗</span>
-                          )}
-                        </button>
-                      )}
+                  <div className="p-6 flex flex-col gap-4 flex-1">
+                    {/* Category & Version Pill Line */}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="bg-violet-50 text-violet-600 border border-violet-100 text-[10px] font-extrabold tracking-wider uppercase px-3 py-1 rounded-full">
+                        {project.category}
+                      </span>
+                      <span className="text-zinc-400 font-mono font-medium">
+                        {project.version}
+                      </span>
                     </div>
 
-                    <p className="text-white/70 text-xs sm:text-sm leading-relaxed line-clamp-2">
+                    {/* Title */}
+                    <h4
+                      className="text-xl font-bold text-zinc-950 hover:text-violet-600 transition-colors leading-tight cursor-pointer"
+                      onClick={() => setPreviewProject(project.detail)}
+                    >
+                      {project.title}
+                    </h4>
+
+                    {/* Description */}
+                    <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2">
                       {project.description}
                     </p>
 
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {project.tags.map((tag) => (
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {project.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className={`${project.glassTagBg} backdrop-blur-md text-white/90 text-xs font-semibold py-1.5 px-3.5 rounded-full border`}
+                          className="bg-zinc-50 border border-zinc-100/80 text-zinc-600 text-[11px] font-medium py-1 px-3 rounded-full"
                         >
                           {tag}
                         </span>
                       ))}
+                      {project.tags.length > 3 && (
+                        <span className="bg-zinc-50 border border-zinc-100/80 text-zinc-400 text-[11px] font-medium py-1 px-3 rounded-full">
+                          +{project.tags.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="px-6 py-5 border-t border-zinc-100 flex items-center justify-between gap-4 bg-zinc-50/50">
+                    {/* Left: Price & Download label */}
+                    <div className="text-left">
+                      <div className="text-2xl font-black text-zinc-950 tracking-tight">{project.price}</div>
+                      <span className="text-emerald-600 text-[10px] font-bold uppercase tracking-wider block mt-0.5">
+                        Instant Download
+                      </span>
+                    </div>
+
+                    {/* Right: Actions */}
+                    <div className="flex items-center gap-2">
+                      {/* Live Preview / Share Square Button */}
+                      <button
+                        onClick={(e) => handleShare(project, e)}
+                        className="w-12 h-12 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 hover:text-violet-600 flex items-center justify-center transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative"
+                        title={isCopied ? "Link Copied!" : "Share Project"}
+                      >
+                        {isCopied ? (
+                          <span className="text-[10px] font-bold text-violet-600 uppercase">Copied</span>
+                        ) : (
+                          <ExternalLink className="w-5 h-5" />
+                        )}
+                      </button>
+
+                      {/* Main Button (Explore / Download) */}
+                      {isPurchased ? (
+                        <button
+                          onClick={(e) => handleDownload(project, e)}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-3 rounded-2xl flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.2)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.3)] transition-all text-sm group"
+                        >
+                          <Download className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
+                          Download
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setPreviewProject(project.detail)}
+                          className="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-3 rounded-2xl flex items-center gap-2 shadow-[0_4px_15px_rgba(109,40,217,0.2)] hover:shadow-[0_6px_20px_rgba(109,40,217,0.3)] transition-all text-sm group"
+                        >
+                          <ShoppingBag className="w-4 h-4 text-violet-200 group-hover:scale-110 transition-transform" />
+                          Explore
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
