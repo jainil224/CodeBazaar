@@ -9,7 +9,7 @@ import AuroraAuth from '@/components/AuroraAuth';
 import AdminDashboard from '@/components/AdminDashboard';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, collection, onSnapshot, setDoc, query, where } from 'firebase/firestore';
+import { doc, getDoc, collection, onSnapshot, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase';
 
 interface Transaction {
