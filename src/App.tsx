@@ -9,7 +9,7 @@ import AuroraAuth from '@/components/AuroraAuth';
 import AdminDashboard from '@/components/AdminDashboard';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, collection, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, onSnapshot, setDoc, query, where } from 'firebase/firestore';
 import { auth, db } from '@/firebase';
 
 interface Transaction {
@@ -63,41 +63,69 @@ export default function App() {
 
   // Load from Firebase
   useEffect(() => {
+    // Track the transactions listener so we can clean it up on logout
+    let unsubscribeTxs: (() => void) | null = null;
+
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Always cancel the previous transactions listener on auth change
+      if (unsubscribeTxs) {
+        unsubscribeTxs();
+        unsubscribeTxs = null;
+      }
+
       if (firebaseUser) {
+        // ── 1. Load user profile ──────────────────────────────────────────
         const userRef = doc(db, 'users', firebaseUser.uid);
         const userSnap = await getDoc(userRef);
+
         if (userSnap.exists()) {
           const userData = userSnap.data();
+          const role = userData.role as 'admin' | 'user';
+
           setCurrentUser({
             email: userData.email,
             name: userData.name,
-            role: userData.role
+            role,
           });
           setPurchasedIds(userData.purchasedIds || []);
+
+          // ── 2. Subscribe to transactions ONLY for admin ───────────────────
+          // Regular users never read the transactions collection, avoiding
+          // permission-denied errors from Firestore security rules.
+          if (role === 'admin') {
+            unsubscribeTxs = onSnapshot(
+              collection(db, 'transactions'),
+              (snapshot) => {
+                const txs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Transaction[];
+                txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+                if (txs.length === 0) {
+                  // Seed initial demo transactions for admin dashboard
+                  SEED_TRANSACTIONS.forEach(tx => {
+                    setDoc(doc(db, 'transactions', tx.id), tx);
+                  });
+                } else {
+                  setTransactions(txs);
+                }
+              },
+              (err) => {
+                // Silently handle permission errors during dev
+                console.warn('Transactions listener error:', err.code);
+              }
+            );
+          }
         }
       } else {
+        // ── Logged out ────────────────────────────────────────────────────
         setCurrentUser(null);
         setPurchasedIds([]);
-      }
-    });
-
-    const unsubscribeTxs = onSnapshot(collection(db, 'transactions'), (snapshot) => {
-      const txs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Transaction[];
-      txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      
-      if (txs.length === 0) {
-        SEED_TRANSACTIONS.forEach(tx => {
-          setDoc(doc(db, 'transactions', tx.id), tx);
-        });
-      } else {
-        setTransactions(txs);
+        setTransactions([]);
       }
     });
 
     return () => {
       unsubscribeAuth();
-      unsubscribeTxs();
+      if (unsubscribeTxs) unsubscribeTxs();
     };
   }, []);
 
@@ -105,7 +133,7 @@ export default function App() {
     await signOut(auth);
   };
 
-  const handlePurchaseSuccess = async (projectId: string, projectTitle: string) => {
+  const handlePurchaseSuccess = async (projectId: string, projectTitle: string, paymentId?: string) => {
     if (!currentUser || !auth.currentUser) return;
 
     // Update in local state for fast UI response
@@ -117,8 +145,8 @@ export default function App() {
       purchasedIds: updatedPurchases
     }, { merge: true });
 
-    // Register transaction log in Firestore
-    const newTxId = `pay_${Math.random().toString(36).substring(2, 14).toUpperCase()}`;
+    // Register transaction log in Firestore (use real payment ID if available)
+    const newTxId = paymentId ?? `pay_${Math.random().toString(36).substring(2, 14).toUpperCase()}`;
     const newTx: Transaction = {
       id: newTxId,
       userEmail: currentUser.email,
@@ -128,8 +156,6 @@ export default function App() {
       date: new Date().toISOString()
     };
     await setDoc(doc(db, 'transactions', newTxId), newTx);
-
-    alert(`Payment successful! "${projectTitle}" codebase is now unlocked for download.`);
   };
 
   return (

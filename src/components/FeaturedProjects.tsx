@@ -2,6 +2,7 @@ import { Code2, Download, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
+import PaymentSuccessModal from './PaymentSuccessModal';
 
 interface Project {
   id: string;
@@ -19,7 +20,7 @@ interface FeaturedProjectsProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
   purchasedIds: string[];
   onTriggerAuth: () => void;
-  onPurchaseSuccess: (projectId: string, projectTitle: string) => void;
+  onPurchaseSuccess: (projectId: string, projectTitle: string, paymentId?: string) => void;
 }
 
 const PROJECTS: Project[] = [
@@ -76,6 +77,13 @@ export default function FeaturedProjects({
   onPurchaseSuccess
 }: FeaturedProjectsProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [successModal, setSuccessModal] = useState<{
+    open: boolean;
+    projectId: string;
+    projectTitle: string;
+    paymentId: string;
+    amount: number;
+  } | null>(null);
 
   const handlePurchase = async (project: Project) => {
     if (!currentUser) {
@@ -89,28 +97,46 @@ export default function FeaturedProjects({
     const isLoaded = await loadRazorpay();
 
     if (!isLoaded) {
-      // Fallback checkout simulation if SDK doesn't load
-      setTimeout(() => {
-        setLoadingId(null);
-        alert(`Razorpay SDK load failed/blocked. Opening fallback checkout: Successfully paid ₹50 for "${project.title}"!`);
-        onPurchaseSuccess(project.id, project.title);
-      }, 1000);
+      setLoadingId(null);
+      alert('Unable to connect to Razorpay. Please check your internet connection and try again.');
+      return;
+    }
+
+    const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+    if (!RAZORPAY_KEY) {
+      setLoadingId(null);
+      alert('Razorpay key is not configured. Please contact support.');
       return;
     }
 
     const options = {
-      key: 'rzp_test_default', // standard test key
+      key: RAZORPAY_KEY,
       amount: 5000, // INR 50 in paise
       currency: 'INR',
       name: 'CodeBazaar',
-      description: `Purchase codebase: ${project.title}`,
-      handler: function (_response: any) {
+      description: `Purchase: ${project.title}`,
+      image: 'https://i.imgur.com/your-logo.png', // optional logo
+      handler: function (response: { razorpay_payment_id: string }) {
         setLoadingId(null);
-        onPurchaseSuccess(project.id, project.title);
+        // Record purchase in Firestore with real Razorpay payment ID
+        onPurchaseSuccess(project.id, project.title, response.razorpay_payment_id);
+        // Show beautiful success modal with real payment ID
+        setSuccessModal({
+          open: true,
+          projectId: project.id,
+          projectTitle: project.title,
+          paymentId: response.razorpay_payment_id,
+          amount: 50,
+        });
       },
       prefill: {
         name: currentUser.name,
         email: currentUser.email,
+      },
+      notes: {
+        project_id: project.id,
+        project_title: project.title,
       },
       theme: {
         color: '#6938FF',
@@ -118,11 +144,17 @@ export default function FeaturedProjects({
       modal: {
         ondismiss: function () {
           setLoadingId(null);
-        }
-      }
+        },
+      },
     };
 
     const rzp = new (window as any).Razorpay(options);
+
+    rzp.on('payment.failed', function (response: { error: { description: string } }) {
+      setLoadingId(null);
+      alert(`Payment failed: ${response.error.description}. Please try again.`);
+    });
+
     rzp.open();
   };
 
@@ -131,6 +163,7 @@ export default function FeaturedProjects({
   };
 
   return (
+    <>
     <section id="projects" className="py-24 relative z-10 w-full overflow-hidden bg-transparent">
       <div className="relative z-10 max-w-[1200px] mx-auto px-6">
         {/* Title */}
@@ -240,5 +273,21 @@ export default function FeaturedProjects({
         </div>
       </div>
     </section>
+
+    {/* Payment Success Modal */}
+    {successModal && (
+      <PaymentSuccessModal
+        isOpen={successModal.open}
+        projectTitle={successModal.projectTitle}
+        paymentId={successModal.paymentId}
+        amount={successModal.amount}
+        onClose={() => setSuccessModal(null)}
+        onDownload={() => {
+          downloadProjectZip(successModal.projectTitle);
+          setSuccessModal(null);
+        }}
+      />
+    )}
+    </>
   );
 }

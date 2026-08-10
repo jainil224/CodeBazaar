@@ -18,6 +18,25 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Maps Firebase auth error codes to friendly messages
+  const getFriendlyError = (code: string): string => {
+    const map: Record<string, string> = {
+      'auth/email-already-in-use': 'An account with this email already exists. Try logging in instead.',
+      'auth/invalid-email': 'Please enter a valid email address.',
+      'auth/weak-password': 'Password must be at least 6 characters.',
+      'auth/user-not-found': 'No account found with this email. Please sign up.',
+      'auth/wrong-password': 'Incorrect password. Please try again.',
+      'auth/invalid-credential': 'Incorrect email or password. Please try again.',
+      'auth/too-many-requests': 'Too many failed attempts. Please wait a moment and try again.',
+      'auth/network-request-failed': 'Network error. Please check your internet connection.',
+      'auth/popup-closed-by-user': 'Sign-in popup was closed. Please try again.',
+      'auth/popup-blocked': 'Popup was blocked by your browser. Please allow popups for this site.',
+      'auth/cancelled-popup-request': '',  // silent — user just opened another popup
+    };
+    return map[code] ?? 'Authentication failed. Please try again.';
+  };
 
   // Staggered reveal animations for left hero column
   const heroContainerVariants = {
@@ -49,6 +68,12 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
       return;
     }
 
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setIsLoading(true);
     try {
       if (isSignUp) {
         const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -67,12 +92,17 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
 
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please try again.');
+      const msg = getFriendlyError(err.code);
+      if (msg) setError(msg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSocialLogin = async (platform: string) => {
     if (platform === 'Google') {
+      setIsLoading(true);
+      setError('');
       try {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
@@ -92,10 +122,12 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
         
         onClose();
       } catch (err: any) {
-        setError(err.message || 'Google authentication failed.');
+        const msg = getFriendlyError(err.code);
+        if (msg) setError(msg);
+      } finally {
+        setIsLoading(false);
       }
     } else {
-      // Mock for other platforms if needed
       onClose();
     }
   };
@@ -286,9 +318,20 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
             {/* Submit CTA */}
             <button
               type="submit"
-              className="w-full h-14 bg-white text-black font-semibold rounded-xl hover:bg-white/90 active:scale-[0.98] mt-4 transition-all duration-200 cursor-pointer flex items-center justify-center"
+              disabled={isLoading}
+              className="w-full h-14 bg-white text-black font-semibold rounded-xl hover:bg-white/90 active:scale-[0.98] mt-4 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isSignUp ? 'Create Account' : 'Sign In'}
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                </>
+              ) : (
+                isSignUp ? 'Create Account' : 'Sign In'
+              )}
             </button>
           </form>
 
