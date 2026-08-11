@@ -20,6 +20,8 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const db = getFirestore(app);
 const storage = getStorage(app);
+storage.maxUploadRetryTime = 3000;     // 3 seconds limit on retries for uploads
+storage.maxOperationRetryTime = 3000;  // 3 seconds limit on retries for operations
 
 export { app, analytics, auth, googleProvider, db, storage };
 
