@@ -1,4 +1,4 @@
-import { Code2, Download, Heart, ShoppingBag, ExternalLink, Search, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Code2, Download, Heart, ShoppingBag, ExternalLink, Search, ArrowLeft, ArrowRight, Maximize2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
@@ -60,6 +60,12 @@ export default function FeaturedProjects({
     trackEvent('product_clicked', { productId: project.id, productTitle: project.title });
     trackEvent('product_viewed', { productId: project.id, productTitle: project.title });
     trackEvent('page_view', { pagePath: `/details/${project.id}`, pageTitle: `Product - ${project.title}` });
+  };
+
+  const handleOpenPreviewInNewTab = (project: DigitalProduct, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    trackEvent('preview_opened_new_tab', { productId: project.id, productTitle: project.title });
+    window.open(`?preview=${project.id}`, '_blank');
   };
 
   const [activeCategory, setActiveCategory] = useState('All');
@@ -396,11 +402,20 @@ export default function FeaturedProjects({
 
                     {/* Right: Actions */}
                     <div className="flex items-center gap-2">
-                      {/* Live Preview / Share Square Button */}
+                      {/* Open Preview in New Page button */}
+                      <button
+                        onClick={(e) => handleOpenPreviewInNewTab(project, e)}
+                        className="w-12 h-12 rounded-2xl border border-zinc-200 bg-white hover:bg-violet-50 text-zinc-600 hover:text-violet-600 flex items-center justify-center transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative group/btn cursor-pointer"
+                        title="Open Product Preview in New Page"
+                      >
+                        <Maximize2 className="w-5 h-5 transition-transform group-hover/btn:scale-110" />
+                      </button>
+
+                      {/* Live Preview / Demo Sandbox Button */}
                       <button
                         onClick={(e) => handleOpenPlayground(project, e)}
-                        className="w-12 h-12 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 hover:text-violet-600 flex items-center justify-center transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative"
-                        title="Open Demo Sandbox"
+                        className="w-12 h-12 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 hover:text-violet-600 flex items-center justify-center transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative cursor-pointer"
+                        title="Open Interactive Demo Sandbox"
                       >
                         <ExternalLink className="w-5 h-5" />
                       </button>

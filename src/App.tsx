@@ -9,6 +9,8 @@ import AuroraAuth from '@/components/AuroraAuth';
 import AdminDashboard from '@/components/AdminDashboard';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
 import ProjectPlayground from '@/components/ProjectPlayground';
+import ProjectPreviewModal from '@/components/ProjectPreviewModal';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { doc, collection, onSnapshot, setDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
@@ -51,6 +53,11 @@ export default function App() {
   const [currentPlaygroundId, setCurrentPlaygroundId] = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('project');
+  });
+
+  const [currentPreviewId, setCurrentPreviewId] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('preview') || params.get('details');
   });
 
   // ── Products catalog listener ─────────────────────────────────────────
@@ -296,6 +303,53 @@ export default function App() {
         purchasedIds={purchasedIds}
       />
     );
+  }
+
+  if (currentPreviewId) {
+    const targetProduct = products.find(p => p.id === currentPreviewId) || DEFAULT_PRODUCTS.find(p => p.id === currentPreviewId);
+    if (targetProduct) {
+      const isPurchased = purchasedIds.includes(targetProduct.id);
+      return (
+        <div className="bg-[#0c0c14] text-white min-h-screen relative font-sans selection:bg-purple-500 selection:text-white flex flex-col">
+          <AnimatedGradientBackground containerClassName="fixed inset-0 z-0 pointer-events-none" />
+
+          {/* Standalone Header */}
+          <div className="relative z-20 px-6 py-4 bg-[#0c0c14]/80 backdrop-blur-md border-b border-white/10 flex items-center justify-between">
+            <button
+              onClick={() => {
+                window.history.pushState({}, '', window.location.pathname);
+                setCurrentPreviewId(null);
+              }}
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-400 hover:text-purple-300 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to CodeBazaar Marketplace
+            </button>
+            <div className="font-mono text-xs text-white/60 font-semibold truncate max-w-[300px]">
+              {targetProduct.title} · Full Preview Page
+            </div>
+          </div>
+
+          {/* Product Detail Modal rendered full-screen in standalone page */}
+          <div className="relative z-10 flex-1 flex items-center justify-center p-0 sm:p-6 overflow-y-auto">
+            <ProjectPreviewModal
+              project={targetProduct.detail}
+              isPurchased={isPurchased}
+              isLoading={false}
+              isFavorited={false}
+              onToggleFavorite={() => {}}
+              onClose={() => {
+                window.history.pushState({}, '', window.location.pathname);
+                setCurrentPreviewId(null);
+              }}
+              onPurchase={() => {
+                handlePurchasePlayground(targetProduct.id, targetProduct.title);
+              }}
+              onDownload={() => {}}
+            />
+          </div>
+        </div>
+      );
+    }
   }
 
   return (
