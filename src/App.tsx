@@ -13,6 +13,11 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, collection, onSnapshot, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase';
 import { loadRazorpay } from './utils/razorpayLoader';
+import { DEFAULT_PRODUCTS } from '@/features/digitalProducts/data/defaultProducts';
+import MyPurchasesModal from '@/features/digitalProducts/components/MyPurchasesModal';
+import { createPurchaseRecord } from '@/features/digitalProducts/services/purchaseService';
+import type { DigitalProduct } from '@/features/digitalProducts/types/digitalProduct';
+
 
 interface Transaction {
   id: string;
@@ -60,17 +65,41 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [purchasedIds, setPurchasedIds] = useState<string[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [products, setProducts] = useState<DigitalProduct[]>([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isMyPurchasesOpen, setIsMyPurchasesOpen] = useState(false);
   const [currentPlaygroundId, setCurrentPlaygroundId] = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('project');
   });
 
+
   // Load from Firebase
   useEffect(() => {
     // Track the transactions listener so we can clean it up on logout
     let unsubscribeTxs: (() => void) | null = null;
+
+    // ── 0. Subscribe to products and seed if empty ───────────────────
+    const unsubscribeProducts = onSnapshot(
+      collection(db, 'products'),
+      (snapshot) => {
+        if (snapshot.empty) {
+          DEFAULT_PRODUCTS.forEach((product) => {
+            setDoc(doc(db, 'products', product.id), product);
+          });
+        } else {
+          const loadedProducts = snapshot.docs.map(docSnap => ({
+            id: docSnap.id,
+            ...docSnap.data()
+          })) as DigitalProduct[];
+          setProducts(loadedProducts);
+        }
+      },
+      (err) => {
+        console.warn('Products database listener error:', err.code);
+      }
+    );
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       // Always cancel the previous transactions listener on auth change
@@ -131,6 +160,7 @@ export default function App() {
 
     return () => {
       unsubscribeAuth();
+      unsubscribeProducts();
       if (unsubscribeTxs) unsubscribeTxs();
     };
   }, []);
@@ -162,6 +192,21 @@ export default function App() {
       date: new Date().toISOString()
     };
     await setDoc(doc(db, 'transactions', newTxId), newTx);
+
+    // Create secure purchase record in purchases collection
+    try {
+      const orderId = `ord_${Math.random().toString(36).substring(2, 14).toUpperCase()}`;
+      await createPurchaseRecord(
+        auth.currentUser.uid,
+        projectId,
+        newTxId,
+        orderId,
+        50,
+        'INR'
+      );
+    } catch (err) {
+      console.warn("Secure purchase record logging failed:", err);
+    }
   };
 
   const handlePurchasePlayground = async (projectId: string, projectTitle: string) => {
@@ -221,6 +266,7 @@ export default function App() {
           onLoginClick={() => setIsAuthOpen(true)}
           onLogout={handleLogout}
           onAdminClick={() => setIsAdminOpen(true)}
+          onMyPurchasesClick={() => setIsMyPurchasesOpen(true)}
         />
 
         {/* How it works section */}
@@ -232,6 +278,7 @@ export default function App() {
           purchasedIds={purchasedIds}
           onTriggerAuth={() => setIsAuthOpen(true)}
           onPurchaseSuccess={handlePurchaseSuccess}
+          products={products}
         />
 
         {/* What we deliver guarantees */}
@@ -257,6 +304,16 @@ export default function App() {
           isOpen={isAdminOpen}
           onClose={() => setIsAdminOpen(false)}
           transactions={transactions}
+          products={products}
+        />
+      )}
+
+      {/* My Purchases dashboard dialog */}
+      {isMyPurchasesOpen && (
+        <MyPurchasesModal
+          isOpen={isMyPurchasesOpen}
+          onClose={() => setIsMyPurchasesOpen(false)}
+          products={products}
         />
       )}
     </div>

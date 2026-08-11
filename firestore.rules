@@ -2,6 +2,14 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'admin@codebazaar.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
     // ── Users ──────────────────────────────────────────────────────────────
     // Each user can only read and write their own document.
     match /users/{userId} {
@@ -13,9 +21,36 @@ service cloud.firestore {
     // Only admin can LIST or GET all transactions (for the admin dashboard).
     match /transactions/{txId} {
       allow create: if request.auth != null;
-      allow list, get: if request.auth != null
-        && request.auth.token.email == 'admin@codebazaar.com';
+      allow list, get: if request.auth != null && isAdmin();
       allow update, delete: if false;
+    }
+
+    // ── Products ─────────────────────────────────────────────────────────────
+    // Anyone can view products. Only admins can write, or anyone if the database is unseeded.
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin() || !exists(/databases/$(database)/documents/products/proj-codebazaar-ui);
+    }
+
+
+    // ── Purchases ────────────────────────────────────────────────────────────
+    // Users can read their own purchases. Only admins can update or delete.
+    // For this prototype, authenticated users can create their own purchase records.
+    match /purchases/{purchaseId} {
+      allow read: if request.auth != null && (
+        isAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Analytics Events ────────────────────────────────────────────────────
+    // Anyone can create analytics events. Only admins can read or query them.
+    match /analytics_events/{eventId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null && isAdmin();
     }
   }
 }
+

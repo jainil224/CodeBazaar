@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Share2, Heart, ExternalLink, ShieldCheck, Code } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ProductDownloadButton from '@/features/digitalProducts/components/ProductDownloadButton';
 
 export interface ProjectDetail {
   id: string;
@@ -39,14 +40,12 @@ interface ProjectPreviewModalProps {
   onDownload: () => void;
 }
 
+
 export default function ProjectPreviewModal({
   project,
-  isPurchased,
-  isLoading,
   isFavorited,
   onToggleFavorite,
   onClose,
-  onDownload,
   onPurchase,
 }: ProjectPreviewModalProps) {
   const [activeImage, setActiveImage] = useState<string>('');
@@ -228,35 +227,28 @@ export default function ProjectPreviewModal({
                   <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">One-time license fee</span>
                 </div>
 
-                <div className="flex gap-2">
-                  {isPurchased ? (
-                    <button
-                      onClick={onDownload}
-                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm shadow-[0_4px_12px_rgba(16,185,129,0.15)] transition-colors"
-                    >
-                      Download Source Code
-                    </button>
-                  ) : (
-                    <button
-                      onClick={onPurchase}
-                      disabled={isLoading}
-                      className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm shadow-[0_4px_12px_rgba(5,150,105,0.15)] disabled:opacity-60 transition-all"
-                    >
-                      {isLoading ? 'Processing...' : 'Buy Now'}
-                    </button>
-                  )}
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <ProductDownloadButton
+                      productId={project.id}
+                      price={project.price}
+                      productTitle={project.title}
+                      onPurchase={onPurchase}
+                      className="flex-1"
+                    />
 
-                  {project.previewUrl && (
-                    <a
-                      href={project.previewUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm border border-slate-200 transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Live Demo
-                    </a>
-                  )}
+                    {project.previewUrl && (
+                      <a
+                        href={project.previewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm border border-slate-200 transition-colors self-start h-[48px]"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        Live Demo
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Circle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/firebase';
 
 
@@ -87,7 +87,8 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
             email: result.user.email,
             name: fullName,
             role,
-            purchasedIds: []
+            purchasedIds: [],
+            createdAt: serverTimestamp()
           });
         } catch (firestoreErr: any) {
           // Auth succeeded — Firestore rules may not be updated yet.
@@ -127,7 +128,8 @@ export default function AuroraAuth({ onClose }: AuroraAuthProps) {
               email: user.email || '',
               name: user.displayName || 'Google User',
               role,
-              purchasedIds: []
+              purchasedIds: [],
+              createdAt: serverTimestamp()
             });
           }
         } catch (firestoreErr: any) {

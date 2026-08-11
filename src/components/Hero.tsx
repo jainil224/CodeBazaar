@@ -7,6 +7,7 @@ interface HeroProps {
   onLoginClick: () => void;
   onLogout: () => void;
   onAdminClick: () => void;
+  onMyPurchasesClick: () => void;
 }
 
 const NavButton = ({ children, href, onClick, className = '' }: { children: React.ReactNode, href?: string, onClick?: () => void, className?: string }) => {
@@ -25,7 +26,7 @@ const NavButton = ({ children, href, onClick, className = '' }: { children: Reac
   );
 };
 
-export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick }: HeroProps) {
+export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick, onMyPurchasesClick }: HeroProps) {
   return (
     <section className="relative min-h-svh w-full overflow-hidden flex flex-col justify-between">
       {/* ── Background Image ─────────────────── */}
@@ -56,12 +57,19 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
         <div className="flex items-center gap-4">
           {currentUser ? (
             <>
-              {currentUser.role === 'admin' && (
+              {currentUser.role === 'admin' ? (
                 <button 
                   onClick={onAdminClick}
                   className="bg-primary-indigo/20 border border-primary-indigo/35 text-primary-pink cursor-pointer font-sans text-[12px] font-semibold uppercase tracking-[0.06em] px-4 py-2 rounded-full hover:bg-primary-indigo/40 active:scale-95 transition-all"
                 >
                   Admin
+                </button>
+              ) : (
+                <button 
+                  onClick={onMyPurchasesClick}
+                  className="hover:text-white hover:bg-white/10 text-white/70 cursor-pointer font-sans text-[12px] font-semibold uppercase tracking-[0.06em] px-4 py-2 rounded-full transition-all"
+                >
+                  My Purchases
                 </button>
               )}
               <span className="text-white/60 text-sm max-md:hidden pl-2 pr-4 border-r border-white/10">

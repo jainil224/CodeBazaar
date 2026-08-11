@@ -1,0 +1,32 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'admin@codebazaar.com' ||
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    // Product Images: Anyone can read; Admins can write
+    match /product-images/{productId}/{imageName} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Product ZIPs: Only admin can write. Users can read only if they purchased the product
+    match /products/{productId}/{zipFileName} {
+      allow write: if isAdmin();
+      
+      allow read: if request.auth != null && (
+        isAdmin() ||
+        (
+          firestore.exists(/databases/(default)/documents/purchases/$(request.auth.uid + "_" + productId)) &&
+          firestore.get(/databases/(default)/documents/purchases/$(request.auth.uid + "_" + productId)).data.status == "paid"
+        )
+      );
+    }
+  }
+}

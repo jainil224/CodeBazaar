@@ -1,255 +1,28 @@
-import { Code2, Download, Layers, Zap, Shield, Smartphone, Heart, ShoppingBag, ExternalLink } from 'lucide-react';
+import { Code2, Download, Heart, ShoppingBag, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
 import PaymentSuccessModal from './PaymentSuccessModal';
 import ProjectPreviewModal, { type ProjectDetail } from './ProjectPreviewModal';
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  tags: string[];
-  price: string;
-  category: string;
-  version: string;
-  glassMediaBg: string;
-  glassAccentBg: string;
-  glassTagBg: string;
-  imageUrl?: string;
-  detail: ProjectDetail;
-}
+import type { DigitalProduct } from '@/features/digitalProducts/types/digitalProduct';
+import { db, storage } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { ref, getBlob } from 'firebase/storage';
 
 interface FeaturedProjectsProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
   purchasedIds: string[];
   onTriggerAuth: () => void;
   onPurchaseSuccess: (projectId: string, projectTitle: string, paymentId?: string) => void;
+  products: DigitalProduct[];
 }
-
-const PROJECTS: Project[] = [
-  {
-    id: 'proj-codebazaar-ui',
-    title: 'CodeBazaar Marketplace UI',
-    description: 'Full marketplace landing page with animated hero, glassmorphism project cards, Razorpay checkout, Firebase auth, and admin dashboard.',
-    tags: ['React', 'TypeScript', 'Firebase', 'Razorpay', 'Framer Motion', 'Tailwind'],
-    price: '₹50',
-    category: 'Landing Page',
-    version: 'v2.0.0',
-    glassMediaBg: 'bg-violet-500/15 border-violet-400/20',
-    glassAccentBg: 'bg-violet-600/40 border-violet-400/30',
-    glassTagBg: 'bg-violet-500/10 border-violet-400/20',
-    imageUrl: 'https://res.cloudinary.com/dgqd54pbl/image/upload/v1786349531/Screenshot_2026-08-10_134050_hovkve.png',
-    detail: {
-      id: 'proj-codebazaar-ui',
-      title: 'CodeBazaar Marketplace UI',
-      price: '₹50',
-      description: 'Full marketplace landing page with animated hero, glassmorphism project cards, Razorpay checkout, Firebase auth, and admin dashboard.',
-      longDescription:
-        'A complete, production-ready code marketplace platform built with React 19 and TypeScript. Features a stunning dark glassmorphism UI with animated gradient backgrounds, a full Firebase authentication system (email + Google OAuth), Razorpay live payment gateway, real-time Firestore transaction tracking, and a full admin dashboard. Everything you need to launch your own code-selling marketplace from day one.',
-      imageUrl: 'https://res.cloudinary.com/dgqd54pbl/image/upload/v1786349531/Screenshot_2026-08-10_134050_hovkve.png',
-      tags: ['React 19', 'TypeScript', 'Firebase', 'Razorpay', 'Framer Motion', 'Tailwind CSS', 'Vite', 'Firestore'],
-      techStack: [
-        { category: 'Frontend', color: '#a78bfa', items: ['React 19', 'TypeScript', 'Tailwind CSS v4', 'Framer Motion'] },
-        { category: 'Backend / BaaS', color: '#fb923c', items: ['Firebase Auth', 'Firestore', 'Firebase Security Rules'] },
-        { category: 'Payments', color: '#34d399', items: ['Razorpay Checkout SDK', 'Live & Test Keys'] },
-        { category: 'Build Tools', color: '#60a5fa', items: ['Vite 8', 'oxlint', 'PostCSS'] },
-      ],
-      features: [
-        'Animated hero section with 3D gradient background',
-        'Firebase Email + Google OAuth authentication',
-        'Razorpay payment gateway (live-ready)',
-        'Firestore real-time transaction logging',
-        'Admin dashboard with purchase history',
-        'Glassmorphism project cards with hover effects',
-        'Payment success modal with copy-able payment ID',
-        'Instant ZIP source code download after purchase',
-        'Fully responsive — mobile, tablet & desktop',
-        'SEO meta tags & semantic HTML structure',
-      ],
-      highlights: [
-        { icon: <Layers className="w-5 h-5" />, label: 'Components', value: '15+', color: '#a78bfa' },
-        { icon: <Zap className="w-5 h-5" />, label: 'Build Time', value: '< 1s', color: '#fbbf24' },
-        { icon: <Shield className="w-5 h-5" />, label: 'Auth', value: 'Firebase', color: '#fb923c' },
-        { icon: <Smartphone className="w-5 h-5" />, label: 'Responsive', value: '100%', color: '#34d399' },
-      ],
-    },
-  },
-  {
-    id: 'proj-saas',
-    title: 'SaaS Platform Boilerplate',
-    description: 'Clean Next.js setup with modern auth flow, user dashboard, stripe gateway integration, and fully responsive tailwind shell.',
-    tags: ['Next.js', 'Tailwind', 'Stripe', 'TypeScript'],
-    price: '₹50',
-    category: 'SaaS setup',
-    version: 'v1.2.0',
-    glassMediaBg: 'bg-emerald-500/15 border-emerald-400/20',
-    glassAccentBg: 'bg-emerald-600/40 border-emerald-400/30',
-    glassTagBg: 'bg-emerald-500/10 border-emerald-400/20',
-    imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-    detail: {
-      id: 'proj-saas',
-      title: 'SaaS Platform Boilerplate',
-      price: '₹50',
-      description: 'Clean Next.js setup with modern auth flow, user dashboard, stripe gateway integration, and fully responsive tailwind shell.',
-      longDescription:
-        'A production-ready SaaS starter kit built with Next.js 14 App Router. Comes with a complete authentication system, Stripe subscription billing, user dashboard, settings page, and a beautifully designed landing page. Skip months of boilerplate work and ship your SaaS product faster.',
-      imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-      tags: ['Next.js', 'Tailwind', 'Stripe', 'TypeScript'],
-      techStack: [
-        { category: 'Frontend', color: '#34d399', items: ['Next.js 14', 'TypeScript', 'Tailwind CSS'] },
-        { category: 'Payments', color: '#818cf8', items: ['Stripe', 'Webhooks', 'Subscriptions'] },
-        { category: 'Database', color: '#fb923c', items: ['Prisma ORM', 'PostgreSQL'] },
-      ],
-      features: [
-        'Next.js 14 App Router with server components',
-        'Stripe subscription billing & webhooks',
-        'User authentication with NextAuth.js',
-        'Responsive dashboard & settings pages',
-        'Prisma ORM + PostgreSQL database setup',
-        'API rate limiting & middleware',
-      ],
-      highlights: [
-        { icon: <Layers className="w-5 h-5" />, label: 'Pages', value: '10+', color: '#34d399' },
-        { icon: <Zap className="w-5 h-5" />, label: 'Framework', value: 'Next.js', color: '#a78bfa' },
-        { icon: <Shield className="w-5 h-5" />, label: 'Payments', value: 'Stripe', color: '#818cf8' },
-        { icon: <Smartphone className="w-5 h-5" />, label: 'Responsive', value: '100%', color: '#34d399' },
-      ],
-    },
-  },
-  {
-    id: 'proj-ai-chat',
-    title: 'AI Chat Bot Interface',
-    description: 'Beautiful conversational user interface with stream parsing, markdown rendering, code highlighting, and vector memory.',
-    tags: ['React', 'OpenAI', 'Framer Motion', 'Tailwind'],
-    price: '₹50',
-    category: 'AI Interface',
-    version: 'v1.1.0',
-    glassMediaBg: 'bg-amber-500/15 border-amber-400/20',
-    glassAccentBg: 'bg-amber-600/40 border-amber-400/30',
-    glassTagBg: 'bg-amber-500/10 border-amber-400/20',
-    imageUrl: 'https://images.unsplash.com/photo-1675557009875-436f09780264?auto=format&fit=crop&w=800&q=80',
-    detail: {
-      id: 'proj-ai-chat',
-      title: 'AI Chat Bot Interface',
-      price: '₹50',
-      description: 'Beautiful conversational user interface with stream parsing, markdown rendering, code highlighting, and vector memory.',
-      longDescription:
-        'A stunning AI chat interface with streaming responses, markdown rendering, syntax-highlighted code blocks, and conversation memory. Built for OpenAI-compatible APIs. Customize the system prompt, model, and temperature from a clean settings panel.',
-      imageUrl: 'https://images.unsplash.com/photo-1675557009875-436f09780264?auto=format&fit=crop&w=800&q=80',
-      tags: ['React', 'OpenAI', 'Framer Motion', 'Tailwind'],
-      techStack: [
-        { category: 'Frontend', color: '#fbbf24', items: ['React', 'TypeScript', 'Framer Motion', 'Tailwind CSS'] },
-        { category: 'AI', color: '#a78bfa', items: ['OpenAI API', 'Stream Parsing', 'Vector Memory'] },
-        { category: 'Rendering', color: '#34d399', items: ['React Markdown', 'Prism.js'] },
-      ],
-      features: [
-        'Real-time streaming token response',
-        'Markdown & code block rendering',
-        'Syntax highlighting for 20+ languages',
-        'Conversation history & memory',
-        'Configurable system prompt & model',
-        'Smooth Framer Motion animations',
-      ],
-      highlights: [
-        { icon: <Zap className="w-5 h-5" />, label: 'Streaming', value: 'Real-time', color: '#fbbf24' },
-        { icon: <Layers className="w-5 h-5" />, label: 'AI Model', value: 'OpenAI', color: '#a78bfa' },
-        { icon: <Shield className="w-5 h-5" />, label: 'Memory', value: 'Vector', color: '#34d399' },
-        { icon: <Smartphone className="w-5 h-5" />, label: 'Responsive', value: '100%', color: '#60a5fa' },
-      ],
-    },
-  },
-  {
-    id: 'proj-ecom',
-    title: 'E-Commerce Storefront',
-    description: 'Fast, lightweight e-commerce storefront with cart persistence, category searching, mock invoice generation, and checkout.',
-    tags: ['React', 'Context API', 'Lucide Icons', 'Vite'],
-    price: '₹50',
-    category: 'E-Commerce',
-    version: 'v1.0.0',
-    glassMediaBg: 'bg-cyan-500/15 border-cyan-400/20',
-    glassAccentBg: 'bg-cyan-600/40 border-cyan-400/30',
-    glassTagBg: 'bg-cyan-500/10 border-cyan-400/20',
-    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-    detail: {
-      id: 'proj-ecom',
-      title: 'E-Commerce Storefront',
-      price: '₹50',
-      description: 'Fast, lightweight e-commerce storefront with cart persistence, category searching, mock invoice generation, and checkout.',
-      longDescription:
-        'A fast, lightweight e-commerce storefront built with React and Vite. Features a product grid, category filters, search, persistent cart using localStorage, and a full checkout flow with mock invoice PDF generation. No backend required — works entirely client-side.',
-      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-      tags: ['React', 'Context API', 'Lucide Icons', 'Vite'],
-      techStack: [
-        { category: 'Frontend', color: '#22d3ee', items: ['React', 'TypeScript', 'Context API', 'Vite'] },
-        { category: 'State', color: '#60a5fa', items: ['React Context', 'localStorage'] },
-        { category: 'UI', color: '#f472b6', items: ['Lucide Icons', 'Vanilla CSS'] },
-      ],
-      features: [
-        'Product grid with category filters',
-        'Real-time search across products',
-        'Persistent cart with localStorage',
-        'Checkout flow with order summary',
-        'Mock invoice & receipt generation',
-        'Fully client-side — no backend needed',
-      ],
-      highlights: [
-        { icon: <Zap className="w-5 h-5" />, label: 'Framework', value: 'Vite', color: '#22d3ee' },
-        { icon: <Layers className="w-5 h-5" />, label: 'Products', value: '50+', color: '#60a5fa' },
-        { icon: <Shield className="w-5 h-5" />, label: 'Backend', value: 'None', color: '#34d399' },
-        { icon: <Smartphone className="w-5 h-5" />, label: 'Responsive', value: '100%', color: '#f472b6' },
-      ],
-    },
-  },
-  {
-    id: 'proj-portfolio',
-    title: 'Creative Studio Portfolio',
-    description: 'Stunning typography-focused agency website showcasing custom cursor behaviors, interactive project reels, and smooth transitions.',
-    tags: ['HTML5', 'GSAP', 'Vite', 'CSS Gradients'],
-    price: '₹50',
-    category: 'Portfolio',
-    version: 'v1.0.0',
-    glassMediaBg: 'bg-purple-500/15 border-purple-400/20',
-    glassAccentBg: 'bg-purple-600/40 border-purple-400/30',
-    glassTagBg: 'bg-purple-500/10 border-purple-400/20',
-    imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80',
-    detail: {
-      id: 'proj-portfolio',
-      title: 'Creative Studio Portfolio',
-      price: '₹50',
-      description: 'Stunning typography-focused agency website showcasing custom cursor behaviors, interactive project reels, and smooth transitions.',
-      longDescription:
-        'A jaw-dropping creative agency portfolio site with custom cursor, smooth GSAP scroll animations, horizontal project reel, magnetic button effects, and a dark, cinematic aesthetic. Built with plain HTML, CSS, and vanilla JS using Vite for optimal performance.',
-      imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80',
-      tags: ['HTML5', 'GSAP', 'Vite', 'CSS Gradients'],
-      techStack: [
-        { category: 'Core', color: '#f472b6', items: ['HTML5', 'CSS3', 'Vanilla JS'] },
-        { category: 'Animation', color: '#a78bfa', items: ['GSAP 3', 'ScrollTrigger', 'Magnetic Effects'] },
-        { category: 'Build', color: '#60a5fa', items: ['Vite'] },
-      ],
-      features: [
-        'Custom cursor with magnetic effect',
-        'GSAP scroll-triggered animations',
-        'Horizontal scrolling project reel',
-        'Smooth page transitions',
-        'Cinematic dark mode typography',
-        'Zero dependencies — pure HTML/CSS/JS',
-      ],
-      highlights: [
-        { icon: <Zap className="w-5 h-5" />, label: 'Animation', value: 'GSAP 3', color: '#a78bfa' },
-        { icon: <Layers className="w-5 h-5" />, label: 'Sections', value: '6', color: '#f472b6' },
-        { icon: <Shield className="w-5 h-5" />, label: 'Deps', value: 'Zero', color: '#34d399' },
-        { icon: <Smartphone className="w-5 h-5" />, label: 'Responsive', value: '100%', color: '#60a5fa' },
-      ],
-    },
-  },
-];
 
 export default function FeaturedProjects({
   currentUser,
   purchasedIds,
   onTriggerAuth,
   onPurchaseSuccess,
+  products,
 }: FeaturedProjectsProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [previewProject, setPreviewProject] = useState<ProjectDetail | null>(null);
@@ -281,12 +54,12 @@ export default function FeaturedProjects({
     });
   };
 
-  const handleOpenPlayground = (project: Project, e: React.MouseEvent) => {
+  const handleOpenPlayground = (project: DigitalProduct, e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(`?project=${project.id}`, '_blank');
   };
 
-  const handlePurchase = async (project: Project) => {
+  const handlePurchase = async (project: DigitalProduct) => {
     if (!currentUser) {
       onTriggerAuth();
       return;
@@ -344,9 +117,58 @@ export default function FeaturedProjects({
     rzp.open();
   };
 
-  const handleDownload = (project: Project, e: React.MouseEvent) => {
+  const downloadProductSecurely = async (project: DigitalProduct) => {
+    setLoadingId(project.id);
+    try {
+      // 1. Fetch product file details from Firestore
+      const productSnap = await getDoc(doc(db, 'products', project.id));
+      if (!productSnap.exists()) {
+        throw new Error("Product not found.");
+      }
+
+      const productData = productSnap.data();
+      const downloadFile = productData.downloadFile;
+      if (!downloadFile || !downloadFile.storagePath) {
+        // Fallback to mock ZIP if no real ZIP is uploaded yet, to allow easy testing of default templates!
+        console.warn("No secure ZIP found for product. Falling back to mock ZIP.");
+        downloadProjectZip(project.title);
+        return;
+      }
+
+      // 2. Direct Blob download from Firebase Storage
+      const fileRef = ref(storage, downloadFile.storagePath);
+      const blob = await getBlob(fileRef);
+
+      // 3. Trigger Browser Download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadFile.fileName || `${project.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error("Secure download error:", error);
+      let friendlyError = "Download failed. Please try again.";
+      if (error.code === 'storage/unauthorized') {
+        friendlyError = "You do not have permission to download this file.";
+      }
+      alert(friendlyError);
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleDownload = (project: DigitalProduct, e: React.MouseEvent) => {
     e.stopPropagation();
-    downloadProjectZip(project.title);
+
+    if (!currentUser) {
+      onTriggerAuth();
+      return;
+    }
+
+    downloadProductSecurely(project);
   };
 
   return (
@@ -364,7 +186,7 @@ export default function FeaturedProjects({
 
           {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {PROJECTS.map((project) => {
+            {products.map((project) => {
               const isPurchased = purchasedIds.includes(project.id);
               const isFavorited = favorites.includes(project.id);
 
@@ -505,11 +327,12 @@ export default function FeaturedProjects({
           onToggleFavorite={() => toggleFavorite(previewProject.id)}
           onClose={() => setPreviewProject(null)}
           onPurchase={() => {
-            const proj = PROJECTS.find(p => p.id === previewProject.id);
+            const proj = products.find(p => p.id === previewProject.id);
             if (proj) handlePurchase(proj);
           }}
           onDownload={() => {
-            downloadProjectZip(previewProject.title);
+            const proj = products.find(p => p.id === previewProject.id);
+            if (proj) downloadProductSecurely(proj);
             setPreviewProject(null);
           }}
         />
@@ -524,7 +347,12 @@ export default function FeaturedProjects({
           amount={successModal.amount}
           onClose={() => setSuccessModal(null)}
           onDownload={() => {
-            downloadProjectZip(successModal.projectTitle);
+            const proj = products.find(p => p.id === successModal.projectId);
+            if (proj) {
+              downloadProductSecurely(proj);
+            } else {
+              downloadProjectZip(successModal.projectTitle);
+            }
             setSuccessModal(null);
           }}
         />
