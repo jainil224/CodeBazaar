@@ -1,5 +1,5 @@
-import { Code2, Download, Heart, ShoppingBag, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { Code2, Download, Heart, ShoppingBag, ExternalLink, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
 import PaymentSuccessModal from './PaymentSuccessModal';
@@ -8,6 +8,7 @@ import type { DigitalProduct } from '@/features/digitalProducts/types/digitalPro
 import { db, storage } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { ref, getBlob } from 'firebase/storage';
+import { trackEvent } from '@/lib/analytics';
 
 interface FeaturedProjectsProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
@@ -26,6 +27,52 @@ export default function FeaturedProjects({
 }: FeaturedProjectsProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [previewProject, setPreviewProject] = useState<ProjectDetail | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // 1. Debounced search analytics tracking
+  useEffect(() => {
+    if (!searchQuery.trim()) return;
+    const delayDebounceFn = setTimeout(() => {
+      const matchingCount = products.filter(project => {
+        const titleMatch = project.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const descMatch = project.description.toLowerCase().includes(searchQuery.toLowerCase());
+        const tagMatch = project.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        return titleMatch || descMatch || tagMatch;
+      }).length;
+
+      trackEvent('search_submitted', { 
+        searchTerm: searchQuery.trim(),
+        resultsCount: matchingCount
+      });
+    }, 1500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, products]);
+
+  const handleOpenPreview = (project: DigitalProduct) => {
+    setPreviewProject(project.detail);
+    trackEvent('product_clicked', { productId: project.id, productTitle: project.title });
+    trackEvent('product_viewed', { productId: project.id, productTitle: project.title });
+    trackEvent('page_view', { pagePath: `/details/${project.id}`, pageTitle: `Product - ${project.title}` });
+  };
+
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  // Filter products by search and category
+  const filteredProducts = products.filter(project => {
+    const matchesCategory = activeCategory === 'All' || project.category === activeCategory;
+    const matchesSearch = searchQuery === '' || 
+      project.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
+
+  const handleCategoryClick = (category: string) => {
+    setActiveCategory(category);
+    trackEvent('category_clicked', { category });
+    trackEvent('filter_used', { filterType: 'category', filterValue: category });
+  };
   const [successModal, setSuccessModal] = useState<{
     open: boolean;
     projectId: string;
@@ -66,6 +113,7 @@ export default function FeaturedProjects({
     }
 
     setLoadingId(project.id);
+    trackEvent('buy_now_clicked', { productId: project.id, productTitle: project.title });
 
     const isLoaded = await loadRazorpay();
     if (!isLoaded) {
@@ -109,6 +157,7 @@ export default function FeaturedProjects({
       },
     };
 
+    trackEvent('checkout_started', { productId: project.id, productTitle: project.title });
     const rzp = new (window as any).Razorpay(options);
     rzp.on('payment.failed', function (response: { error: { description: string } }) {
       setLoadingId(null);
@@ -119,6 +168,7 @@ export default function FeaturedProjects({
 
   const downloadProductSecurely = async (project: DigitalProduct) => {
     setLoadingId(project.id);
+    trackEvent('download_clicked', { productId: project.id, productTitle: project.title });
     try {
       // 1. Fetch product file details from Firestore
       const productSnap = await getDoc(doc(db, 'products', project.id));
@@ -184,9 +234,43 @@ export default function FeaturedProjects({
             </p>
           </div>
 
+          {/* Search & Filter Bar */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-5 mb-12 p-3 bg-white/[0.03] border border-white/10 rounded-[28px] backdrop-blur-md">
+            {/* Categories */}
+            <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
+              {['All', 'Landing Page', 'SaaS setup', 'AI Interface', 'E-Commerce', 'Portfolio'].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryClick(cat)}
+                  className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-all ${
+                    activeCategory === cat 
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/30 border border-purple-500' 
+                      : 'text-white/60 hover:text-white bg-white/5 border border-white/5 hover:border-white/10'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Search Input */}
+            <div className="relative w-full md:w-[300px] shrink-0">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                <Search className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                placeholder="Search templates..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 focus:border-purple-400 rounded-xl pl-11 pr-4 py-2.5 text-sm outline-none transition-colors text-white placeholder-white/40 font-sans"
+              />
+            </div>
+          </div>
+
           {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {products.map((project) => {
+            {filteredProducts.map((project) => {
               const isPurchased = purchasedIds.includes(project.id);
               const isFavorited = favorites.includes(project.id);
 
@@ -198,7 +282,7 @@ export default function FeaturedProjects({
                   {/* Media Box */}
                   <div
                     className="relative w-full h-[240px] sm:h-[265px] overflow-hidden cursor-pointer bg-zinc-50 border-b border-zinc-100 flex items-center justify-center"
-                    onClick={() => setPreviewProject(project.detail)}
+                    onClick={() => handleOpenPreview(project)}
                   >
                     {project.imageUrl ? (
                       <img
@@ -241,7 +325,7 @@ export default function FeaturedProjects({
                     {/* Title */}
                     <h4
                       className="text-xl font-bold text-zinc-950 hover:text-violet-600 transition-colors leading-tight cursor-pointer"
-                      onClick={() => setPreviewProject(project.detail)}
+                      onClick={() => handleOpenPreview(project)}
                     >
                       {project.title}
                     </h4>
@@ -301,7 +385,7 @@ export default function FeaturedProjects({
                         </button>
                       ) : (
                         <button
-                          onClick={() => setPreviewProject(project.detail)}
+                          onClick={() => handleOpenPreview(project)}
                           className="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-3 rounded-2xl flex items-center gap-2 shadow-[0_4px_15px_rgba(109,40,217,0.2)] hover:shadow-[0_6px_20px_rgba(109,40,217,0.3)] transition-all text-sm group"
                         >
                           <ShoppingBag className="w-4 h-4 text-violet-200 group-hover:scale-110 transition-transform" />

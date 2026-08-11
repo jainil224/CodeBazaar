@@ -223,6 +223,7 @@ function calculatePercentageChange(currValue: number, prevValue: number): { perc
  */
 export async function fetchDashboardAnalytics(filter: DateRangeFilter): Promise<DashboardStats> {
   const { currentStart, currentEnd, previousStart, previousEnd } = getPeriods(filter);
+  const now = new Date();
 
   // 1. Fetch Total registered users count directly from server (cheap metadata count)
   const totalUsersSnap = await getCountFromServer(collection(db, 'users'));

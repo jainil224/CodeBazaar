@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Share2, Heart, ExternalLink, ShieldCheck, Code } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductDownloadButton from '@/features/digitalProducts/components/ProductDownloadButton';
+import { trackEvent } from '@/lib/analytics';
 
 export interface ProjectDetail {
   id: string;
@@ -74,8 +75,18 @@ export default function ProjectPreviewModal({
     const url = `${window.location.origin}/#projects`;
     navigator.clipboard.writeText(url).then(() => {
       setShareCopied(true);
+      trackEvent('share_clicked', { productId: project.id, productTitle: project.title });
       setTimeout(() => setShareCopied(false), 2000);
     });
+  };
+
+  const handleToggleFavorite = () => {
+    onToggleFavorite();
+    if (isFavorited) {
+      trackEvent('wishlist_removed', { productId: project.id, productTitle: project.title });
+    } else {
+      trackEvent('wishlist_added', { productId: project.id, productTitle: project.title });
+    }
   };
 
   return (
@@ -196,7 +207,7 @@ export default function ProjectPreviewModal({
                   
                   {/* Wishlist toggle */}
                   <button
-                    onClick={onToggleFavorite}
+                    onClick={handleToggleFavorite}
                     className="flex items-center gap-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors shadow-sm"
                   >
                     <Heart className={`w-3.5 h-3.5 ${isFavorited ? 'fill-red-500 text-red-500' : 'text-slate-400'}`} />

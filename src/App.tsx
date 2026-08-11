@@ -17,6 +17,7 @@ import { DEFAULT_PRODUCTS } from '@/features/digitalProducts/data/defaultProduct
 import MyPurchasesModal from '@/features/digitalProducts/components/MyPurchasesModal';
 import { createPurchaseRecord } from '@/features/digitalProducts/services/purchaseService';
 import type { DigitalProduct } from '@/features/digitalProducts/types/digitalProduct';
+import { trackEvent } from '@/lib/analytics';
 
 
 interface Transaction {
@@ -69,6 +70,7 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isMyPurchasesOpen, setIsMyPurchasesOpen] = useState(false);
+  const [authResolved, setAuthResolved] = useState(false);
   const [currentPlaygroundId, setCurrentPlaygroundId] = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('project');
@@ -150,11 +152,13 @@ export default function App() {
             );
           }
         }
+        setAuthResolved(true);
       } else {
         // ── Logged out ────────────────────────────────────────────────────
         setCurrentUser(null);
         setPurchasedIds([]);
         setTransactions([]);
+        setAuthResolved(true);
       }
     });
 
@@ -164,6 +168,51 @@ export default function App() {
       if (unsubscribeTxs) unsubscribeTxs();
     };
   }, []);
+
+  // ── 1. Page View Tracking & Route Checking ────────────────────────
+  useEffect(() => {
+    // Log initial home view
+    trackEvent('page_view', { pagePath: '/', pageTitle: 'CodeBazaar Home' });
+  }, []);
+
+  // Check URL route for /admin or view=admin
+  useEffect(() => {
+    const handleUrlRoute = () => {
+      const path = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
+      const isAdminRoute = path === '/admin' || path === '/admin/dashboard' || params.get('view') === 'admin';
+      
+      if (isAdminRoute) {
+        if (currentUser?.role === 'admin') {
+          setIsAdminOpen(true);
+        } else if (currentUser) {
+          alert("Access Denied: Admin authorization required.");
+          window.history.replaceState({}, '', '/');
+        } else {
+          // Trigger auth if they need to log in to access the route
+          setIsAuthOpen(true);
+        }
+      }
+    };
+
+    // Run when auth has resolved
+    if (authResolved) {
+      handleUrlRoute();
+    }
+  }, [currentUser, authResolved]);
+
+  // Track dashboard & purchases overlay views
+  useEffect(() => {
+    if (isAdminOpen) {
+      trackEvent('page_view', { pagePath: '/admin', pageTitle: 'Admin Dashboard' });
+    }
+  }, [isAdminOpen]);
+
+  useEffect(() => {
+    if (isMyPurchasesOpen) {
+      trackEvent('page_view', { pagePath: '/my-purchases', pageTitle: 'My Purchases' });
+    }
+  }, [isMyPurchasesOpen]);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -207,6 +256,14 @@ export default function App() {
     } catch (err) {
       console.warn("Secure purchase record logging failed:", err);
     }
+
+    // Track event
+    trackEvent('payment_completed', { 
+      productId: projectId, 
+      productTitle: projectTitle, 
+      paymentId: newTxId,
+      amount: 50
+    });
   };
 
   const handlePurchasePlayground = async (projectId: string, projectTitle: string) => {
