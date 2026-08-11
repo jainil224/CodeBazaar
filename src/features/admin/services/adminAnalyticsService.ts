@@ -1,6 +1,6 @@
 import { db } from '@/firebase';
 import { 
-  collection, query, where, getDocs, Timestamp, getCountFromServer, deleteDoc, doc 
+  collection, getDocs, deleteDoc, doc 
 } from 'firebase/firestore';
 
 export type DateRangeType = 
@@ -235,64 +235,69 @@ export async function fetchDashboardAnalytics(filter: DateRangeFilter): Promise<
   const { currentStart, currentEnd, previousStart, previousEnd } = getPeriods(filter);
   const now = new Date();
 
-  // 1. Fetch Total registered users count directly from server (cheap metadata count)
-  const totalUsersSnap = await getCountFromServer(collection(db, 'users'));
-  const totalUsers = totalUsersSnap.data().count;
-
-  // 2. Fetch users in ranges to compute New Users
-  const usersCollection = collection(db, 'users');
-  
-  // Current period users
-  const currUsersQuery = query(
-    usersCollection, 
-    where('createdAt', '>=', Timestamp.fromDate(currentStart)),
-    where('createdAt', '<=', Timestamp.fromDate(currentEnd))
-  );
-  const currUsersSnap = await getDocs(currUsersQuery);
-  const currentNewUsers = currUsersSnap.size;
-
-  // Previous period users
-  const prevUsersQuery = query(
-    usersCollection,
-    where('createdAt', '>=', Timestamp.fromDate(previousStart)),
-    where('createdAt', '<=', Timestamp.fromDate(previousEnd))
-  );
-  const prevUsersSnap = await getDocs(prevUsersQuery);
-  const previousNewUsers = prevUsersSnap.size;
-
-  // 3. Fetch Transactions (ISO date strings) for revenue analytics
-  // Since we want to compare, we query all transactions from previousStart to currentEnd
-  const txCollection = collection(db, 'transactions');
-  const txQuery = query(
-    txCollection,
-    where('date', '>=', previousStart.toISOString()),
-    where('date', '<=', currentEnd.toISOString())
-  );
-  const txSnap = await getDocs(txQuery);
-  
-  // ── Known fake seed documents that were inserted during development ──────
-  // These must be excluded until manually deleted from Firebase Console.
-  // They have no 'status' field and amount: 50 each.
-  const FAKE_SEED_IDS = ['pay_P1o98G7sL9kH', 'pay_J2m54K8aQ2wX', 'pay_N9p12V6cR7tM'];
-
-  const allTxs = (txSnap.docs
-    .map(docSnap => ({
+  // 1. Fetch Users collection safely
+  let allUsers: any[] = [];
+  try {
+    const usersSnap = await getDocs(collection(db, 'users'));
+    allUsers = usersSnap.docs.map(docSnap => ({
       id: docSnap.id,
       ...docSnap.data()
-    })) as any[])
-    .filter((tx: any) => {
-      // 1. Exclude known fake seed documents by ID
-      if (FAKE_SEED_IDS.includes(tx.id)) return false;
-      // 2. For documents that have a status field, only include 'paid'
-      if (tx.status && tx.status !== 'paid') return false;
-      // 3. Legacy docs without a status field are assumed paid (they were written
-      //    before status was added — all wrote only on Razorpay success callback)
-      return true;
-    });
+    }));
+  } catch (err) {
+    console.warn("Analytics: users collection fetch warning:", err);
+  }
+
+  const totalUsers = allUsers.length;
+
+  // Helper to parse document date
+  const parseDate = (val: any): Date | null => {
+    if (!val) return null;
+    if (typeof val.toDate === 'function') return val.toDate();
+    if (val instanceof Date) return val;
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  // Filter current vs previous period new users
+  const currentNewUsers = allUsers.filter(u => {
+    const d = parseDate(u.createdAt);
+    return d && d >= currentStart && d <= currentEnd;
+  }).length;
+
+  const previousNewUsers = allUsers.filter(u => {
+    const d = parseDate(u.createdAt);
+    return d && d >= previousStart && d <= previousEnd;
+  }).length;
+
+  // 2. Fetch Transactions collection safely
+  let rawTxs: any[] = [];
+  try {
+    const txSnap = await getDocs(collection(db, 'transactions'));
+    rawTxs = txSnap.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
+  } catch (err) {
+    console.warn("Analytics: transactions collection fetch warning:", err);
+  }
+
+  const FAKE_SEED_IDS = ['pay_P1o98G7sL9kH', 'pay_J2m54K8aQ2wX', 'pay_N9p12V6cR7tM'];
+  const allTxs = rawTxs.filter((tx: any) => {
+    if (FAKE_SEED_IDS.includes(tx.id)) return false;
+    if (tx.status && tx.status !== 'paid') return false;
+    return true;
+  });
 
   // Separate current vs previous period transactions
-  const currentTxs = allTxs.filter(tx => new Date(tx.date) >= currentStart && new Date(tx.date) <= currentEnd);
-  const previousTxs = allTxs.filter(tx => new Date(tx.date) >= previousStart && new Date(tx.date) <= previousEnd);
+  const currentTxs = allTxs.filter(tx => {
+    const d = parseDate(tx.date);
+    return d && d >= currentStart && d <= currentEnd;
+  });
+
+  const previousTxs = allTxs.filter(tx => {
+    const d = parseDate(tx.date);
+    return d && d >= previousStart && d <= previousEnd;
+  });
 
   // Calculate Revenue, Orders, and AOV
   const currentRevenue = currentTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
@@ -304,29 +309,31 @@ export async function fetchDashboardAnalytics(filter: DateRangeFilter): Promise<
   const currentAov = currentOrders > 0 ? parseFloat((currentRevenue / currentOrders).toFixed(2)) : 0;
   const previousAov = previousOrders > 0 ? parseFloat((previousRevenue / previousOrders).toFixed(2)) : 0;
 
-  // 4. Fetch Analytics events (Firestore Timestamps)
-  const eventsCollection = collection(db, 'analytics_events');
-  const eventsQuery = query(
-    eventsCollection,
-    where('timestamp', '>=', Timestamp.fromDate(previousStart)),
-    where('timestamp', '<=', Timestamp.fromDate(currentEnd))
-  );
-  const eventsSnap = await getDocs(eventsQuery);
-  const rawEvents = eventsSnap.docs.map(docSnap => ({
-    id: docSnap.id,
-    ...docSnap.data()
-  })) as any[];
-
-  // ── Fetch admin user IDs to exclude their events from analytics ────────
-  // Admins browsing or testing the site should NOT count as real visitors.
-  const adminUsersSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'admin')));
-  const adminUserIds = new Set(adminUsersSnap.docs.map(d => d.id));
+  // 3. Fetch Analytics events safely
+  let rawEvents: any[] = [];
+  try {
+    const eventsSnap = await getDocs(collection(db, 'analytics_events'));
+    rawEvents = eventsSnap.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
+  } catch (err) {
+    console.warn("Analytics: events collection fetch warning:", err);
+  }
 
   // Filter out any events generated by admin users
+  const adminUserIds = new Set(allUsers.filter(u => u.role === 'admin').map(u => u.id));
   const allEvents = rawEvents.filter(ev => !adminUserIds.has(ev.userId));
 
-  const currentEvents = allEvents.filter(ev => ev.timestamp && ev.timestamp.toDate() >= currentStart && ev.timestamp.toDate() <= currentEnd);
-  const previousEvents = allEvents.filter(ev => ev.timestamp && ev.timestamp.toDate() >= previousStart && ev.timestamp.toDate() <= previousEnd);
+  const currentEvents = allEvents.filter(ev => {
+    const d = parseDate(ev.timestamp);
+    return d && d >= currentStart && d <= currentEnd;
+  });
+
+  const previousEvents = allEvents.filter(ev => {
+    const d = parseDate(ev.timestamp);
+    return d && d >= previousStart && d <= previousEnd;
+  });
 
   // Helper to extract session count (visitors)
   const countVisitors = (evs: any[]) => new Set(evs.map(ev => ev.sessionId)).size;
@@ -539,11 +546,10 @@ export async function fetchDashboardAnalytics(filter: DateRangeFilter): Promise<
   });
 
   // Registrations (recent user profiles)
-  currUsersSnap.forEach(docSnap => {
-    const u = docSnap.data();
-    const ts = u.createdAt?.toDate() || new Date();
+  allUsers.forEach((u: any) => {
+    const ts = parseDate(u.createdAt) || new Date();
     activityList.push({
-      id: docSnap.id,
+      id: u.id,
       type: 'register',
       message: `New user registered: "${u.name || u.email}"`,
       timestamp: ts

@@ -1,5 +1,5 @@
 import { storage } from '@/firebase';
-import { ref, uploadBytesResumable, deleteObject, getBlob } from 'firebase/storage';
+import { ref, uploadBytesResumable, deleteObject, getBlob, getDownloadURL } from 'firebase/storage';
 
 /**
  * Uploads a secure ZIP file to Firebase Storage under products/{productId}/{zipName}
@@ -31,10 +31,47 @@ export function uploadProductFile(
 }
 
 /**
- * Uploads a public product preview image to Firebase Storage under product-images/{productId}/{imageName}
- * Resolves to the public download URL of the image.
+ * Uploads an image file to Firebase Storage under product-images/{productId}/{imageName}
+ * Resolves to the public download URL of the uploaded image.
  */
-export function uploadProductImage(
+export function uploadProductImageFirebase(
+  productId: string,
+  file: File,
+  onProgress: (progress: number) => void
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const storagePath = `product-images/${productId}/${Date.now()}_${safeName}`;
+    const fileRef = ref(storage, storagePath);
+    const uploadTask = uploadBytesResumable(fileRef, file);
+
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        onProgress(Math.round(progress));
+      },
+      (error) => {
+        reject(error);
+      },
+      async () => {
+        try {
+          const downloadUrl = await getDownloadURL(fileRef);
+          resolve(downloadUrl);
+        } catch (e) {
+          reject(e);
+        }
+      }
+    );
+  });
+}
+
+/**
+ * Uploads a public product preview image.
+ * Tries Cloudinary first if configured. If Cloudinary fails (e.g. invalid API Key / Upload Preset),
+ * logs the detailed Cloudinary API error and seamlessly falls back to Firebase Storage.
+ */
+export async function uploadProductImage(
   productId: string,
   file: File,
   onProgress: (progress: number) => void
@@ -43,49 +80,56 @@ export function uploadProductImage(
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
   if (!cloudName || !uploadPreset) {
-    return Promise.reject(new Error("Cloudinary is not configured. Please add VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in your .env file."));
+    console.warn("Cloudinary configuration missing. Uploading directly via Firebase Storage...");
+    return uploadProductImageFirebase(productId, file, onProgress);
   }
 
-  return new Promise((resolve, reject) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', uploadPreset);
-    formData.append('folder', `codebazaar/images/${productId}`);
+  try {
+    return await new Promise<string>((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', uploadPreset);
+      formData.append('folder', `codebazaar/images/${productId}`);
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
 
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        const percentComplete = (e.loaded / e.total) * 100;
-        onProgress(Math.round(percentComplete));
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        try {
-          const response = JSON.parse(xhr.responseText);
-          resolve(response.secure_url);
-        } catch (err) {
-          reject(new Error('Failed to parse Cloudinary response.'));
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          onProgress(Math.round(percentComplete));
         }
-      } else {
-        try {
-          const response = JSON.parse(xhr.responseText);
-          reject(new Error(response.error?.message || 'Failed to upload image.'));
-        } catch {
-          reject(new Error('Image upload failed.'));
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response.secure_url);
+          } catch (err) {
+            reject(new Error('Failed to parse Cloudinary response.'));
+          }
+        } else {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            const errMsg = response.error?.message || `Cloudinary API returned status ${xhr.status}`;
+            reject(new Error(errMsg));
+          } catch {
+            reject(new Error(`Cloudinary API returned status ${xhr.status}`));
+          }
         }
-      }
-    };
+      };
 
-    xhr.onerror = () => {
-      reject(new Error('Network error uploading to Cloudinary.'));
-    };
+      xhr.onerror = () => {
+        reject(new Error('Network error uploading to Cloudinary.'));
+      };
 
-    xhr.send(formData);
-  });
+      xhr.send(formData);
+    });
+  } catch (cloudinaryError: any) {
+    console.warn(`Cloudinary Upload Failed: "${cloudinaryError.message}". Falling back to Firebase Storage...`);
+    return uploadProductImageFirebase(productId, file, onProgress);
+  }
 }
 
 /**

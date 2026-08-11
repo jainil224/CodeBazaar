@@ -33,7 +33,7 @@ interface AdminDashboardProps {
   products: DigitalProduct[];
 }
 
-export default function AdminDashboard({ isOpen, onClose, transactions, products: propProducts }: AdminDashboardProps) {
+export default function AdminDashboard({ isOpen, onClose, products: propProducts }: AdminDashboardProps) {
   const { userProfile: adminUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'listings' | 'orders' | 'customers' | 'settings'>('dashboard');
   const [dateFilter, setDateFilter] = useState<DateRangeFilter>({ type: '7days' });
@@ -86,34 +86,37 @@ export default function AdminDashboard({ isOpen, onClose, transactions, products
   const [allCustomers, setAllCustomers] = useState<any[]>([]);
 
   // Fetch Dashboard Stats
-  const loadData = async () => {
-    setIsLoading(true);
+  const loadData = async (showSpinner = true) => {
+    if (showSpinner) setIsLoading(true);
     try {
       const dashboardStats = await fetchDashboardAnalytics(dateFilter);
       setStats(dashboardStats);
       setLastUpdated(new Date());
 
       // Fetch all users to display in Customers list
-      const usersSnap = await getDocs(collection(db, 'users'));
-      const customersList = usersSnap.docs.map(docSnap => {
-        const u = docSnap.data();
-        // Calculate user total spending from ALL orders (not just recent 10)
-        const userTxs = dashboardStats.allOrders.filter(tx => tx.customerEmail === u.email);
-        const totalSpent = userTxs.reduce((sum, tx) => sum + tx.amount, 0);
-        return {
-          id: docSnap.id,
-          name: u.name || 'Anonymous User',
-          email: u.email || 'no-email',
-          role: u.role || 'user',
-          totalSpent,
-          orderCount: userTxs.length,
-          createdAt: u.createdAt?.toDate() || null
-        };
-      });
+      let customersList: any[] = [];
+      try {
+        const usersSnap = await getDocs(collection(db, 'users'));
+        customersList = usersSnap.docs.map(docSnap => {
+          const u = docSnap.data();
+          const userTxs = dashboardStats.allOrders.filter(tx => tx.customerEmail === u.email);
+          const totalSpent = userTxs.reduce((sum, tx) => sum + tx.amount, 0);
+          return {
+            id: docSnap.id,
+            name: u.name || 'Anonymous User',
+            email: u.email || 'no-email',
+            role: u.role || 'user',
+            totalSpent,
+            orderCount: userTxs.length,
+            createdAt: u.createdAt?.toDate ? u.createdAt.toDate() : (u.createdAt ? new Date(u.createdAt) : null)
+          };
+        });
+      } catch (cErr) {
+        console.warn("Customers load warning:", cErr);
+      }
       setAllCustomers(customersList);
     } catch (err: any) {
       console.error("Dashboard data load error:", err);
-      setStats(null);
     } finally {
       setIsLoading(false);
     }
@@ -121,14 +124,14 @@ export default function AdminDashboard({ isOpen, onClose, transactions, products
 
   useEffect(() => {
     if (isOpen) {
-      loadData();
-      // Real-time live auto-refresh every 15 seconds while admin console is open
+      loadData(true);
+      // Background auto-refresh every 30 seconds while admin console is open (without flashing spinner)
       const interval = setInterval(() => {
-        loadData();
-      }, 15000);
+        loadData(false);
+      }, 30000);
       return () => clearInterval(interval);
     }
-  }, [isOpen, dateFilter, transactions]);
+  }, [isOpen, dateFilter]);
 
   if (!isOpen) return null;
 
@@ -575,7 +578,7 @@ export default function AdminDashboard({ isOpen, onClose, transactions, products
 
             {/* Refresh & Sync */}
             <button
-              onClick={loadData}
+              onClick={() => loadData(true)}
               disabled={isLoading}
               className="p-2 sm:p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white transition-colors cursor-pointer shrink-0 disabled:opacity-50"
               title={`Reload stats (Last: ${lastUpdated.toLocaleTimeString()})`}
@@ -627,7 +630,7 @@ export default function AdminDashboard({ isOpen, onClose, transactions, products
             <div className="h-[40vh] flex flex-col items-center justify-center gap-4">
               <p className="text-sm text-white/50 font-mono">Unable to load dashboard metrics.</p>
               <button
-                onClick={loadData}
+                onClick={() => loadData(true)}
                 className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
               >
                 <RefreshCw className="w-4 h-4" /> Retry
