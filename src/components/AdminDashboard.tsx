@@ -422,6 +422,16 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                 )}
               </button>
             ))}
+            
+            <div className="pt-4 mt-4 border-t border-white/10">
+              <button
+                onClick={onClose}
+                className="w-full flex items-center gap-3.5 px-4.5 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 active:scale-95 cursor-pointer text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 border border-purple-500/20"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Website</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -489,6 +499,16 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                 )}
               </button>
             ))}
+            
+            <div className="pt-4 mt-4 border-t border-white/10">
+              <button
+                onClick={onClose}
+                className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 border border-purple-500/20"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Website</span>
+              </button>
+            </div>
           </div>
 
           {/* Footer Profile & Exit */}

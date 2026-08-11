@@ -301,6 +301,7 @@ export default function App() {
         }}
         onPurchase={handlePurchasePlayground}
         purchasedIds={purchasedIds}
+        products={products}
       />
     );
   }

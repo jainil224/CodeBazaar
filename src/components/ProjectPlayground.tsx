@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { DigitalProduct } from '@/features/digitalProducts/types/digitalProduct';
 import { FileCode, Monitor, Tablet, Smartphone, Download, ArrowLeft, Folder, ChevronRight, File } from 'lucide-react';
 import { downloadProjectZip } from '../utils/downloadHelper';
 
@@ -446,6 +447,7 @@ interface ProjectPlaygroundProps {
   onClose: () => void;
   onPurchase: (projectId: string, title: string) => void;
   purchasedIds: string[];
+  products?: DigitalProduct[];
 }
 
 export default function ProjectPlayground({
@@ -453,8 +455,130 @@ export default function ProjectPlayground({
   onClose,
   onPurchase,
   purchasedIds,
+  products = [],
 }: ProjectPlaygroundProps) {
-  const data = MOCK_PROJECT_PLAYGROUNDS[projectId];
+  let data = MOCK_PROJECT_PLAYGROUNDS[projectId];
+  
+  if (!data) {
+    const targetProduct = products.find(p => p.id === projectId);
+    if (targetProduct) {
+      const files: FileNode[] = [
+        {
+          name: 'src',
+          type: 'folder',
+          children: [
+            {
+              name: 'components',
+              type: 'folder',
+              children: [
+                {
+                  name: 'App.tsx',
+                  type: 'file',
+                  content: `import React from 'react';
+import Header from './Header';
+import Hero from './Hero';
+
+export default function App() {
+  return (
+    <div className="min-h-screen bg-slate-950 text-white font-sans">
+      <Header />
+      <Hero />
+    </div>
+  );
+}`
+                },
+                {
+                  name: 'Hero.tsx',
+                  type: 'file',
+                  content: `import React from 'react';
+
+export default function Hero() {
+  return (
+    <section className="py-20 px-6 text-center">
+      <h1 className="text-4xl font-extrabold tracking-tight">${targetProduct.title}</h1>
+      <p className="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">${targetProduct.description}</p>
+      <div className="mt-8 flex justify-center gap-4">
+        <button className="bg-violet-600 hover:bg-violet-750 px-6 py-3 rounded-xl font-bold transition-all">
+          Explore Demo
+        </button>
+      </div>
+    </section>
+  );
+}`
+                },
+                {
+                  name: 'Header.tsx',
+                  type: 'file',
+                  content: `import React from 'react';
+
+export default function Header() {
+  return (
+    <header className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+      <span className="text-lg font-black tracking-wider text-violet-400">DEMO</span>
+      <span className="text-xs font-mono text-slate-500">${targetProduct.version || 'v1.0.0'}</span>
+    </header>
+  );
+}`
+                }
+              ]
+            },
+            {
+              name: 'index.css',
+              type: 'file',
+              content: `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #020617;
+  color: #f8fafc;
+}`
+            }
+          ]
+        },
+        {
+          name: 'package.json',
+          type: 'file',
+          content: `{
+  "name": "${targetProduct.id}",
+  "version": "${targetProduct.version || '1.0.0'}",
+  "private": true,
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "lucide-react": "^0.400.0"
+  }
+}`
+        }
+      ];
+
+      data = {
+        title: targetProduct.title,
+        price: targetProduct.price,
+        previewUrl: targetProduct.detail?.previewUrl || '',
+        files,
+        mockupContent: (
+          <div className="w-full h-full bg-[#0c0c14] select-none overflow-y-auto flex flex-col justify-start items-center">
+            {targetProduct.imageUrl ? (
+              <img 
+                src={targetProduct.imageUrl} 
+                alt={targetProduct.title} 
+                className="w-full h-auto object-cover block"
+              />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 relative">
+                <div className="w-12 h-12 bg-purple-600/20 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 font-bold mb-3 shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+                  CB
+                </div>
+                <h3 className="text-sm font-extrabold text-white leading-tight">{targetProduct.title}</h3>
+                <p className="text-[10px] text-white/50 mt-1.5 max-w-[200px]">{targetProduct.description}</p>
+              </div>
+            )}
+          </div>
+        )
+      };
+    }
+  }
   
   if (!data) {
     return (
