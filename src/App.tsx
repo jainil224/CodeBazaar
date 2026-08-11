@@ -26,37 +26,13 @@ interface Transaction {
   userName: string;
   projectTitle: string;
   amount: number;
+  status: 'paid';
   date: string;
 }
 
 
 
-const SEED_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'pay_P1o98G7sL9kH',
-    userEmail: 'alex.dev@gmail.com',
-    userName: 'Alex Chen',
-    projectTitle: 'AI Chat Bot Interface',
-    amount: 50,
-    date: new Date(Date.now() - 3600000 * 4).toISOString() // 4 hours ago
-  },
-  {
-    id: 'pay_J2m54K8aQ2wX',
-    userEmail: 'sarah.smith@outlook.com',
-    userName: 'Sarah Smith',
-    projectTitle: 'SaaS Platform Boilerplate',
-    amount: 50,
-    date: new Date(Date.now() - 3600000 * 24).toISOString() // 24 hours ago
-  },
-  {
-    id: 'pay_N9p12V6cR7tM',
-    userEmail: 'rohit.k@yahoo.com',
-    userName: 'Rohit Kumar',
-    projectTitle: 'Creative Studio Portfolio',
-    amount: 50,
-    date: new Date(Date.now() - 3600000 * 48).toISOString() // 2 days ago
-  }
-];
+
 
 export default function App() {
   const { userProfile, loading, logout } = useAuth();
@@ -112,16 +88,12 @@ export default function App() {
     const unsubscribeTxs = onSnapshot(
       collection(db, 'transactions'),
       (snapshot) => {
-        const txs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Transaction[];
+        const FAKE_SEED_IDS = ['pay_P1o98G7sL9kH', 'pay_J2m54K8aQ2wX', 'pay_N9p12V6cR7tM'];
+        const txs = snapshot.docs
+          .map(d => ({ id: d.id, ...d.data() }) as Transaction)
+          .filter(tx => !FAKE_SEED_IDS.includes(tx.id));
         txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        if (txs.length === 0) {
-          SEED_TRANSACTIONS.forEach(tx => {
-            setDoc(doc(db, 'transactions', tx.id), tx);
-          });
-        } else {
-          setTransactions(txs);
-        }
+        setTransactions(txs);
       },
       (err) => {
         console.warn('Transactions listener error:', err.code);
@@ -131,10 +103,14 @@ export default function App() {
     return () => unsubscribeTxs();
   }, [userProfile?.role]);
 
-  // ── Page View Tracking & Route Checking ────────────────────────
+  // ── Page View Tracking ────────────────────────────────────────────────
+  // IMPORTANT: Only fires AFTER auth has fully resolved so we know the user's role.
+  // If the user is an admin, skip tracking — admin visits are never counted.
   useEffect(() => {
+    if (!authResolved) return; // Wait for auth to finish loading
+    if (userProfile?.role === 'admin') return; // Never track admin visits
     trackEvent('page_view', { pagePath: '/', pageTitle: 'CodeBazaar Home' });
-  }, []);
+  }, [authResolved]); // Fires exactly once after auth resolves
 
   // Check URL route for /admin or view=admin, purchases, etc.
   useEffect(() => {
@@ -221,8 +197,12 @@ export default function App() {
     );
   }
 
-  const handlePurchaseSuccess = async (projectId: string, projectTitle: string, paymentId?: string) => {
+  const handlePurchaseSuccess = async (projectId: string, projectTitle: string, paymentId?: string, realAmount?: number) => {
     if (!currentUser || !auth.currentUser) return;
+
+    // Resolve real amount: use the passed value, or look up in the products list
+    const product = products.find(p => p.id === projectId);
+    const numericAmount = realAmount ?? (product ? parseFloat(product.price.replace(/[^0-9.]/g, '')) || 0 : 0);
 
     const updatedPurchases = [...purchasedIds, projectId];
 
@@ -238,7 +218,8 @@ export default function App() {
       userEmail: currentUser.email,
       userName: currentUser.name,
       projectTitle,
-      amount: 50,
+      amount: numericAmount,
+      status: 'paid',
       date: new Date().toISOString()
     };
     await setDoc(doc(db, 'transactions', newTxId), newTx);
@@ -251,7 +232,7 @@ export default function App() {
         projectId,
         newTxId,
         orderId,
-        50,
+        numericAmount,
         'INR'
       );
     } catch (err) {
@@ -263,7 +244,7 @@ export default function App() {
       productId: projectId, 
       productTitle: projectTitle, 
       paymentId: newTxId,
-      amount: 50
+      amount: numericAmount
     });
   };
 
@@ -282,14 +263,19 @@ export default function App() {
       alert('Razorpay key is not configured.');
       return;
     }
+    // Resolve real price from products list
+    const product = products.find(p => p.id === projectId);
+    const numericPrice = product ? parseFloat(product.price.replace(/[^0-9.]/g, '')) || 0 : 0;
+    const razorpayAmount = Math.round(numericPrice * 100); // Razorpay uses paise
+
     const options = {
       key: RAZORPAY_KEY,
-      amount: 5000,
+      amount: razorpayAmount,
       currency: 'INR',
       name: 'CodeBazaar',
       description: `Purchase: ${projectTitle}`,
       handler: function (response: { razorpay_payment_id: string }) {
-        handlePurchaseSuccess(projectId, projectTitle, response.razorpay_payment_id);
+        handlePurchaseSuccess(projectId, projectTitle, response.razorpay_payment_id, numericPrice);
       },
       prefill: { name: currentUser.name, email: currentUser.email },
       theme: { color: '#6938FF' }

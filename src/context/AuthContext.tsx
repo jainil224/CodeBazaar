@@ -68,6 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               createdAt: data.createdAt,
               updatedAt: data.updatedAt
             });
+            // Cache role in localStorage so analytics.ts can check synchronously
+            localStorage.setItem('codebazaar_user_role', data.role || 'user');
           } else {
             // Fallback user profile in case Firestore write is delayed
             setUserProfile({
@@ -139,6 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    localStorage.removeItem('codebazaar_user_role');
     return signOut(auth);
   };
 

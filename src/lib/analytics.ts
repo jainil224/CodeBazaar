@@ -1,7 +1,7 @@
 import { db, auth } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 
-// Helper to generate a unique session ID
+// Helper to generate a unique session ID per browser tab session
 function getSessionId(): string {
   let sessionId = sessionStorage.getItem('codebazaar_session_id');
   if (!sessionId) {
@@ -18,14 +18,12 @@ function getDeviceDetails() {
   let browser = 'Other';
   let os = 'Other';
 
-  // 1. Device Type
   if (/mobile/i.test(ua)) {
     device = 'Mobile';
   } else if (/tablet|ipad|playbook|silk/i.test(ua)) {
     device = 'Tablet';
   }
 
-  // 2. Browser detection
   if (/chrome|crios/i.test(ua) && !/edge|edg/i.test(ua) && !/opr/i.test(ua)) {
     browser = 'Chrome';
   } else if (/safari/i.test(ua) && !/chrome|crios/i.test(ua)) {
@@ -38,7 +36,6 @@ function getDeviceDetails() {
     browser = 'Opera';
   }
 
-  // 3. Operating System detection
   if (/windows/i.test(ua)) {
     os = 'Windows';
   } else if (/android/i.test(ua)) {
@@ -54,7 +51,7 @@ function getDeviceDetails() {
   return { device, browser, os };
 }
 
-// Fetch user's country using a free API (cached in sessionStorage)
+// Fetch user's country using a free IP lookup API (cached in sessionStorage)
 async function getCountry(): Promise<string> {
   const cached = sessionStorage.getItem('codebazaar_user_country');
   if (cached) return cached;
@@ -69,22 +66,57 @@ async function getCountry(): Promise<string> {
       }
     }
   } catch (e) {
-    // Silently fallback if blocked or offline
-    console.warn("Could not auto-detect country, using default.");
+    console.warn('Could not auto-detect country, using default.');
   }
-  
-  // Default fallback for CodeBazaar (mainly India)
+
   return 'India';
 }
 
 /**
+ * Checks if the currently logged-in Firebase user is an admin.
+ * Result is cached in sessionStorage to avoid repeated Firestore reads per session.
+ */
+async function isAdminUser(): Promise<boolean> {
+  const user = auth.currentUser;
+  if (!user) return false;
+
+  const cacheKey = `codebazaar_is_admin_${user.uid}`;
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached !== null) return cached === 'true';
+
+  try {
+    const userDocSnap = await getDoc(doc(db, 'users', user.uid));
+    const role = userDocSnap.data()?.role;
+    const admin = role === 'admin';
+    sessionStorage.setItem(cacheKey, String(admin));
+    return admin;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Tracks a behavioral event to Firestore under the 'analytics_events' collection.
- * This runs asynchronously (fire-and-forget) to never block user interaction.
+ *
+ * ADMIN EXCLUSION — Two-layer guard:
+ *   1. Synchronous: checks localStorage for cached role (instant, covers page load race condition)
+ *   2. Async: reads Firestore user profile if no cached role found
+ * Admin users are NEVER tracked. Only real public visitors generate analytics events.
+ *
+ * Runs asynchronously (fire-and-forget) to never block user interaction.
  */
 export function trackEvent(eventName: string, metadata: Record<string, any> = {}): void {
-  // Fire-and-forget execution
+  // ── Fast synchronous admin check (catches page load race condition) ────
+  // AuthContext saves the role to localStorage as soon as the profile loads.
+  const cachedRole = localStorage.getItem('codebazaar_user_role');
+  if (cachedRole === 'admin') return; // Instant exit — no async needed
+
   (async () => {
     try {
+      // ── Async admin check (Firestore) for sessions without cached role ──
+      const adminCheck = await isAdminUser();
+      if (adminCheck) return;
+
       const sessionId = getSessionId();
       const { device, browser, os } = getDeviceDetails();
       const country = await getCountry();
@@ -110,8 +142,8 @@ export function trackEvent(eventName: string, metadata: Record<string, any> = {}
 
       await addDoc(collection(db, 'analytics_events'), payload);
     } catch (err) {
-      // Catch errors silently so that analytics failures never disrupt the user experience
-      console.warn("Event tracking failed:", err);
+      console.warn('Event tracking failed:', err);
     }
   })();
 }
+

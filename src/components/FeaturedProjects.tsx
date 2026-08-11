@@ -14,7 +14,7 @@ interface FeaturedProjectsProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
   purchasedIds: string[];
   onTriggerAuth: () => void;
-  onPurchaseSuccess: (projectId: string, projectTitle: string, paymentId?: string) => void;
+  onPurchaseSuccess: (projectId: string, projectTitle: string, paymentId?: string, amount?: number) => void;
   products: DigitalProduct[];
   isFullCatalogView?: boolean;
   onBackClick?: () => void;
@@ -135,22 +135,26 @@ export default function FeaturedProjects({
       return;
     }
 
+    // Parse numeric price from price string e.g. "₹999" → 999
+    const numericPrice = parseFloat(project.price.replace(/[^0-9.]/g, '')) || 0;
+    const razorpayAmount = Math.round(numericPrice * 100); // Razorpay uses paise
+
     const options = {
       key: RAZORPAY_KEY,
-      amount: 5000,
+      amount: razorpayAmount,
       currency: 'INR',
       name: 'CodeBazaar',
       description: `Purchase: ${project.title}`,
       handler: function (response: { razorpay_payment_id: string }) {
         setLoadingId(null);
-        onPurchaseSuccess(project.id, project.title, response.razorpay_payment_id);
+        onPurchaseSuccess(project.id, project.title, response.razorpay_payment_id, numericPrice);
         setPreviewProject(null);
         setSuccessModal({
           open: true,
           projectId: project.id,
           projectTitle: project.title,
           paymentId: response.razorpay_payment_id,
-          amount: 50,
+          amount: numericPrice,
         });
       },
       prefill: { name: currentUser.name, email: currentUser.email },
