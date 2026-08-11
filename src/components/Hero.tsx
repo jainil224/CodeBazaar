@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, User, Package, Heart, FileText, LogOut, ChevronDown, X } from 'lucide-react';
 import siteLogo from '@/assets/logo.svg';
+import { motion } from 'framer-motion';
 
 interface HeroProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user'; photoURL?: string } | null;
@@ -237,22 +238,59 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
     </div>
 
       {/* Hero Body */}
-      <div className="relative z-[2] flex-1 flex flex-col items-center justify-center px-6 text-center max-w-[950px] mx-auto py-20">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6 text-xs text-white/70 font-mono">
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.15,
+            }
+          }
+        }}
+        className="relative z-[2] flex-1 flex flex-col items-center justify-center px-6 text-center max-w-[950px] mx-auto py-20"
+      >
+        <motion.div 
+          variants={{
+            hidden: { opacity: 0, y: 15 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+          }}
+          className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6 text-xs text-white/70 font-mono"
+        >
           <span className="w-2 h-2 rounded-full bg-primary-green animate-pulse"></span>
           <span>Flat ₹50 Code Marketplace</span>
-        </div>
+        </motion.div>
         
-        <h1 className="hero-title text-[clamp(40px,5.5vw,68px)] text-white leading-[1.1] mb-6 max-w-[900px]">
+        <motion.h1 
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+          }}
+          className="hero-title text-[clamp(40px,5.5vw,68px)] text-white leading-[1.1] mb-6 max-w-[900px]"
+        >
           <span className="serif-italic underline decoration-[3.5px] underline-offset-[8px] md:underline-offset-[12px] decoration-primary-indigo">CodeBazaar</span>, Ready-to-Use Projects & Complete <span className="serif-italic underline decoration-[3.5px] underline-offset-[8px] md:underline-offset-[12px] decoration-primary-pink">Source Code</span>
-        </h1>
+        </motion.h1>
         
-        <p className="font-sans text-base sm:text-lg font-medium text-white/60 leading-relaxed max-w-[720px] mb-10">
+        <motion.p 
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+          }}
+          className="font-sans text-base sm:text-lg font-medium text-white/60 leading-relaxed max-w-[720px] mb-10"
+        >
           Discover practical projects, premium UI templates, and complete source code — available for just ₹50. Choose a project, purchase it securely, and download the code instantly.
-        </p>
+        </motion.p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center gap-4">
+        <motion.div 
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+          }}
+          className="flex flex-col sm:flex-row items-center gap-4"
+        >
           <a 
             href="#projects"
             className="group bg-gradient-to-r from-primary-indigo via-primary-pink to-primary-orange hover:brightness-110 text-white font-semibold py-4 px-8 rounded-2xl flex items-center gap-2.5 shadow-[0_8px_24px_rgba(61,90,254,0.3)] hover:shadow-[0_8px_32px_rgba(61,90,254,0.45)] active:scale-95 transition-all cursor-pointer text-sm uppercase tracking-wider"
@@ -266,8 +304,8 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
           >
             Explore Workflow
           </a>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Empty bottom element to align centering */}
       <div className="h-20 max-md:hidden"></div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface FAQItem {
   question: string;
@@ -46,7 +47,13 @@ export default function FAQ() {
         <div className="max-w-[800px] mx-auto">
 
           {/* Title */}
-          <div className="text-center mb-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-16"
+          >
             <h2 className="text-xs uppercase tracking-widest font-bold text-primary-indigo font-mono flex items-center justify-center gap-1.5">
               <HelpCircle className="w-4 h-4" />
               <span>Got Questions?</span>
@@ -55,15 +62,32 @@ export default function FAQ() {
             <p className="text-white/55 max-w-[500px] mx-auto mt-4 text-base">
               Find answers to licensing, downloads, and payments.
             </p>
-          </div>
+          </motion.div>
 
           {/* Accordions */}
-          <div className="space-y-4">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.1,
+                }
+              }
+            }}
+            className="space-y-4"
+          >
             {FAQS.map((faq, idx) => {
               const isOpen = openIndex === idx;
               return (
-                <div
+                <motion.div
                   key={idx}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+                  }}
                   className="rounded-2xl overflow-hidden transition-all duration-300"
                   style={{
                     background: isOpen ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
@@ -86,21 +110,26 @@ export default function FAQ() {
                     )}
                   </button>
 
-                  {/* Panel */}
-                  <div
-                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                      isOpen ? 'max-h-[300px]' : 'max-h-0'
-                    }`}
-                    style={{ borderTop: isOpen ? '1px solid rgba(168,85,247,0.15)' : 'none' }}
-                  >
-                    <div className="p-6 text-sm text-white/60 leading-relaxed">
-                      {faq.answer}
-                    </div>
-                  </div>
-                </div>
+                  {/* Panel with Smooth Height transition */}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        style={{ borderTop: '1px solid rgba(168,85,247,0.15)', overflow: "hidden" }}
+                      >
+                        <div className="p-6 text-sm text-white/60 leading-relaxed">
+                          {faq.answer}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
         </div>
       </div>

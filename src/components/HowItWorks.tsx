@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 import {
   Layers,
   Lock,
@@ -613,7 +614,13 @@ export default function HowItWorks() {
           Header
       =================================================== */}
 
-      <div className="relative max-w-4xl mx-auto text-center mb-14 sm:mb-16 lg:mb-20">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative max-w-4xl mx-auto text-center mb-14 sm:mb-16 lg:mb-20"
+      >
         <div className="inline-flex items-center gap-2 mb-4">
           <span
             className="w-1.5 h-1.5 rounded-full"
@@ -672,7 +679,7 @@ export default function HowItWorks() {
           Get access to premium code configurations in four straightforward
           steps.
         </p>
-      </div>
+      </motion.div>
 
       {/* ===================================================
           Workflow
@@ -700,10 +707,27 @@ export default function HowItWorks() {
           }}
         />
 
-        <div className="flex flex-col gap-8 sm:gap-10 lg:gap-12">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: 0.15,
+              }
+            }
+          }}
+          className="flex flex-col gap-8 sm:gap-10 lg:gap-12"
+        >
           {steps.map((step) => (
-            <div
+            <motion.div
               key={step.number}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+              }}
               className="relative lg:pl-[74px]"
             >
               {/* Timeline number */}
@@ -737,9 +761,9 @@ export default function HowItWorks() {
               </div>
 
               <WorkflowStepCard {...step} />
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

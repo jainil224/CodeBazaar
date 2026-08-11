@@ -1,4 +1,5 @@
 import { Code2, Download, Heart, ShoppingBag, Search, ArrowLeft, ArrowRight, Maximize2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
@@ -253,7 +254,13 @@ export default function FeaturedProjects({
           )}
 
           {/* Title */}
-          <div className="text-center mb-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-16"
+          >
             <h2 className="text-xs uppercase tracking-widest font-bold text-primary-indigo font-mono">
               {isFullCatalogView ? "Complete Catalog" : "Bazaar Showroom"}
             </h2>
@@ -266,10 +273,16 @@ export default function FeaturedProjects({
                 : "Get production-ready, beautifully designed project bases for just ₹50. Instant source code download."
               }
             </p>
-          </div>
+          </motion.div>
 
           {/* Search & Filter Bar */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-5 mb-12 p-3 bg-white/[0.03] border border-white/10 rounded-[28px] backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+            className="flex flex-col md:flex-row items-center justify-between gap-5 mb-12 p-3 bg-white/[0.03] border border-white/10 rounded-[28px] backdrop-blur-md"
+          >
             {/* Categories */}
             <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
               {['All', 'Landing Page', 'SaaS setup', 'AI Interface', 'E-Commerce', 'Portfolio'].map((cat) => (
@@ -300,17 +313,35 @@ export default function FeaturedProjects({
                 className="w-full bg-white/5 border border-white/10 focus:border-purple-400 rounded-xl pl-11 pr-4 py-2.5 text-sm outline-none transition-colors text-white placeholder-white/40 font-sans"
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <motion.div 
+            key={`${activeCategory}-${products.length}`}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.1,
+                }
+              }
+            }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          >
             {(isFullCatalogView ? filteredProducts : filteredProducts.slice(0, 4)).map((project) => {
               const isPurchased = purchasedIds.includes(project.id);
               const isFavorited = favorites.includes(project.id);
 
               return (
-                <div
+                <motion.div
                   key={project.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 30 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
+                  }}
                   className="bg-white text-zinc-900 rounded-[32px] overflow-hidden flex flex-col justify-between border border-zinc-200/80 shadow-[0_4px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_45px_rgba(105,56,255,0.15)] hover:border-violet-300 transition-all duration-300 group"
                 >
                   {/* Media Box */}
@@ -429,10 +460,10 @@ export default function FeaturedProjects({
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
           {!isFullCatalogView && filteredProducts.length > 4 && (
             <div className="flex justify-center mt-12">

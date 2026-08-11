@@ -1,4 +1,5 @@
 import { FileText, Cpu, LayoutTemplate, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function WhatWeDeliver() {
   const offerings = [
@@ -28,19 +29,42 @@ export default function WhatWeDeliver() {
     <section id="what-we-deliver" className="py-24 px-6 relative z-10 border-t border-white/5">
       <div className="max-w-[1200px] mx-auto">
         {/* Title */}
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center mb-16"
+        >
           <h2 className="text-xs uppercase tracking-widest font-bold text-purple-400 font-mono">Our Guarantee</h2>
           <h3 className="text-3xl sm:text-4xl font-bold text-white mt-2">What We Deliver</h3>
           <p className="text-white/60 max-w-[600px] mx-auto mt-4 text-base">
             Every codebase in the bazaar is packaged to provide an elite launching pad for your project.
           </p>
-        </div>
+        </motion.div>
 
         {/* Offerings Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: 0.1,
+              }
+            }
+          }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-8"
+        >
           {offerings.map((item, idx) => (
-            <div 
+            <motion.div 
               key={idx}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
+              }}
               className="p-8 bg-white/[0.02] border border-white/10 rounded-[32px] hover:border-white/20 transition-all flex items-start gap-6 group"
             >
               {/* Icon Container */}
@@ -55,9 +79,9 @@ export default function WhatWeDeliver() {
                 </h4>
                 <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
