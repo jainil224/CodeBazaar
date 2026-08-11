@@ -39,6 +39,7 @@ interface ProjectPreviewModalProps {
   onClose: () => void;
   onPurchase: () => void;
   onDownload: () => void;
+  isStandalone?: boolean;
 }
 
 
@@ -48,6 +49,7 @@ export default function ProjectPreviewModal({
   onToggleFavorite,
   onClose,
   onPurchase,
+  isStandalone = false,
 }: ProjectPreviewModalProps) {
   const [activeImage, setActiveImage] = useState<string>('');
   const [shareCopied, setShareCopied] = useState(false);
@@ -64,12 +66,7 @@ export default function ProjectPreviewModal({
   // Compile list of gallery images (main image + variants/thumbnails)
   const gallery = project.thumbnails && project.thumbnails.length > 0
     ? project.thumbnails
-    : [
-        project.imageUrl,
-        'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=400&q=80'
-      ];
+    : [project.imageUrl];
 
   const handleShare = () => {
     const url = `${window.location.origin}/#projects`;
@@ -89,57 +86,48 @@ export default function ProjectPreviewModal({
     }
   };
 
-  return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-[9998] flex items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        {/* Backdrop Click to Close */}
-        <div className="absolute inset-0 cursor-default" onClick={onClose} />
+  const modalContent = (
+    <div
+      className={
+        isStandalone
+          ? "relative w-full flex-1 bg-[#f8fafc] text-slate-800 flex flex-col overflow-hidden z-10"
+          : "relative w-full h-full flex flex-col overflow-hidden"
+      }
+    >
+      {/* ── TOP HEADER BREADCRUMBS ─────────────────────────────── */}
+      <div className="px-6 py-4 bg-white border-b border-slate-100 flex items-center justify-between text-xs text-slate-400 font-medium shrink-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="hover:text-violet-600 cursor-pointer">Home</span>
+          <span>/</span>
+          <span className="hover:text-violet-600 cursor-pointer">Projects</span>
+          <span>/</span>
+          <span className="hover:text-violet-600 cursor-pointer uppercase">{project.techStack[0]?.items[0] || 'Web App'}</span>
+          <span>/</span>
+          <span className="text-slate-600 font-semibold">{project.title}</span>
+        </div>
+        
+        {/* Header controls: Open in New Page button + Close button */}
+        {!isStandalone && (
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => window.open(`?preview=${project.id}`, '_blank')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-violet-50 text-slate-600 hover:text-violet-600 font-semibold text-xs transition-colors border border-slate-200/80 cursor-pointer"
+              title="Open Preview in New Tab / Page"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Open in New Page</span>
+            </button>
 
-        {/* Modal Sheet Container */}
-        <motion.div
-          className="relative w-full max-w-5xl bg-[#f8fafc] text-slate-800 rounded-none sm:rounded-3xl shadow-2xl flex flex-col max-h-none sm:max-h-[92vh] overflow-hidden border border-slate-200/50 z-10"
-          initial={{ scale: 0.95, y: 15 }}
-          animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.95, y: 15 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-        >
-          {/* ── TOP HEADER BREADCRUMBS ─────────────────────────────── */}
-          <div className="px-6 py-4 bg-white border-b border-slate-100 flex items-center justify-between text-xs text-slate-400 font-medium shrink-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="hover:text-violet-600 cursor-pointer">Home</span>
-              <span>/</span>
-              <span className="hover:text-violet-600 cursor-pointer">Projects</span>
-              <span>/</span>
-              <span className="hover:text-violet-600 cursor-pointer uppercase">{project.techStack[0]?.items[0] || 'Web App'}</span>
-              <span>/</span>
-              <span className="text-slate-600 font-semibold">{project.title}</span>
-            </div>
-            
-            {/* Header controls: Open in New Page button + Close button */}
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => window.open(`?preview=${project.id}`, '_blank')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-violet-50 text-slate-600 hover:text-violet-600 font-semibold text-xs transition-colors border border-slate-200/80 cursor-pointer"
-                title="Open Preview in New Tab / Page"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Open in New Page</span>
-              </button>
-
-              <button
-                onClick={onClose}
-                className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                title="Close"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
+        )}
+      </div>
 
           {/* ── MAIN CONTENT AREA (SCROLLABLE) ──────────────────────── */}
           <div className="flex-1 overflow-y-auto p-6 flex flex-col md:flex-row gap-8 min-h-0 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full">
@@ -177,25 +165,27 @@ export default function ProjectPreviewModal({
               </div>
 
               {/* Thumbnail Selector Carousel */}
-              <div className="grid grid-cols-4 gap-3">
-                {gallery.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(img)}
-                    className={`aspect-video rounded-xl overflow-hidden bg-white border-2 shadow-sm transition-all ${
-                      activeImage === img
-                        ? 'border-violet-500 ring-2 ring-violet-500/10'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`Preview ${idx + 1}`}
-                      className="w-full h-full object-cover object-top"
-                    />
-                  </button>
-                ))}
-              </div>
+              {gallery.length > 1 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {gallery.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImage(img)}
+                      className={`aspect-video rounded-xl overflow-hidden bg-white border-2 shadow-sm transition-all ${
+                        activeImage === img
+                          ? 'border-violet-500 ring-2 ring-violet-500/10'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`Preview ${idx + 1}`}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ── RIGHT COLUMN: DETAILS & ACTIONS ───────────────────── */}
@@ -317,7 +307,32 @@ export default function ProjectPreviewModal({
 
             </div>
           </div>
+    </div>
+  );
 
+  if (isStandalone) {
+    return modalContent;
+  }
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-[9998] flex items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        {/* Backdrop Click to Close */}
+        <div className="absolute inset-0 cursor-default" onClick={onClose} />
+
+        <motion.div
+          className="relative w-full max-w-5xl bg-[#f8fafc] text-slate-800 rounded-none sm:rounded-3xl shadow-2xl flex flex-col max-h-none sm:max-h-[92vh] overflow-hidden border border-slate-200/50 z-10"
+          initial={{ scale: 0.95, y: 15 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.95, y: 15 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+        >
+          {modalContent}
         </motion.div>
       </motion.div>
     </AnimatePresence>
