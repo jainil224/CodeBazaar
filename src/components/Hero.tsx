@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, User, Package, Heart, FileText, LogOut, ChevronDown, X } from 'lucide-react';
 import siteLogo from '@/assets/logo.svg';
 
 interface HeroProps {
@@ -27,6 +27,20 @@ const NavButton = ({ children, href, onClick, className = '' }: { children: Reac
 };
 
 export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick, onMyPurchasesClick }: HeroProps) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+
+  const handleWishlistClick = () => {
+    setIsDropdownOpen(false);
+    const el = document.getElementById('projects');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.hash = 'projects';
+    }
+  };
+
   return (
     <section className="relative min-h-svh w-full overflow-hidden flex flex-col justify-between">
       {/* ── Background Image ─────────────────── */}
@@ -47,36 +61,137 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
           </div>
 
           {/* Center Links */}
-          <div className="flex gap-2 max-md:hidden absolute left-1/2 -translate-x-1/2">
+          <div className="flex gap-2 max-md:hidden">
             <NavButton href="#projects">Browse Templates</NavButton>
             <NavButton href="#how-to-get-code">How It Works</NavButton>
             <NavButton href="#faqs">FAQs</NavButton>
           </div>
 
         {/* Right Links & CTAs */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3.5 relative">
+          {/* Contact Us WhatsApp button */}
+          <a 
+            href="https://wa.me/919999999999" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-[11px] font-semibold uppercase tracking-[0.06em] px-4.5 py-2.5 rounded-full flex items-center gap-2 transition-all cursor-pointer select-none max-md:px-3.5 max-md:py-1.5 shrink-0"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-3.5 h-3.5 fill-emerald-400">
+              <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+            </svg>
+            <span className="max-sm:hidden">Contact Us</span>
+          </a>
+
           {currentUser ? (
-            <>
-              {currentUser.role === 'admin' ? (
-                <button 
-                  onClick={onAdminClick}
-                  className="bg-primary-indigo/20 border border-primary-indigo/35 text-primary-pink cursor-pointer font-sans text-[12px] font-semibold uppercase tracking-[0.06em] px-4 py-2 rounded-full hover:bg-primary-indigo/40 active:scale-95 transition-all"
-                >
-                  Admin
-                </button>
-              ) : (
-                <button 
-                  onClick={onMyPurchasesClick}
-                  className="hover:text-white hover:bg-white/10 text-white/70 cursor-pointer font-sans text-[12px] font-semibold uppercase tracking-[0.06em] px-4 py-2 rounded-full transition-all"
-                >
-                  My Purchases
-                </button>
+            <div className="relative">
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-[11px] font-semibold uppercase tracking-[0.06em] px-4.5 py-2.5 rounded-full flex items-center gap-2.5 transition-all cursor-pointer select-none shrink-0"
+              >
+                <div className="w-6 h-6 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold font-mono">
+                  {currentUser.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="max-sm:hidden">My Account</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-white/50 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu Box */}
+              {isDropdownOpen && (
+                <>
+                  {/* Click outside backdrop overlay */}
+                  <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                  
+                  <div className="absolute right-0 mt-3.5 w-72 bg-[#0c0c14] border border-white/10 rounded-3xl p-5 shadow-2xl backdrop-blur-xl flex flex-col gap-4 z-50 text-left">
+                    {/* Header profile info */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-base font-black font-mono shadow-md shadow-purple-900/30 select-none">
+                        {currentUser.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-white text-sm truncate leading-tight">{currentUser.name}</h4>
+                        <p className="text-[10.5px] text-white/40 truncate font-mono mt-0.5">{currentUser.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-b border-white/5 w-full my-0.5" />
+
+                    {/* Menu links list */}
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={() => { setIsDropdownOpen(false); setIsProfileOpen(true); }}
+                        className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <User className="w-4 h-4 text-purple-400" />
+                          My Profile
+                        </span>
+                        <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                      </button>
+
+                      {currentUser.role === 'admin' && (
+                        <button
+                          onClick={() => { setIsDropdownOpen(false); onAdminClick(); }}
+                          className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                        >
+                          <span className="flex items-center gap-2.5">
+                            <User className="w-4 h-4 text-pink-400" />
+                            Admin Console
+                          </span>
+                          <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => { setIsDropdownOpen(false); onMyPurchasesClick(); }}
+                        className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <Package className="w-4 h-4 text-purple-400" />
+                          My Orders
+                        </span>
+                        <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                      </button>
+
+                      <button
+                        onClick={handleWishlistClick}
+                        className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <Heart className="w-4 h-4 text-purple-400" />
+                          Wishlist
+                        </span>
+                        <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                      </button>
+
+                      <button
+                        onClick={() => { setIsDropdownOpen(false); setIsTermsOpen(true); }}
+                        className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <FileText className="w-4 h-4 text-purple-400" />
+                          Terms & Conditions
+                        </span>
+                        <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                      </button>
+                    </div>
+
+                    <div className="border-b border-white/5 w-full my-0.5" />
+
+                    {/* Exit action */}
+                    <button
+                      onClick={() => { setIsDropdownOpen(false); onLogout(); }}
+                      className="flex items-center justify-between text-xs font-bold text-red-400 hover:text-red-300 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition-colors cursor-pointer w-full text-left"
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5 text-red-400/50" />
+                    </button>
+                  </div>
+                </>
               )}
-              <span className="text-white/60 text-sm max-md:hidden pl-2 pr-4 border-r border-white/10">
-                Hi, <strong className="text-white font-medium">{currentUser.name}</strong>
-              </span>
-              <NavButton onClick={onLogout}>Logout</NavButton>
-            </>
+            </div>
           ) : (
             <>
               <div className="max-md:hidden">
@@ -84,7 +199,7 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
               </div>
               <button 
                 onClick={onLoginClick}
-                className="bg-white text-black font-sans text-[12px] font-bold uppercase tracking-[0.06em] px-6 py-3 rounded-full transition-all hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95 shadow-[0_4px_12px_rgba(255,255,255,0.1)] cursor-pointer"
+                className="bg-white text-black font-sans text-[11px] font-bold uppercase tracking-[0.06em] px-5 py-2.5 rounded-full transition-all hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95 shadow-[0_4px_12px_rgba(255,255,255,0.1)] cursor-pointer shrink-0"
               >
                 Get Started
               </button>
@@ -129,6 +244,91 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
 
       {/* Empty bottom element to align centering */}
       <div className="h-20 max-md:hidden"></div>
+
+      {/* ── PROFILE MODAL ─────────────────── */}
+      {isProfileOpen && currentUser && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          {/* Click backdrop to close */}
+          <div className="absolute inset-0 cursor-default" onClick={() => setIsProfileOpen(false)} />
+          
+          <div className="bg-[#0c0c14] border border-white/10 rounded-[32px] p-8 w-full max-w-[420px] shadow-2xl relative text-left z-10">
+            <button 
+              onClick={() => setIsProfileOpen(false)}
+              className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            <div className="flex flex-col items-center text-center mt-4">
+              <div className="w-20 h-20 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-3xl font-extrabold shadow-lg shadow-purple-500/25 select-none font-mono">
+                {currentUser.name.charAt(0).toUpperCase()}
+              </div>
+              <h3 className="text-xl font-black text-white mt-4">{currentUser.name}</h3>
+              <p className="text-[10px] text-purple-400 font-mono tracking-wider uppercase font-bold mt-1">{currentUser.role} Account</p>
+              
+              <div className="w-full border-t border-white/5 my-6" />
+              
+              <div className="w-full space-y-4 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="text-white/40 font-mono">Email Address:</span>
+                  <span className="text-white/80 font-bold truncate max-w-[200px]">{currentUser.email}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-white/40 font-mono">License Scope:</span>
+                  <span className="text-white/80 font-bold">
+                    {currentUser.role === 'admin' ? 'Administrator' : 'Standard Buyer'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-white/40 font-mono">My Files:</span>
+                  <button 
+                    onClick={() => { setIsProfileOpen(false); onMyPurchasesClick(); }}
+                    className="text-purple-400 hover:text-purple-300 font-extrabold cursor-pointer border-none bg-transparent underline uppercase tracking-wider text-[10px]"
+                  >
+                    View Purchases
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TERMS MODAL ─────────────────── */}
+      {isTermsOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          {/* Click backdrop to close */}
+          <div className="absolute inset-0 cursor-default" onClick={() => setIsTermsOpen(false)} />
+          
+          <div className="bg-[#0c0c14] border border-white/10 rounded-[32px] p-8 w-full max-w-[480px] shadow-2xl relative text-left z-10 flex flex-col max-h-[85vh]">
+            <button 
+              onClick={() => setIsTermsOpen(false)}
+              className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            <h3 className="text-xl font-black text-white mb-6">Terms & Conditions</h3>
+            
+            <div className="flex-1 overflow-y-auto space-y-5 text-xs text-white/50 leading-relaxed pr-2 [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-thumb]:bg-white/10">
+              <div>
+                <h4 className="font-bold text-white mb-1.5 uppercase tracking-wider text-[10px] text-purple-400">1. Digital Purchase License</h4>
+                <p>All items on CodeBazaar are digital products. Upon payment of the listed price, you are granted a non-transferable, non-exclusive license to download, view, and customize the source code. You may not resell or redistribute the source files.</p>
+              </div>
+              
+              <div>
+                <h4 className="font-bold text-white mb-1.5 uppercase tracking-wider text-[10px] text-purple-400">2. Refund Guidelines</h4>
+                <p>Due to the nature of digital assets, once the files are purchased and made available for direct zip downloads, all sales are final. Refunds are not issued except in documented cases of payment processing errors.</p>
+              </div>
+              
+              <div>
+                <h4 className="font-bold text-white mb-1.5 uppercase tracking-wider text-[10px] text-purple-400">3. System Support</h4>
+                <p>All source code projects are delivered "as-is". Support and updates are provided on a best-effort basis. If you have inquiries, please use the Contact Us link to reach our helpdesk.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
