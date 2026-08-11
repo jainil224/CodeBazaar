@@ -3,7 +3,7 @@ import { ArrowRight, User, Package, Heart, FileText, LogOut, ChevronDown, X } fr
 import siteLogo from '@/assets/logo.svg';
 
 interface HeroProps {
-  currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
+  currentUser: { email: string; name: string; role: 'admin' | 'user'; photoURL?: string } | null;
   onLoginClick: () => void;
   onLogout: () => void;
   onAdminClick: () => void;
@@ -88,13 +88,22 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-[11px] font-semibold uppercase tracking-[0.06em] px-4.5 py-2.5 rounded-full flex items-center gap-2.5 transition-all cursor-pointer select-none shrink-0"
               >
-                <div className="w-6 h-6 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold font-mono">
-                  {currentUser.name.charAt(0).toUpperCase()}
-                </div>
+                {currentUser.photoURL ? (
+                  <img 
+                    src={currentUser.photoURL} 
+                    alt={currentUser.name} 
+                    className="w-6 h-6 rounded-full object-cover shrink-0"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-6 h-6 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold font-mono shrink-0">
+                    {currentUser.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <span className="max-sm:hidden">My Account</span>
                 <ChevronDown className={`w-3.5 h-3.5 text-white/50 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-
+ 
               {/* Dropdown Menu Box */}
               {isDropdownOpen && (
                 <>
@@ -104,74 +113,92 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
                   <div className="absolute right-0 mt-3.5 w-72 bg-[#0c0c14] border border-white/10 rounded-3xl p-5 shadow-2xl backdrop-blur-xl flex flex-col gap-4 z-50 text-left">
                     {/* Header profile info */}
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-base font-black font-mono shadow-md shadow-purple-900/30 select-none">
-                        {currentUser.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="font-bold text-white text-sm truncate leading-tight">{currentUser.name}</h4>
-                        <p className="text-[10.5px] text-white/40 truncate font-mono mt-0.5">{currentUser.email}</p>
+                      {currentUser.photoURL ? (
+                        <img 
+                          src={currentUser.photoURL} 
+                          alt={currentUser.name} 
+                          className="w-11 h-11 rounded-full object-cover shadow-md shadow-purple-900/30 shrink-0"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-11 h-11 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-base font-black font-mono shadow-md shadow-purple-900/30 select-none shrink-0">
+                          {currentUser.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="font-extrabold text-white text-sm truncate leading-tight">{currentUser.name}</h4>
+                          <span className={`text-[8px] px-1.5 py-0.5 rounded font-mono font-bold uppercase tracking-wider border shrink-0 ${
+                            currentUser.role === 'admin' 
+                              ? 'bg-purple-500/10 border-purple-500/30 text-purple-400' 
+                              : 'bg-zinc-500/10 border-zinc-500/30 text-zinc-400'
+                          }`}>
+                            {currentUser.role}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-white/40 truncate font-mono mt-1">{currentUser.email}</p>
                       </div>
                     </div>
 
                     <div className="border-b border-white/5 w-full my-0.5" />
 
                     {/* Menu links list */}
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-0.5">
                       <button
                         onClick={() => { setIsDropdownOpen(false); setIsProfileOpen(true); }}
-                        className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                        className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white px-3.5 py-3 rounded-xl hover:bg-white/[0.03] transition-all duration-200 hover:translate-x-0.5 cursor-pointer w-full text-left group"
                       >
-                        <span className="flex items-center gap-2.5">
-                          <User className="w-4 h-4 text-purple-400" />
+                        <span className="flex items-center gap-3">
+                          <User className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
                           My Profile
                         </span>
-                        <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                        <ArrowRight className="w-3.5 h-3.5 text-white/20 group-hover:text-purple-400 transition-colors" />
                       </button>
 
                       {currentUser.role === 'admin' && (
                         <button
                           onClick={() => { setIsDropdownOpen(false); onAdminClick(); }}
-                          className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                          className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white px-3.5 py-3 rounded-xl hover:bg-white/[0.03] transition-all duration-200 hover:translate-x-0.5 cursor-pointer w-full text-left group"
                         >
-                          <span className="flex items-center gap-2.5">
-                            <User className="w-4 h-4 text-pink-400" />
+                          <span className="flex items-center gap-3">
+                            <User className="w-4 h-4 text-pink-400 group-hover:scale-110 transition-transform duration-200" />
                             Admin Console
                           </span>
-                          <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                          <ArrowRight className="w-3.5 h-3.5 text-white/20 group-hover:text-pink-400 transition-colors" />
                         </button>
                       )}
 
                       <button
                         onClick={() => { setIsDropdownOpen(false); onMyPurchasesClick(); }}
-                        className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                        className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white px-3.5 py-3 rounded-xl hover:bg-white/[0.03] transition-all duration-200 hover:translate-x-0.5 cursor-pointer w-full text-left group"
                       >
-                        <span className="flex items-center gap-2.5">
-                          <Package className="w-4 h-4 text-purple-400" />
+                        <span className="flex items-center gap-3">
+                          <Package className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
                           My Orders
                         </span>
-                        <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                        <ArrowRight className="w-3.5 h-3.5 text-white/20 group-hover:text-purple-400 transition-colors" />
                       </button>
 
                       <button
                         onClick={handleWishlistClick}
-                        className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                        className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white px-3.5 py-3 rounded-xl hover:bg-white/[0.03] transition-all duration-200 hover:translate-x-0.5 cursor-pointer w-full text-left group"
                       >
-                        <span className="flex items-center gap-2.5">
-                          <Heart className="w-4 h-4 text-purple-400" />
+                        <span className="flex items-center gap-3">
+                          <Heart className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
                           Wishlist
                         </span>
-                        <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                        <ArrowRight className="w-3.5 h-3.5 text-white/20 group-hover:text-purple-400 transition-colors" />
                       </button>
 
                       <button
                         onClick={() => { setIsDropdownOpen(false); setIsTermsOpen(true); }}
-                        className="flex items-center justify-between text-xs font-semibold text-white/70 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer w-full text-left"
+                        className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white px-3.5 py-3 rounded-xl hover:bg-white/[0.03] transition-all duration-200 hover:translate-x-0.5 cursor-pointer w-full text-left group"
                       >
-                        <span className="flex items-center gap-2.5">
-                          <FileText className="w-4 h-4 text-purple-400" />
+                        <span className="flex items-center gap-3">
+                          <FileText className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform duration-200" />
                           Terms & Conditions
                         </span>
-                        <ArrowRight className="w-3.5 h-3.5 text-white/30" />
+                        <ArrowRight className="w-3.5 h-3.5 text-white/20 group-hover:text-purple-400 transition-colors" />
                       </button>
                     </div>
 
@@ -180,13 +207,13 @@ export default function Hero({ currentUser, onLoginClick, onLogout, onAdminClick
                     {/* Exit action */}
                     <button
                       onClick={() => { setIsDropdownOpen(false); onLogout(); }}
-                      className="flex items-center justify-between text-xs font-bold text-red-400 hover:text-red-300 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition-colors cursor-pointer w-full text-left"
+                      className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-red-400 hover:text-red-300 px-3.5 py-3 rounded-xl hover:bg-red-500/10 transition-all duration-200 hover:translate-x-0.5 cursor-pointer w-full text-left group"
                     >
-                      <span className="flex items-center gap-2.5">
-                        <LogOut className="w-4 h-4" />
+                      <span className="flex items-center gap-3">
+                        <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                         Logout
                       </span>
-                      <ArrowRight className="w-3.5 h-3.5 text-red-400/50" />
+                      <ArrowRight className="w-3.5 h-3.5 text-red-500/20 group-hover:text-red-400 transition-colors" />
                     </button>
                   </div>
                 </>

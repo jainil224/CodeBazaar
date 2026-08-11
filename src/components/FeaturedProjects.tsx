@@ -1,12 +1,12 @@
-import { Code2, Download, Heart, ShoppingBag, ExternalLink, Search } from 'lucide-react';
+import { Code2, Download, Heart, ShoppingBag, ExternalLink, Search, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
 import PaymentSuccessModal from './PaymentSuccessModal';
 import ProjectPreviewModal, { type ProjectDetail } from './ProjectPreviewModal';
-import type { DigitalProduct } from '@/features/digitalProducts/types/digitalProduct';
+import { getDoc, doc } from 'firebase/firestore';
 import { db, storage } from '@/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import type { DigitalProduct } from '../features/digitalProducts/types/digitalProduct';
 import { ref, getBlob } from 'firebase/storage';
 import { trackEvent } from '@/lib/analytics';
 
@@ -16,6 +16,9 @@ interface FeaturedProjectsProps {
   onTriggerAuth: () => void;
   onPurchaseSuccess: (projectId: string, projectTitle: string, paymentId?: string) => void;
   products: DigitalProduct[];
+  isFullCatalogView?: boolean;
+  onBackClick?: () => void;
+  onViewAllClick?: () => void;
 }
 
 export default function FeaturedProjects({
@@ -24,6 +27,9 @@ export default function FeaturedProjects({
   onTriggerAuth,
   onPurchaseSuccess,
   products,
+  isFullCatalogView = false,
+  onBackClick,
+  onViewAllClick,
 }: FeaturedProjectsProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [previewProject, setPreviewProject] = useState<ProjectDetail | null>(null);
@@ -225,12 +231,33 @@ export default function FeaturedProjects({
     <>
       <section id="projects" className="py-24 relative z-10 w-full overflow-hidden bg-transparent">
         <div className="relative z-10 max-w-[1200px] mx-auto px-6">
+          {/* Back button (Only if full catalog view) */}
+          {isFullCatalogView && onBackClick && (
+            <div className="mb-8 flex justify-start">
+              <button 
+                type="button"
+                onClick={onBackClick}
+                className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition-colors cursor-pointer bg-white/5 border border-white/10 px-4.5 py-2.5 rounded-xl hover:bg-white/10"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Home</span>
+              </button>
+            </div>
+          )}
+
           {/* Title */}
           <div className="text-center mb-16">
-            <h2 className="text-xs uppercase tracking-widest font-bold text-primary-indigo font-mono">Bazaar Showroom</h2>
-            <h3 className="text-3xl sm:text-4xl font-bold text-white mt-2">Featured Project Templates</h3>
+            <h2 className="text-xs uppercase tracking-widest font-bold text-primary-indigo font-mono">
+              {isFullCatalogView ? "Complete Catalog" : "Bazaar Showroom"}
+            </h2>
+            <h3 className="text-3xl sm:text-4xl font-bold text-white mt-2">
+              {isFullCatalogView ? "All Project Templates" : "Featured Project Templates"}
+            </h3>
             <p className="text-white/60 max-w-[600px] mx-auto mt-4 text-base">
-              Get production-ready, beautifully designed project bases for just ₹50. Instant source code download.
+              {isFullCatalogView 
+                ? `Browse all ${products.length} production-ready digital products and templates.`
+                : "Get production-ready, beautifully designed project bases for just ₹50. Instant source code download."
+              }
             </p>
           </div>
 
@@ -270,7 +297,7 @@ export default function FeaturedProjects({
 
           {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {filteredProducts.map((project) => {
+            {(isFullCatalogView ? filteredProducts : filteredProducts.slice(0, 4)).map((project) => {
               const isPurchased = purchasedIds.includes(project.id);
               const isFavorited = favorites.includes(project.id);
 
@@ -398,6 +425,19 @@ export default function FeaturedProjects({
               );
             })}
           </div>
+
+          {!isFullCatalogView && filteredProducts.length > 4 && (
+            <div className="flex justify-center mt-12">
+              <button 
+                type="button"
+                onClick={onViewAllClick}
+                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-xs font-bold uppercase tracking-wider px-8 py-4.5 rounded-2xl flex items-center gap-2 transition-all hover:scale-103 active:scale-95 cursor-pointer shadow-lg shadow-black/30"
+              >
+                <span>View All {filteredProducts.length} Templates</span>
+                <ArrowRight className="w-4 h-4 text-purple-400" />
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

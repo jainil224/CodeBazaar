@@ -1,5 +1,5 @@
 import { storage } from '@/firebase';
-import { ref, uploadBytesResumable, deleteObject, getBlob, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, deleteObject, getBlob } from 'firebase/storage';
 
 /**
  * Uploads a secure ZIP file to Firebase Storage under products/{productId}/{zipName}
@@ -39,26 +39,52 @@ export function uploadProductImage(
   file: File,
   onProgress: (progress: number) => void
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const storagePath = `product-images/${productId}/${file.name}`;
-    const fileRef = ref(storage, storagePath);
-    const uploadTask = uploadBytesResumable(fileRef, file);
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        onProgress(Math.round(progress));
-      },
-      (error) => {
-        reject(error);
-      },
-      () => {
-        getDownloadURL(fileRef)
-          .then((url) => resolve(url))
-          .catch((err) => reject(err));
+  if (!cloudName || !uploadPreset) {
+    return Promise.reject(new Error("Cloudinary is not configured. Please add VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in your .env file."));
+  }
+
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('folder', `codebazaar/images/${productId}`);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const percentComplete = (e.loaded / e.total) * 100;
+        onProgress(Math.round(percentComplete));
       }
-    );
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response.secure_url);
+        } catch (err) {
+          reject(new Error('Failed to parse Cloudinary response.'));
+        }
+      } else {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          reject(new Error(response.error?.message || 'Failed to upload image.'));
+        } catch {
+          reject(new Error('Image upload failed.'));
+        }
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('Network error uploading to Cloudinary.'));
+    };
+
+    xhr.send(formData);
   });
 }
 

@@ -298,9 +298,12 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
             { icon: 'Smartphone', label: 'Responsive', value: '100%', color: '#34d399' }
           ]
         },
-        downloadFile: prodDownloadFile || undefined,
         updatedAt: serverTimestamp()
       };
+
+      if (prodDownloadFile) {
+        productDoc.downloadFile = prodDownloadFile;
+      }
 
       if (!editingProduct) {
         productDoc.createdAt = serverTimestamp();
@@ -374,14 +377,19 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                   setIsEditing(false);
                   setActiveTab(tab.id as any);
                 }}
-                className={`w-full flex items-center gap-3 px-4.5 py-3.5 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${
+                className={`w-full flex items-center gap-3 px-4.5 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 active:scale-95 cursor-pointer ${
                   activeTab === tab.id 
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/35 border border-purple-500' 
-                    : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'
+                    ? 'bg-gradient-to-r from-violet-600/90 to-purple-600/90 text-white shadow-[0_8px_20px_rgba(139,92,246,0.25)] border border-purple-500/20' 
+                    : 'text-white/50 hover:text-white hover:bg-white/[0.04] border border-transparent'
                 }`}
               >
-                {tab.icon}
+                <span className={`transition-transform duration-300 ${activeTab === tab.id ? 'scale-110 text-purple-300' : 'text-white/40'}`}>
+                  {tab.icon}
+                </span>
                 <span>{tab.label}</span>
+                {activeTab === tab.id && (
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_#c084fc] ml-auto animate-pulse" />
+                )}
               </button>
             ))}
           </div>
@@ -743,7 +751,7 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                         </h3>
                         <button
                           onClick={startAddNew}
-                          className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-lg shadow-purple-900/25 border border-purple-500"
+                          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-4.5 rounded-2xl text-xs flex items-center gap-1.5 transition-all active:scale-97 cursor-pointer shadow-lg shadow-purple-900/20 border border-purple-500/30"
                         >
                           <Plus className="w-4 h-4" /> Add Product
                         </button>
@@ -754,10 +762,10 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                         {stats.productPerformance.map((product) => (
                           <div
                             key={product.id}
-                            className="bg-white/[0.02] hover:bg-white/[0.04] border border-white/10 rounded-2xl p-4.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4.5 transition-all group"
+                            className="bg-gradient-to-br from-white/[0.03] to-white/[0.005] hover:from-white/[0.04] hover:to-white/[0.01] border border-white/10 hover:border-purple-500/25 rounded-2xl p-4.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4.5 transition-all duration-300 hover:shadow-xl hover:shadow-black/25 group"
                           >
                             <div className="flex items-center gap-4.5 min-w-0 flex-1">
-                              <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-xl overflow-hidden shrink-0 flex items-center justify-center">
+                              <div className="w-14 h-14 bg-white/[0.03] border border-white/10 group-hover:border-purple-500/30 rounded-xl overflow-hidden shrink-0 flex items-center justify-center transition-all duration-300">
                                 {propProducts.find(p => p.id === product.id)?.imageUrl ? (
                                   <img src={propProducts.find(p => p.id === product.id)?.imageUrl} alt={product.title} className="w-full h-full object-cover" />
                                 ) : (
@@ -766,7 +774,7 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                               </div>
                               <div className="min-w-0 text-left">
                                 <div className="flex items-center gap-2">
-                                  <h4 className="text-base font-bold text-white truncate">{product.title}</h4>
+                                  <h4 className="text-base font-extrabold text-white group-hover:text-purple-300 transition-colors truncate">{product.title}</h4>
                                   <span className="bg-purple-500/10 text-purple-300 text-[9px] font-extrabold tracking-wider px-2 py-0.5 rounded-full border border-purple-500/25 font-mono uppercase">
                                     {product.category}
                                   </span>
@@ -775,8 +783,8 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-white/40 text-[10.5px] mt-1.5 font-mono">
                                   <span className="text-white/60">Views: <strong className="text-white">{product.views}</strong></span>
                                   <span className="text-white/60">Sales: <strong className="text-white">{product.orders}</strong></span>
-                                  <span className="text-white/60">Revenue: <strong className="text-emerald-400">₹{product.revenue}</strong></span>
-                                  <span className="text-white/60">Conv: <strong className="text-purple-400">{product.conversion}%</strong></span>
+                                  <span className="text-white/60">Revenue: <strong className="text-emerald-400 font-bold">₹{product.revenue}</strong></span>
+                                  <span className="text-white/60">Conv: <strong className="text-purple-400 font-bold">{product.conversion}%</strong></span>
                                 </div>
                               </div>
                             </div>
@@ -784,7 +792,7 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                             {/* Price and Action Buttons */}
                             <div className="flex items-center gap-4 shrink-0 max-sm:w-full max-sm:justify-between">
                               <div className="text-left sm:text-right">
-                                <div className="text-lg font-black text-white">{product.price}</div>
+                                <div className="text-lg font-black text-emerald-400 font-mono">₹{product.price}</div>
                                 <div className="text-[10px] text-white/40 font-mono">ID: {product.id}</div>
                               </div>
 
@@ -1060,7 +1068,7 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                   <div className="flex justify-between items-center gap-4 flex-wrap">
                     {/* Search box */}
                     <div className="relative w-full sm:w-[280px]">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30">
                         <Search className="w-4 h-4" />
                       </span>
                       <input
@@ -1068,29 +1076,29 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                         placeholder="Search orders..."
                         value={orderSearch}
                         onChange={(e) => setOrderSearch(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 focus:border-purple-400 rounded-xl pl-10 pr-4 py-2 text-xs outline-none transition-colors text-white"
+                        className="w-full bg-white/[0.03] border border-white/10 focus:border-purple-500/60 rounded-2xl pl-10 pr-4 py-2.5 text-xs outline-none transition-all text-white focus:ring-1 focus:ring-purple-500/30"
                       />
                     </div>
 
                     <button 
                       onClick={handleExportOrders}
-                      className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-lg shadow-purple-900/25 border border-purple-500"
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-4.5 rounded-2xl text-xs flex items-center gap-1.5 transition-all active:scale-97 cursor-pointer shadow-lg shadow-purple-900/20 border border-purple-500/30"
                     >
                       <Download className="w-3.5 h-3.5" /> Export Orders CSV
                     </button>
                   </div>
 
                   {/* Orders Table */}
-                  <div className="border border-white/10 rounded-2xl bg-white/[0.02] overflow-x-auto">
+                  <div className="border border-white/10 rounded-3xl bg-gradient-to-br from-white/[0.02] to-white/[0.005] overflow-x-auto shadow-xl">
                     <table className="w-full text-xs text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-white/10 bg-white/[0.03] text-white/70 font-semibold uppercase tracking-wider">
-                          <th className="p-4 pl-6">Order ID / Tx ID</th>
-                          <th className="p-4">Customer</th>
-                          <th className="p-4">Template Product</th>
-                          <th className="p-4">Purchased Date</th>
-                          <th className="p-4">Status</th>
-                          <th className="p-4 pr-6 text-right">Price</th>
+                        <tr className="border-b border-white/10 bg-white/[0.03] text-[10px] text-white/40 font-mono font-bold uppercase tracking-widest">
+                          <th className="p-4.5 pl-6">Order ID / Tx ID</th>
+                          <th className="p-4.5">Customer</th>
+                          <th className="p-4.5">Template Product</th>
+                          <th className="p-4.5">Purchased Date</th>
+                          <th className="p-4.5">Status</th>
+                          <th className="p-4.5 pr-6 text-right">Price</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
@@ -1101,22 +1109,22 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                             o.id.toLowerCase().includes(orderSearch.toLowerCase())
                           )
                           .map((order) => (
-                            <tr key={order.id} className="hover:bg-white/[0.01] transition-colors text-white/80">
-                              <td className="p-4 pl-6 font-mono text-purple-300 font-semibold">{order.id}</td>
-                              <td className="p-4 text-left">
-                                <div className="font-bold text-white">{order.customerName}</div>
-                                <div className="text-[10px] text-white/40">{order.customerEmail}</div>
+                            <tr key={order.id} className="hover:bg-white/[0.03] transition-all duration-200 text-white/80">
+                              <td className="p-4.5 pl-6 font-mono text-purple-300 font-bold">{order.id}</td>
+                              <td className="p-4.5 text-left">
+                                <div className="font-extrabold text-white">{order.customerName}</div>
+                                <div className="text-[10px] text-white/40 mt-0.5 font-mono">{order.customerEmail}</div>
                               </td>
-                              <td className="p-4 font-semibold text-white">{order.productTitle}</td>
-                              <td className="p-4 font-mono text-white/60">
+                              <td className="p-4.5 font-extrabold text-white">{order.productTitle}</td>
+                              <td className="p-4.5 font-mono text-white/50">
                                 {new Date(order.date).toLocaleDateString()} {new Date(order.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                               </td>
-                              <td className="p-4">
-                                <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/25">
+                              <td className="p-4.5">
+                                <span className="bg-emerald-500/10 text-emerald-400 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/20 uppercase tracking-wider font-mono">
                                   Paid
                                 </span>
                               </td>
-                              <td className="p-4 pr-6 text-right font-black text-green-400">₹{order.amount}</td>
+                              <td className="p-4.5 pr-6 text-right font-black text-emerald-400 font-mono text-sm">₹{order.amount}</td>
                             </tr>
                           ))}
                       </tbody>

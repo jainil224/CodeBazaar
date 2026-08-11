@@ -44,10 +44,38 @@ export default function KpiCard({ title, value, percentChange, status, icon }: K
     }
   };
 
+  const getThemeStyles = () => {
+    const t = title.toLowerCase();
+    if (t.includes('revenue') || t.includes('conversion')) {
+      return {
+        bg: 'bg-amber-500/10 border-amber-500/20 text-amber-400 group-hover:border-amber-400/40 group-hover:shadow-[0_0_12px_rgba(245,158,11,0.25)]',
+        border: 'border-b-amber-500/30'
+      };
+    }
+    if (t.includes('order') || t.includes('active')) {
+      return {
+        bg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 group-hover:border-emerald-400/40 group-hover:shadow-[0_0_12px_rgba(16,185,129,0.25)]',
+        border: 'border-b-emerald-500/30'
+      };
+    }
+    if (t.includes('new user') || t.includes('click')) {
+      return {
+        bg: 'bg-purple-500/10 border-purple-500/20 text-purple-400 group-hover:border-purple-400/40 group-hover:shadow-[0_0_12px_rgba(168,85,247,0.25)]',
+        border: 'border-b-purple-500/30'
+      };
+    }
+    return {
+      bg: 'bg-blue-500/10 border-blue-500/20 text-blue-400 group-hover:border-blue-400/40 group-hover:shadow-[0_0_12px_rgba(59,130,246,0.25)]',
+      border: 'border-b-blue-500/30'
+    };
+  };
+
+  const theme = getThemeStyles();
+
   return (
-    <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 flex items-center justify-between gap-4 transition-all duration-300 hover:bg-white/[0.05] hover:border-white/15 hover:shadow-lg hover:shadow-purple-900/5 group text-left">
+    <div className={`bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/10 border-b-2 ${theme.border} rounded-2xl p-5 flex items-center justify-between gap-4 transition-all duration-300 hover:bg-white/[0.06] hover:border-white/15 hover:shadow-xl hover:shadow-black/20 group text-left`}>
       <div className="min-w-0">
-        <p className="text-xs text-white/50 uppercase tracking-widest font-mono font-medium truncate">{title}</p>
+        <p className="text-[10px] text-white/40 uppercase tracking-widest font-mono font-bold">{title}</p>
         <h3 className="text-2xl font-black text-white mt-1.5 tracking-tight truncate">{value}</h3>
         <div className="flex items-center gap-1.5 mt-2 flex-wrap">
           {getTrendBadge()}
@@ -56,7 +84,7 @@ export default function KpiCard({ title, value, percentChange, status, icon }: K
       </div>
 
       {icon && (
-        <div className="w-12 h-12 bg-white/5 border border-white/10 group-hover:border-purple-500/40 rounded-xl flex items-center justify-center text-white/60 group-hover:text-purple-400 shrink-0 transition-all duration-300">
+        <div className={`w-12 h-12 border ${theme.bg} rounded-xl flex items-center justify-center shrink-0 transition-all duration-300`}>
           {icon}
         </div>
       )}

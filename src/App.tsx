@@ -9,9 +9,9 @@ import AuroraAuth from '@/components/AuroraAuth';
 import AdminDashboard from '@/components/AdminDashboard';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
 import ProjectPlayground from '@/components/ProjectPlayground';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, collection, onSnapshot, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/firebase';
+import { useAuth } from '@/context/AuthContext';
+import { doc, collection, onSnapshot, setDoc } from 'firebase/firestore';
+import { db, auth } from '@/firebase';
 import { loadRazorpay } from './utils/razorpayLoader';
 import { DEFAULT_PRODUCTS } from '@/features/digitalProducts/data/defaultProducts';
 import MyPurchasesModal from '@/features/digitalProducts/components/MyPurchasesModal';
@@ -29,11 +29,7 @@ interface Transaction {
   date: string;
 }
 
-interface UserSession {
-  email: string;
-  name: string;
-  role: 'admin' | 'user';
-}
+
 
 const SEED_TRANSACTIONS: Transaction[] = [
   {
@@ -63,26 +59,26 @@ const SEED_TRANSACTIONS: Transaction[] = [
 ];
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
-  const [purchasedIds, setPurchasedIds] = useState<string[]>([]);
+  const { userProfile, loading, logout } = useAuth();
+  
+  const currentUser = userProfile;
+  const purchasedIds = userProfile?.purchasedIds || [];
+  const authResolved = !loading;
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [products, setProducts] = useState<DigitalProduct[]>([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isMyPurchasesOpen, setIsMyPurchasesOpen] = useState(false);
-  const [authResolved, setAuthResolved] = useState(false);
+  const [isAllTemplatesOpen, setIsAllTemplatesOpen] = useState(false);
+  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
   const [currentPlaygroundId, setCurrentPlaygroundId] = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('project');
   });
 
-
-  // Load from Firebase
+  // ── Products catalog listener ─────────────────────────────────────────
   useEffect(() => {
-    // Track the transactions listener so we can clean it up on logout
-    let unsubscribeTxs: (() => void) | null = null;
-
-    // ── 0. Subscribe to products and seed if empty ───────────────────
     const unsubscribeProducts = onSnapshot(
       collection(db, 'products'),
       (snapshot) => {
@@ -103,103 +99,95 @@ export default function App() {
       }
     );
 
-    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
-      // Always cancel the previous transactions listener on auth change
-      if (unsubscribeTxs) {
-        unsubscribeTxs();
-        unsubscribeTxs = null;
-      }
-
-      if (firebaseUser) {
-        // ── 1. Load user profile ──────────────────────────────────────────
-        const userRef = doc(db, 'users', firebaseUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          const role = userData.role as 'admin' | 'user';
-
-          setCurrentUser({
-            email: userData.email,
-            name: userData.name,
-            role,
-          });
-          setPurchasedIds(userData.purchasedIds || []);
-
-          // ── 2. Subscribe to transactions ONLY for admin ───────────────────
-          // Regular users never read the transactions collection, avoiding
-          // permission-denied errors from Firestore security rules.
-          if (role === 'admin') {
-            unsubscribeTxs = onSnapshot(
-              collection(db, 'transactions'),
-              (snapshot) => {
-                const txs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Transaction[];
-                txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-                if (txs.length === 0) {
-                  // Seed initial demo transactions for admin dashboard
-                  SEED_TRANSACTIONS.forEach(tx => {
-                    setDoc(doc(db, 'transactions', tx.id), tx);
-                  });
-                } else {
-                  setTransactions(txs);
-                }
-              },
-              (err) => {
-                // Silently handle permission errors during dev
-                console.warn('Transactions listener error:', err.code);
-              }
-            );
-          }
-        }
-        setAuthResolved(true);
-      } else {
-        // ── Logged out ────────────────────────────────────────────────────
-        setCurrentUser(null);
-        setPurchasedIds([]);
-        setTransactions([]);
-        setAuthResolved(true);
-      }
-    });
-
-    return () => {
-      unsubscribeAuth();
-      unsubscribeProducts();
-      if (unsubscribeTxs) unsubscribeTxs();
-    };
+    return () => unsubscribeProducts();
   }, []);
 
-  // ── 1. Page View Tracking & Route Checking ────────────────────────
+  // ── Transactions listener for admins ──────────────────────────────────
   useEffect(() => {
-    // Log initial home view
+    if (userProfile?.role !== 'admin') {
+      setTransactions([]);
+      return;
+    }
+
+    const unsubscribeTxs = onSnapshot(
+      collection(db, 'transactions'),
+      (snapshot) => {
+        const txs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Transaction[];
+        txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        if (txs.length === 0) {
+          SEED_TRANSACTIONS.forEach(tx => {
+            setDoc(doc(db, 'transactions', tx.id), tx);
+          });
+        } else {
+          setTransactions(txs);
+        }
+      },
+      (err) => {
+        console.warn('Transactions listener error:', err.code);
+      }
+    );
+
+    return () => unsubscribeTxs();
+  }, [userProfile?.role]);
+
+  // ── Page View Tracking & Route Checking ────────────────────────
+  useEffect(() => {
     trackEvent('page_view', { pagePath: '/', pageTitle: 'CodeBazaar Home' });
   }, []);
 
-  // Check URL route for /admin or view=admin
+  // Check URL route for /admin or view=admin, purchases, etc.
   useEffect(() => {
     const handleUrlRoute = () => {
       const path = window.location.pathname;
       const params = new URLSearchParams(window.location.search);
-      const isAdminRoute = path === '/admin' || path === '/admin/dashboard' || params.get('view') === 'admin';
       
+      const isAdminRoute = path === '/admin' || path === '/admin/dashboard' || params.get('view') === 'admin';
+      const isPurchasesRoute = path === '/my-purchases' || path === '/purchases' || params.get('view') === 'purchases';
+
       if (isAdminRoute) {
         if (currentUser?.role === 'admin') {
           setIsAdminOpen(true);
+          window.history.replaceState({}, '', '/');
         } else if (currentUser) {
           alert("Access Denied: Admin authorization required.");
           window.history.replaceState({}, '', '/');
         } else {
-          // Trigger auth if they need to log in to access the route
+          setPendingRedirect('admin');
+          setIsAuthOpen(true);
+        }
+      } else if (isPurchasesRoute) {
+        if (currentUser) {
+          setIsMyPurchasesOpen(true);
+          window.history.replaceState({}, '', '/');
+        } else {
+          setPendingRedirect('purchases');
           setIsAuthOpen(true);
         }
       }
     };
 
-    // Run when auth has resolved
     if (authResolved) {
       handleUrlRoute();
     }
   }, [currentUser, authResolved]);
+
+  // Handle post-login redirection actions
+  useEffect(() => {
+    if (currentUser && pendingRedirect) {
+      if (pendingRedirect === 'admin') {
+        if (currentUser.role === 'admin') {
+          setIsAdminOpen(true);
+        } else {
+          alert("Access Denied: Admin authorization required.");
+        }
+      } else if (pendingRedirect === 'purchases') {
+        setIsMyPurchasesOpen(true);
+      }
+      setPendingRedirect(null);
+      window.history.replaceState({}, '', '/');
+    }
+  }, [currentUser, pendingRedirect]);
 
   // Track dashboard & purchases overlay views
   useEffect(() => {
@@ -215,15 +203,28 @@ export default function App() {
   }, [isMyPurchasesOpen]);
 
   const handleLogout = async () => {
-    await signOut(auth);
+    try {
+      await logout();
+    } catch (err: any) {
+      alert("Logout failed: " + err.message);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0c0c14] flex flex-col items-center justify-center text-white select-none">
+        <div className="relative flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-purple-500 border-white/5 rounded-full animate-spin"></div>
+          <span className="mt-6 text-sm font-semibold tracking-wider uppercase text-white/60 animate-pulse">Checking your account...</span>
+        </div>
+      </div>
+    );
+  }
 
   const handlePurchaseSuccess = async (projectId: string, projectTitle: string, paymentId?: string) => {
     if (!currentUser || !auth.currentUser) return;
 
-    // Update in local state for fast UI response
     const updatedPurchases = [...purchasedIds, projectId];
-    setPurchasedIds(updatedPurchases);
 
     // Update user profile in Firestore
     await setDoc(doc(db, 'users', auth.currentUser.uid), {
@@ -317,32 +318,51 @@ export default function App() {
 
       {/* Main Content wrapper */}
       <div className="relative z-10">
-        {/* Hero Header & Nav */}
-        <Hero 
-          currentUser={currentUser}
-          onLoginClick={() => setIsAuthOpen(true)}
-          onLogout={handleLogout}
-          onAdminClick={() => setIsAdminOpen(true)}
-          onMyPurchasesClick={() => setIsMyPurchasesOpen(true)}
-        />
+        {isAllTemplatesOpen ? (
+          <div className="py-12">
+            <FeaturedProjects 
+              currentUser={currentUser}
+              purchasedIds={purchasedIds}
+              onTriggerAuth={() => setIsAuthOpen(true)}
+              onPurchaseSuccess={handlePurchaseSuccess}
+              products={products}
+              isFullCatalogView={true}
+              onBackClick={() => setIsAllTemplatesOpen(false)}
+              onViewAllClick={() => {}}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Hero Header & Nav */}
+            <Hero 
+              currentUser={currentUser}
+              onLoginClick={() => setIsAuthOpen(true)}
+              onLogout={handleLogout}
+              onAdminClick={() => setIsAdminOpen(true)}
+              onMyPurchasesClick={() => setIsMyPurchasesOpen(true)}
+            />
 
-        {/* How it works section */}
-        <HowItWorks />
+            {/* How it works section */}
+            <HowItWorks />
 
-        {/* Featured Projects Grid */}
-        <FeaturedProjects 
-          currentUser={currentUser}
-          purchasedIds={purchasedIds}
-          onTriggerAuth={() => setIsAuthOpen(true)}
-          onPurchaseSuccess={handlePurchaseSuccess}
-          products={products}
-        />
+            {/* Featured Projects Grid */}
+            <FeaturedProjects 
+              currentUser={currentUser}
+              purchasedIds={purchasedIds}
+              onTriggerAuth={() => setIsAuthOpen(true)}
+              onPurchaseSuccess={handlePurchaseSuccess}
+              products={products}
+              isFullCatalogView={false}
+              onViewAllClick={() => setIsAllTemplatesOpen(true)}
+            />
 
-        {/* What we deliver guarantees */}
-        <WhatWeDeliver />
+            {/* What we deliver guarantees */}
+            <WhatWeDeliver />
 
-        {/* Accordion FAQ details */}
-        <FAQ />
+            {/* Accordion FAQ details */}
+            <FAQ />
+          </>
+        )}
 
         {/* Bottom Footer links */}
         <Footer />

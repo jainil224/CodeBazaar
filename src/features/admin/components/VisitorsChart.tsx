@@ -51,6 +51,14 @@ export default function VisitorsChart({ dates, visitors, pageViews }: VisitorsCh
   const visitorLinePath = visitorPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
   const pageViewLinePath = pageViewPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
+  // Generate SVG Path for the filled Area under the lines
+  const visitorAreaPath = visitorPoints.length > 0 
+    ? `${visitorLinePath} L ${visitorPoints[visitorPoints.length - 1].x} ${paddingTop + chartHeight} L ${visitorPoints[0].x} ${paddingTop + chartHeight} Z`
+    : '';
+  const pageViewAreaPath = pageViewPoints.length > 0 
+    ? `${pageViewLinePath} L ${pageViewPoints[pageViewPoints.length - 1].x} ${paddingTop + chartHeight} L ${pageViewPoints[0].x} ${paddingTop + chartHeight} Z`
+    : '';
+
   // Handle Mouse Hover
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!containerRef.current) return;
@@ -91,6 +99,16 @@ export default function VisitorsChart({ dates, visitors, pageViews }: VisitorsCh
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
+        <defs>
+          <linearGradient id="cyanAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.20" />
+            <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.00" />
+          </linearGradient>
+          <linearGradient id="purpleAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.20" />
+            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0.00" />
+          </linearGradient>
+        </defs>
         {/* Horizontal grid lines */}
         {gridLevels.map((lvl, idx) => {
           const y = paddingTop + chartHeight - lvl * chartHeight;
@@ -134,6 +152,16 @@ export default function VisitorsChart({ dates, visitors, pageViews }: VisitorsCh
             </text>
           );
         })}
+
+        {/* Visitors Area Fill */}
+        {visitorAreaPath && (
+          <path d={visitorAreaPath} fill="url(#cyanAreaGrad)" className="transition-all duration-300" />
+        )}
+
+        {/* Page Views Area Fill */}
+        {pageViewAreaPath && (
+          <path d={pageViewAreaPath} fill="url(#purpleAreaGrad)" className="transition-all duration-300" />
+        )}
 
         {/* Visitors Cyan Line */}
         {visitorLinePath && (
