@@ -4,7 +4,7 @@ import {
   X, DollarSign, ShoppingCart, Users, Terminal, Plus, Edit2, 
   Trash2, Image, ArrowLeft, Save, RefreshCw,
   BarChart3, Layers, Settings, Search, Download, 
-  ArrowRight, UserCheck, Calendar, Menu, Sparkles
+  ArrowRight, UserCheck, Calendar, Menu
 } from 'lucide-react';
 import siteLogo from '@/assets/logo.svg';
 import { doc, setDoc, deleteDoc, serverTimestamp, collection, getDocs } from 'firebase/firestore';
