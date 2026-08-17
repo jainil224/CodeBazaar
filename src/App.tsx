@@ -12,14 +12,18 @@ import ProjectPlayground from '@/components/ProjectPlayground';
 import ProjectPreviewModal from '@/components/ProjectPreviewModal';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { doc, collection, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, collection, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
 import { loadRazorpay } from './utils/razorpayLoader';
 import { DEFAULT_PRODUCTS } from '@/features/digitalProducts/data/defaultProducts';
 import MyPurchasesModal from '@/features/digitalProducts/components/MyPurchasesModal';
 import { createPurchaseRecord } from '@/features/digitalProducts/services/purchaseService';
+import { downloadProductBlob } from '@/features/digitalProducts/services/productFileService';
 import type { DigitalProduct } from '@/features/digitalProducts/types/digitalProduct';
 import { trackEvent } from '@/lib/analytics';
+import PurchaseReceiptModal, { type PurchaseReceiptData } from '@/components/PurchaseReceiptModal';
+import { downloadProjectZip } from '@/utils/downloadHelper';
+import { isTestUser, generateTestPaymentId } from '@/utils/testConfig';
 
 
 interface Transaction {
@@ -49,6 +53,7 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isMyPurchasesOpen, setIsMyPurchasesOpen] = useState(false);
   const [isAllTemplatesOpen, setIsAllTemplatesOpen] = useState(false);
+  const [globalReceiptData, setGlobalReceiptData] = useState<PurchaseReceiptData | null>(null);
   const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
   const [currentPlaygroundId, setCurrentPlaygroundId] = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search);
@@ -253,6 +258,18 @@ export default function App() {
       paymentId: newTxId,
       amount: numericAmount
     });
+
+    // Set Global Receipt Data for printer animation
+    setGlobalReceiptData({
+      projectId,
+      projectTitle,
+      projectCategory: product?.category,
+      projectImage: product?.imageUrl || product?.detail?.imageUrl,
+      amount: numericAmount,
+      paymentId: newTxId,
+      buyerName: currentUser.name,
+      buyerEmail: currentUser.email,
+    });
   };
 
   const handlePurchasePlayground = async (projectId: string, projectTitle: string) => {
@@ -260,6 +277,16 @@ export default function App() {
       setIsAuthOpen(true);
       return;
     }
+
+    // ── TEST USER BYPASS (Zero-Payment Testing Mode) ───────────────────
+    if (isTestUser(currentUser.email)) {
+      const product = products.find(p => p.id === projectId);
+      const numericPrice = product ? parseFloat(product.price.replace(/[^0-9.]/g, '')) || 0 : 0;
+      const testPaymentId = generateTestPaymentId();
+      handlePurchaseSuccess(projectId, projectTitle, testPaymentId, numericPrice);
+      return;
+    }
+
     const isLoaded = await loadRazorpay();
     if (!isLoaded) {
       alert('Unable to connect to Razorpay. Please check your internet connection.');
@@ -434,6 +461,42 @@ export default function App() {
           isOpen={isMyPurchasesOpen}
           onClose={() => setIsMyPurchasesOpen(false)}
           products={products}
+        />
+      )}
+
+      {/* Global Purchase Receipt Modal */}
+      {globalReceiptData && (
+        <PurchaseReceiptModal
+          isOpen={!!globalReceiptData}
+          onClose={() => setGlobalReceiptData(null)}
+          receiptData={globalReceiptData}
+          onDownloadCode={async () => {
+            const proj = products.find(p => p.id === globalReceiptData.projectId) || DEFAULT_PRODUCTS.find(p => p.id === globalReceiptData.projectId);
+            try {
+              if (proj) {
+                const productSnap = await getDoc(doc(db, 'products', proj.id));
+                if (productSnap.exists()) {
+                  const data = productSnap.data();
+                  if (data.downloadFile && data.downloadFile.storagePath) {
+                    const blob = await downloadProductBlob(data.downloadFile.storagePath);
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = data.downloadFile.fileName || `${proj.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    return;
+                  }
+                }
+              }
+            } catch (e) {
+              console.warn("Secure download fallback to starter ZIP:", e);
+            }
+            downloadProjectZip(globalReceiptData.projectTitle);
+          }}
+          autoPlayStages={true}
         />
       )}
     </div>

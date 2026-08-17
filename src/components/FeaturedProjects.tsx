@@ -3,13 +3,14 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
 import { downloadProjectZip } from '../utils/downloadHelper';
-import PaymentSuccessModal from './PaymentSuccessModal';
 import ProjectPreviewModal, { type ProjectDetail } from './ProjectPreviewModal';
 import { getDoc, doc } from 'firebase/firestore';
 import { db, storage } from '@/firebase';
 import type { DigitalProduct } from '../features/digitalProducts/types/digitalProduct';
 import { ref, getBlob } from 'firebase/storage';
 import { trackEvent } from '@/lib/analytics';
+
+import { isTestUser, generateTestPaymentId } from '../utils/testConfig';
 
 interface FeaturedProjectsProps {
   currentUser: { email: string; name: string; role: 'admin' | 'user' } | null;
@@ -87,13 +88,6 @@ export default function FeaturedProjects({
     trackEvent('category_clicked', { category });
     trackEvent('filter_used', { filterType: 'category', filterValue: category });
   };
-  const [successModal, setSuccessModal] = useState<{
-    open: boolean;
-    projectId: string;
-    projectTitle: string;
-    paymentId: string;
-    amount: number;
-  } | null>(null);
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
@@ -125,6 +119,18 @@ export default function FeaturedProjects({
     setLoadingId(project.id);
     trackEvent('buy_now_clicked', { productId: project.id, productTitle: project.title });
 
+    // ── TEST USER BYPASS (Zero-Payment Testing Mode) ───────────────────
+    if (isTestUser(currentUser.email)) {
+      const numericPrice = parseFloat(project.price.replace(/[^0-9.]/g, '')) || 0;
+      const testPaymentId = generateTestPaymentId();
+      setTimeout(() => {
+        setLoadingId(null);
+        setPreviewProject(null);
+        onPurchaseSuccess(project.id, project.title, testPaymentId, numericPrice);
+      }, 350);
+      return;
+    }
+
     const isLoaded = await loadRazorpay();
     if (!isLoaded) {
       setLoadingId(null);
@@ -151,15 +157,8 @@ export default function FeaturedProjects({
       description: `Purchase: ${project.title}`,
       handler: function (response: { razorpay_payment_id: string }) {
         setLoadingId(null);
-        onPurchaseSuccess(project.id, project.title, response.razorpay_payment_id, numericPrice);
         setPreviewProject(null);
-        setSuccessModal({
-          open: true,
-          projectId: project.id,
-          projectTitle: project.title,
-          paymentId: response.razorpay_payment_id,
-          amount: numericPrice,
-        });
+        onPurchaseSuccess(project.id, project.title, response.razorpay_payment_id, numericPrice);
       },
       prefill: { name: currentUser.name, email: currentUser.email },
       notes: { project_id: project.id, project_title: project.title },
@@ -497,26 +496,6 @@ export default function FeaturedProjects({
             const proj = products.find(p => p.id === previewProject.id);
             if (proj) downloadProductSecurely(proj);
             setPreviewProject(null);
-          }}
-        />
-      )}
-
-      {/* Payment Success Modal */}
-      {successModal && (
-        <PaymentSuccessModal
-          isOpen={successModal.open}
-          projectTitle={successModal.projectTitle}
-          paymentId={successModal.paymentId}
-          amount={successModal.amount}
-          onClose={() => setSuccessModal(null)}
-          onDownload={() => {
-            const proj = products.find(p => p.id === successModal.projectId);
-            if (proj) {
-              downloadProductSecurely(proj);
-            } else {
-              downloadProjectZip(successModal.projectTitle);
-            }
-            setSuccessModal(null);
           }}
         />
       )}
