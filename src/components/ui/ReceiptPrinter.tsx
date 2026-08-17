@@ -317,7 +317,7 @@ export function ReceiptPrinterPaper({
   return (
     <article
       className={cn(
-        "relative z-10 w-full bg-gradient-to-b from-[#ffffff] via-[#faf9ff] to-[#f4f2fd] text-[#131127] bg-[url('/textures/receipt-paper.svg')] bg-cover px-5 pt-6 pb-10 font-mono shadow-[0_20px_45px_rgba(0,0,0,0.45),0_0_35px_rgba(99,41,230,0.15)] border-t border-purple-200/50 rounded-t-sm",
+        "relative z-10 w-full bg-gradient-to-b from-[#ffffff] via-[#faf9ff] to-[#f4f2fd] text-[#131127] bg-[url('/textures/receipt-paper.svg')] bg-cover px-3 sm:px-5 pt-4 sm:pt-6 pb-8 sm:pb-10 font-mono shadow-[0_20px_45px_rgba(0,0,0,0.45),0_0_35px_rgba(99,41,230,0.15)] border-t border-purple-200/50 rounded-t-sm",
         className,
       )}
       style={{ clipPath: receiptClipPath, ...style }}
