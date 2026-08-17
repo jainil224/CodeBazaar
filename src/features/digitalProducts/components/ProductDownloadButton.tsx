@@ -158,11 +158,10 @@ export default function ProductDownloadButton({
       <button
         onClick={purchaseStatus === 'purchased' ? handleDownload : onPurchase}
         disabled={purchaseStatus === 'checking' || downloadState === 'preparing' || downloadState === 'downloading'}
-        className={`w-full py-3.5 px-6 rounded-2xl font-bold flex items-center justify-center gap-2.5 text-sm transition-all duration-300 group cursor-pointer shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${
-          purchaseStatus === 'purchased'
+        className={`w-full py-3.5 px-6 rounded-2xl font-bold flex items-center justify-center gap-2.5 text-sm transition-all duration-300 group cursor-pointer shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${purchaseStatus === 'purchased'
             ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-950/20'
             : 'bg-violet-600 hover:bg-violet-700 text-white shadow-violet-950/20'
-        } ${className}`}
+          } ${className}`}
       >
         {getButtonIcon()}
         <span>{getButtonText()}</span>

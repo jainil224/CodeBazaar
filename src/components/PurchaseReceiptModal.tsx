@@ -12,8 +12,11 @@ import {
   Package,
   CheckCircle2,
   Calendar,
+  Home,
+  Loader2,
 } from 'lucide-react';
 import websiteLogo from '@/assets/logo.svg';
+import faviconLogo from '@/assets/favicons.png';
 import { ReceiptPrinter, type ReceiptPrinterStage } from './ui/ReceiptPrinter';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -207,37 +210,61 @@ export default function PurchaseReceiptModal({
             {/* Machine Top Body */}
             <ReceiptPrinter.Machine className="w-full max-w-[420px]">
               <ReceiptPrinter.Header>
-                {/* Brand in printer header */}
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-primary-indigo to-primary-pink p-[1px] shadow-sm">
-                    <div className="w-full h-full bg-[#0c0c16] rounded-[11px] flex items-center justify-center p-1">
-                      <img src={websiteLogo} alt="CodeBazaar" className="w-full h-full object-contain" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-sans text-xs font-black text-white tracking-tight uppercase leading-none">
-                      CODEBAZAAR <span className="text-[9px] font-mono text-primary-pink font-semibold">POS-PRO</span>
-                    </span>
-                    <span className="text-[9px] font-mono text-white/40 leading-tight">Instant License Engine</span>
-                  </div>
+                {/* Square Brand Logo on the Left */}
+                <div className="w-8 h-8 rounded-xl bg-white/10 p-1.5 flex items-center justify-center border border-white/10 shadow-xs">
+                  <img src={websiteLogo} alt="CodeBazaar" className="w-full h-full object-contain" />
                 </div>
 
-                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  ONLINE
-                </div>
+                {/* Home Button on the Right */}
+                <button
+                  onClick={onClose}
+                  className="px-3.5 py-1.5 rounded-xl bg-[#2a2a2e] hover:bg-[#383840] text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <Home className="w-3.5 h-3.5 text-white/80" />
+                  <span>Home</span>
+                </button>
               </ReceiptPrinter.Header>
 
-              {/* Glowing OLED LCD Screen */}
-              <ReceiptPrinter.Screen className="border-purple-500/30">
-                <ReceiptPrinter.Status />
-                <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-xs font-mono">
-                  <span className="truncate max-w-[200px] text-white/70 font-medium">
-                    {receiptData.projectTitle}
-                  </span>
-                  <span className="font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                    ₹{receiptData.amount}
-                  </span>
+              {/* Screen Area matching reference design */}
+              <ReceiptPrinter.Screen>
+                <div className="flex items-start justify-between gap-3 text-left">
+                  {/* Left info: Title, Subtitle & Order complete badge */}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm sm:text-base font-bold text-white tracking-tight truncate leading-tight">
+                      {receiptData.projectTitle}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-white/50 font-normal mt-0.5 truncate">
+                      {receiptData.projectCategory ? `${receiptData.projectCategory} • Commercial License` : 'Commercial License • Complete Code'}
+                    </p>
+
+                    {/* Status Badge */}
+                    <div className="flex items-center gap-1.5 mt-2.5">
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center ${stage === 'complete' ? 'bg-emerald-500 text-black' : 'bg-primary-pink/20 text-primary-pink animate-spin'}`}>
+                        {stage === 'complete' ? (
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        ) : (
+                          <Loader2 className="w-2.5 h-2.5" />
+                        )}
+                      </div>
+                      <span className="text-xs font-semibold text-white/90">
+                        {stage === 'complete'
+                          ? 'Order complete'
+                          : stage === 'printing'
+                            ? 'Printing receipt...'
+                            : 'Verifying payment...'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right side: Total amount */}
+                  <div className="text-right shrink-0">
+                    <span className="text-[11px] text-white/50 block font-normal leading-none mb-1">
+                      Total
+                    </span>
+                    <span className="text-lg sm:text-xl font-bold text-white tracking-tight leading-none block font-mono">
+                      ₹{receiptData.amount}
+                    </span>
+                  </div>
                 </div>
               </ReceiptPrinter.Screen>
             </ReceiptPrinter.Machine>
@@ -251,11 +278,11 @@ export default function PurchaseReceiptModal({
                   {/* Top Gradient Decorative Bar on the Receipt */}
                   <div className="h-1.5 w-full bg-gradient-to-r from-primary-indigo via-primary-pink to-primary-orange rounded-full mb-3 shadow-xs" />
 
-                  {/* Receipt Header with Centered Website Logo */}
+                  {/* Receipt Header with Centered Favicon Logo */}
                   <div className="text-center pb-3 border-b-2 border-dashed border-purple-200 flex flex-col items-center">
-                    {/* Centered Website Logo Emblem */}
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary-indigo/15 via-primary-pink/15 to-primary-orange/15 p-1.5 flex items-center justify-center border border-purple-200 shadow-xs mb-2">
-                      <img src={websiteLogo} alt="CodeBazaar Logo" className="w-full h-full object-contain" />
+                    {/* Centered Favicon Logo Emblem */}
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary-indigo/15 via-primary-pink/15 to-primary-orange/15 p-1 flex items-center justify-center border border-purple-200 shadow-xs mb-2">
+                      <img src={faviconLogo} alt="CodeBazaar Favicon" className="w-full h-full object-contain drop-shadow-xs" />
                     </div>
                     
                     <div className="flex items-center justify-center gap-1.5 text-[10.5px] font-black uppercase tracking-[0.2em] text-purple-950 font-mono">

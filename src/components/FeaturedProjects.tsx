@@ -48,7 +48,7 @@ export default function FeaturedProjects({
         return titleMatch || descMatch || tagMatch;
       }).length;
 
-      trackEvent('search_submitted', { 
+      trackEvent('search_submitted', {
         searchTerm: searchQuery.trim(),
         resultsCount: matchingCount
       });
@@ -76,8 +76,8 @@ export default function FeaturedProjects({
   // Filter products by search and category
   const filteredProducts = products.filter(project => {
     const matchesCategory = activeCategory === 'All' || project.category === activeCategory;
-    const matchesSearch = searchQuery === '' || 
-      project.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = searchQuery === '' ||
+      project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
@@ -241,7 +241,7 @@ export default function FeaturedProjects({
           {/* Back button (Only if full catalog view) */}
           {isFullCatalogView && onBackClick && (
             <div className="mb-8 flex justify-start">
-              <button 
+              <button
                 type="button"
                 onClick={onBackClick}
                 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition-colors cursor-pointer bg-white/5 border border-white/10 px-4.5 py-2.5 rounded-xl hover:bg-white/10"
@@ -253,7 +253,7 @@ export default function FeaturedProjects({
           )}
 
           {/* Title */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -267,7 +267,7 @@ export default function FeaturedProjects({
               {isFullCatalogView ? "All Project Templates" : "Featured Project Templates"}
             </h3>
             <p className="text-white/60 max-w-[600px] mx-auto mt-4 text-base">
-              {isFullCatalogView 
+              {isFullCatalogView
                 ? `Browse all ${products.length} production-ready digital products and templates.`
                 : "Get production-ready, beautifully designed project bases for just ₹50. Instant source code download."
               }
@@ -275,7 +275,7 @@ export default function FeaturedProjects({
           </motion.div>
 
           {/* Search & Filter Bar */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -288,11 +288,10 @@ export default function FeaturedProjects({
                 <button
                   key={cat}
                   onClick={() => handleCategoryClick(cat)}
-                  className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-all ${
-                    activeCategory === cat 
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/30 border border-purple-500' 
+                  className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-all ${activeCategory === cat
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/30 border border-purple-500'
                       : 'text-white/60 hover:text-white bg-white/5 border border-white/5 hover:border-white/10'
-                  }`}
+                    }`}
                 >
                   {cat}
                 </button>
@@ -315,7 +314,7 @@ export default function FeaturedProjects({
           </motion.div>
 
           {/* Grid */}
-          <motion.div 
+          <motion.div
             key={`${activeCategory}-${products.length}`}
             initial="hidden"
             whileInView="visible"
@@ -367,9 +366,8 @@ export default function FeaturedProjects({
                       className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.15)] border border-zinc-100 flex items-center justify-center transition-all duration-200 z-10 hover:scale-105 active:scale-95"
                     >
                       <Heart
-                        className={`w-5 h-5 transition-colors ${
-                          isFavorited ? 'fill-red-500 text-red-500' : 'text-zinc-400 hover:text-red-500'
-                        }`}
+                        className={`w-5 h-5 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-zinc-400 hover:text-red-500'
+                          }`}
                       />
                     </button>
                   </div>
@@ -466,7 +464,7 @@ export default function FeaturedProjects({
 
           {!isFullCatalogView && filteredProducts.length > 4 && (
             <div className="flex justify-center mt-12">
-              <button 
+              <button
                 type="button"
                 onClick={onViewAllClick}
                 className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-xs font-bold uppercase tracking-wider px-8 py-4.5 rounded-2xl flex items-center gap-2 transition-all hover:scale-103 active:scale-95 cursor-pointer shadow-lg shadow-black/30"

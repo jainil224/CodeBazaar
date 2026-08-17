@@ -98,7 +98,7 @@ const statusLabels: Record<ReceiptPrinterStage, ReactNode> = {
 };
 
 const machineClassName =
-  "relative isolate w-full overflow-hidden rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#16162a] via-[#0e0e1a] to-[#07070e] p-3.5 pb-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_50px_rgba(99,41,230,0.25),inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.7)] before:pointer-events-none before:absolute before:inset-0 before:z-0 before:rounded-[inherit] before:bg-[url('/textures/plastic-noise.svg')] before:bg-[length:180px_180px] before:bg-repeat before:opacity-20 before:content-['']";
+  "relative isolate w-full overflow-hidden rounded-[2rem] border border-white/15 bg-[#202024] p-3.5 pb-6.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_50px_rgba(61,90,254,0.15)] before:pointer-events-none before:absolute before:inset-0 before:z-0 before:rounded-[inherit] before:bg-[url('/textures/plastic-noise.svg')] before:bg-[length:180px_180px] before:bg-repeat before:opacity-10 before:content-['']";
 
 function useReceiptPrinter(component: string) {
   const context = useContext(ReceiptPrinterContext);
@@ -156,12 +156,12 @@ export function ReceiptPrinterMachine({
       
       {children}
       
-      {/* Realistic ejection slot with glow */}
+      {/* Realistic ejection slot */}
       <div
         aria-hidden="true"
-        className="absolute inset-x-6 bottom-2 z-40 h-2.5 rounded-full border border-black/90 bg-[#05050a] shadow-[inset_0_2px_4px_rgba(0,0,0,0.95),0_1px_0_rgba(255,255,255,0.12)] flex items-center justify-center overflow-hidden"
+        className="absolute inset-x-6 bottom-2 z-40 h-2.5 rounded-full border border-black/90 bg-[#07070a] shadow-[inset_0_2px_4px_rgba(0,0,0,0.95),0_1px_0_rgba(255,255,255,0.1)] flex items-center justify-center overflow-hidden"
       >
-        <div className="w-28 h-[1px] bg-gradient-to-r from-transparent via-primary-pink/60 to-transparent blur-[0.5px]" />
+        <div className="w-32 h-[1px] bg-gradient-to-r from-transparent via-primary-pink/50 to-transparent blur-[0.5px]" />
       </div>
     </div>
   );
@@ -175,7 +175,7 @@ export function ReceiptPrinterHeader({
   return (
     <div
       className={cn(
-        "relative z-10 flex h-10 items-center justify-between px-2 mb-2.5",
+        "relative z-10 flex h-10 items-center justify-between px-1 mb-2.5",
         className,
       )}
       {...props}
@@ -193,7 +193,7 @@ export function ReceiptPrinterScreen({
   return (
     <div
       className={cn(
-        "relative z-10 isolate overflow-hidden rounded-2xl border border-primary-indigo/30 bg-gradient-to-b from-[#0a0a18] to-[#04040a] p-3 text-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.95),0_0_25px_rgba(61,90,254,0.15)] after:pointer-events-none after:absolute after:inset-0 after:z-20 after:rounded-[inherit] after:shadow-[inset_0_0_24px_rgba(139,61,255,0.15)] after:content-['']",
+        "relative z-10 isolate overflow-hidden rounded-2xl border border-white/10 bg-[#121215] p-3.5 text-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.9)]",
         className,
       )}
       {...props}
