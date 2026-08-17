@@ -115,29 +115,45 @@ export default function PurchaseReceiptModal({
 
       const receiptElement = receiptRef.current;
 
-      const canvas = await html2canvas(receiptElement, {
-        scale: 3,
+      // 1. Create clean offscreen clone to avoid any motion transform artifacts or clip-path issues
+      const clone = receiptElement.cloneNode(true) as HTMLElement;
+      clone.style.position = 'fixed';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      clone.style.width = '380px';
+      clone.style.height = 'auto';
+      clone.style.zIndex = '-9999';
+      clone.style.transform = 'none';
+      clone.style.clipPath = 'none';
+      clone.style.background = '#ffffff';
+      document.body.appendChild(clone);
+
+      const canvas = await html2canvas(clone, {
+        scale: 2,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
+        imageTimeout: 3000,
       });
 
-      const imgData = canvas.toDataURL('image/png');
+      document.body.removeChild(clone);
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
       const imgWidth = 80; // mm standard receipt width
       const pageHeight = (canvas.height * imgWidth) / canvas.width;
 
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [imgWidth, pageHeight + 6],
+        format: [imgWidth, pageHeight + 2],
       });
 
-      pdf.addImage(imgData, 'PNG', 0, 3, imgWidth, pageHeight);
+      pdf.addImage(imgData, 'PNG', 0, 1, imgWidth, pageHeight, undefined, 'FAST');
       pdf.save(`CodeBazaar-Receipt-${orderNumber}.pdf`);
     } catch (error) {
-      console.error('Failed to export receipt PDF:', error);
-      alert('Could not export PDF automatically. You can use system print.');
+      console.error('PDF export encountered error:', error);
+      window.print();
     } finally {
       setIsGeneratingPdf(false);
     }
