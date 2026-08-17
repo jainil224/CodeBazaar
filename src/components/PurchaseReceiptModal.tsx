@@ -149,7 +149,7 @@ export default function PurchaseReceiptModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-black/85 backdrop-blur-xl"
+        className="fixed inset-0 z-[9999] overflow-y-auto bg-black/90 backdrop-blur-2xl p-2.5 sm:p-4 text-white"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -163,42 +163,44 @@ export default function PurchaseReceiptModal({
         {/* Backdrop click to dismiss */}
         <div className="fixed inset-0" onClick={onClose} />
 
-        {/* Modal Container */}
-        <motion.div
-          className="relative z-10 w-full max-w-lg my-auto max-h-[94vh] flex flex-col items-center overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full"
-          initial={{ scale: 0.88, opacity: 0, y: 35 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          transition={{ type: 'spring', damping: 24, stiffness: 320 }}
-        >
-          {/* Header Controls Bar */}
-          <div className="w-full max-w-[420px] flex items-center justify-between px-2 py-2 mb-2 text-white">
-            {/* Hero style status pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/90 font-mono shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-primary-green animate-pulse" />
-              <span>Official Proof of Purchase</span>
-            </div>
+        {/* Modal Center Wrapper */}
+        <div className="min-h-full flex items-center justify-center py-4 sm:py-6 w-full">
+          {/* Modal Container */}
+          <motion.div
+            className="relative z-10 w-full max-w-[440px] flex flex-col items-center select-none"
+            initial={{ scale: 0.9, opacity: 0, y: 25 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.92, opacity: 0, y: 15 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 340 }}
+          >
+            {/* Header Controls Bar */}
+            <div className="w-full max-w-[420px] flex items-center justify-between px-1.5 sm:px-2 py-1.5 sm:py-2 mb-2 text-white">
+              {/* Hero style status pill */}
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:py-1.5 bg-white/5 border border-white/10 rounded-full text-[11px] sm:text-xs text-white/90 font-mono shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-primary-green animate-pulse" />
+                <span>Proof of Purchase</span>
+              </div>
 
-            <div className="flex items-center gap-2">
-              {stage === 'complete' && (
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {stage === 'complete' && (
+                  <button
+                    onClick={handleReplayPrint}
+                    title="Replay printing animation"
+                    className="px-2.5 py-1 sm:py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-all text-xs flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    <span className="text-[11px] font-medium font-sans">Replay</span>
+                  </button>
+                )}
                 <button
-                  onClick={handleReplayPrint}
-                  title="Replay printing animation"
-                  className="px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-all text-xs flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
+                  onClick={onClose}
+                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all cursor-pointer active:scale-95"
+                  title="Close"
                 >
-                  <RefreshCw className="w-3 h-3" />
-                  <span className="text-[11px] font-medium font-sans">Replay</span>
+                  <X className="w-4 h-4" />
                 </button>
-              )}
-              <button
-                onClick={onClose}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all cursor-pointer active:scale-95"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              </div>
             </div>
-          </div>
 
           {/* Receipt Printer Machine & Animated Output */}
           <ReceiptPrinter.Root stage={stage} feedMotion={feedMotion} className="w-full">
@@ -500,7 +502,7 @@ export default function PurchaseReceiptModal({
               </button>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       </motion.div>
     </AnimatePresence>
   );
