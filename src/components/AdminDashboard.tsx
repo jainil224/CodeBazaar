@@ -4,8 +4,9 @@ import {
   X, DollarSign, ShoppingCart, Users, Terminal, Plus, Edit2, 
   Trash2, Image, ArrowLeft, Save, RefreshCw,
   BarChart3, Layers, Settings, Search, Download, 
-  ArrowRight, UserCheck, Calendar, Menu
+  ArrowRight, UserCheck, Calendar, Menu, Sparkles
 } from 'lucide-react';
+import siteLogo from '@/assets/logo.svg';
 import { doc, setDoc, deleteDoc, serverTimestamp, collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { uploadProductImage, deleteProductFile } from '@/features/digitalProducts/services/productFileService';
@@ -384,17 +385,28 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
 
   return (
     <div className="fixed inset-0 z-50 flex bg-[#0c0c14] text-white font-sans overflow-hidden">
+      {/* ── TOP HERO GRADIENT ACCENT STRIPE ─────────────────────────────────── */}
+      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary-indigo via-primary-pink to-primary-orange z-50 pointer-events-none shadow-[0_0_12px_rgba(61,90,254,0.6)]" />
+
+      {/* ── AMBIENT HERO GLOW BLOBS ─────────────────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
+        <div className="absolute -top-40 right-1/4 w-[600px] h-[600px] bg-gradient-to-tr from-primary-indigo/15 via-primary-pink/10 to-primary-orange/10 rounded-full blur-[140px] opacity-70" />
+        <div className="absolute -bottom-40 left-1/3 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[120px] opacity-70" />
+      </div>
+
       {/* ── LEFT SIDEBAR ────────────────────────────────────────────────────── */}
-      <div className="w-[260px] bg-white/[0.02] border-r border-white/10 flex flex-col justify-between shrink-0 select-none max-md:hidden">
+      <div className="w-[260px] bg-white/[0.02] border-r border-white/10 flex flex-col justify-between shrink-0 select-none max-md:hidden relative z-10">
         <div>
           {/* Logo / Portal header */}
           <div className="p-6 border-b border-white/10 flex items-center gap-3">
-            <div className="w-8 h-8 bg-purple-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-[0_0_15px_rgba(139,92,246,0.5)]">
-              CB
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-indigo via-primary-pink to-primary-orange p-[1px] shadow-sm">
+              <div className="w-full h-full bg-[#0c0c16] rounded-[11px] flex items-center justify-center p-1.5">
+                <img src={siteLogo} alt="CodeBazaar Logo" className="w-full h-full object-contain" />
+              </div>
             </div>
             <div>
-              <h1 className="font-extrabold text-base leading-none">CodeBazaar</h1>
-              <span className="text-[10px] text-purple-400 font-mono tracking-widest uppercase font-semibold mt-1 block">Seller Console</span>
+              <h1 className="font-extrabold text-base leading-none tracking-tight text-white">codebazaar</h1>
+              <span className="text-[10px] text-primary-pink font-mono tracking-widest uppercase font-semibold mt-1 block">Seller Console</span>
             </div>
           </div>
 
@@ -409,16 +421,16 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                 }}
                 className={`w-full flex items-center gap-3 px-4.5 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 active:scale-95 cursor-pointer ${
                   activeTab === tab.id 
-                    ? 'bg-gradient-to-r from-violet-600/90 to-purple-600/90 text-white shadow-[0_8px_20px_rgba(139,92,246,0.25)] border border-purple-500/20' 
+                    ? 'bg-gradient-to-r from-primary-indigo via-purple-600 to-primary-pink text-white shadow-[0_8px_24px_rgba(61,90,254,0.35)] border border-white/20' 
                     : 'text-white/50 hover:text-white hover:bg-white/[0.04] border border-transparent'
                 }`}
               >
-                <span className={`transition-transform duration-300 ${activeTab === tab.id ? 'scale-110 text-purple-300' : 'text-white/40'}`}>
+                <span className={`transition-transform duration-300 ${activeTab === tab.id ? 'scale-110 text-white' : 'text-white/40'}`}>
                   {tab.icon}
                 </span>
                 <span>{tab.label}</span>
                 {activeTab === tab.id && (
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_#c084fc] ml-auto animate-pulse" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_#ffffff] ml-auto animate-pulse" />
                 )}
               </button>
             ))}
@@ -457,12 +469,14 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
           {/* Header */}
           <div className="p-4 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-purple-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-[0_0_15px_rgba(139,92,246,0.5)]">
-                CB
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary-indigo via-primary-pink to-primary-orange p-[1px] shadow-sm">
+                <div className="w-full h-full bg-[#0c0c16] rounded-[11px] flex items-center justify-center p-1">
+                  <img src={siteLogo} alt="CodeBazaar Logo" className="w-full h-full object-contain" />
+                </div>
               </div>
               <div>
-                <h1 className="font-extrabold text-sm leading-none">CodeBazaar</h1>
-                <span className="text-[10px] text-purple-400 font-mono tracking-widest uppercase block mt-0.5 font-bold">Seller Console</span>
+                <h1 className="font-extrabold text-sm leading-none text-white">codebazaar</h1>
+                <span className="text-[10px] text-primary-pink font-mono tracking-widest uppercase block mt-0.5 font-bold">Seller Console</span>
               </div>
             </div>
             <button
@@ -486,16 +500,16 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-purple-900/40 border border-purple-400/30'
+                    ? 'bg-gradient-to-r from-primary-indigo via-purple-600 to-primary-pink text-white shadow-lg shadow-purple-900/40 border border-white/20'
                     : 'text-white/70 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5'
                 }`}
               >
-                <span className={activeTab === tab.id ? 'text-purple-200' : 'text-white/40'}>
+                <span className={activeTab === tab.id ? 'text-white' : 'text-white/40'}>
                   {tab.icon}
                 </span>
                 <span>{tab.label}</span>
                 {activeTab === tab.id && (
-                  <div className="w-2 h-2 rounded-full bg-purple-400 ml-auto shadow-[0_0_8px_#c084fc]" />
+                  <div className="w-2 h-2 rounded-full bg-white ml-auto shadow-[0_0_8px_#ffffff]" />
                 )}
               </button>
             ))}
@@ -528,7 +542,7 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
       )}
 
       {/* ── MAIN CONTENT CONTAINER ──────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative z-10">
         
         {/* Main Dashboard Header */}
         <div className="px-4 sm:px-8 py-3.5 sm:py-5 border-b border-white/10 flex items-center justify-between shrink-0 flex-wrap gap-3 bg-white/[0.01]">
@@ -908,7 +922,7 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                         </h3>
                         <button
                           onClick={startAddNew}
-                          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-4.5 rounded-2xl text-xs flex items-center gap-1.5 transition-all active:scale-97 cursor-pointer shadow-lg shadow-purple-900/20 border border-purple-500/30"
+                          className="bg-gradient-to-r from-primary-indigo via-primary-pink to-primary-orange hover:brightness-110 text-white font-bold py-2.5 px-4.5 rounded-2xl text-xs flex items-center gap-1.5 transition-all active:scale-97 cursor-pointer shadow-[0_4px_20px_rgba(61,90,254,0.35)] border border-white/20"
                         >
                           <Plus className="w-4 h-4" /> Add Product
                         </button>
@@ -1208,7 +1222,7 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
                         <button
                           type="submit"
                           disabled={isSaving}
-                          className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl text-xs uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shadow-lg shadow-purple-900/25 disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="px-6 py-3 bg-gradient-to-r from-primary-indigo via-primary-pink to-primary-orange hover:brightness-110 text-white font-bold rounded-2xl text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-[0_4px_20px_rgba(61,90,254,0.35)] border border-white/20 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           {isSaving ? <>Saving...</> : <><Save className="w-4 h-4" /> Save Product</>}
                         </button>
@@ -1239,7 +1253,7 @@ export default function AdminDashboard({ isOpen, onClose, products: propProducts
 
                     <button 
                       onClick={handleExportOrders}
-                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-4.5 rounded-2xl text-xs flex items-center gap-1.5 transition-all active:scale-97 cursor-pointer shadow-lg shadow-purple-900/20 border border-purple-500/30"
+                      className="bg-gradient-to-r from-primary-indigo via-primary-pink to-primary-orange hover:brightness-110 text-white font-bold py-2.5 px-4.5 rounded-2xl text-xs flex items-center gap-1.5 transition-all active:scale-97 cursor-pointer shadow-[0_4px_20px_rgba(61,90,254,0.35)] border border-white/20"
                     >
                       <Download className="w-3.5 h-3.5" /> Export Orders CSV
                     </button>
