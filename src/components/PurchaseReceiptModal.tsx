@@ -502,8 +502,9 @@ export default function PurchaseReceiptModal({
               </button>
             </div>
           </motion.div>
-        </div>
-      </motion.div>
-    </AnimatePresence>
-  );
+        </motion.div>
+      </div>
+    </motion.div>
+  </AnimatePresence>
+);
 }
