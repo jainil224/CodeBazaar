@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   Calendar,
 } from 'lucide-react';
-import faviconLogo from '@/assets/favicons.png';
+import websiteLogo from '@/assets/logo.svg';
 import { ReceiptPrinter, type ReceiptPrinterStage } from './ui/ReceiptPrinter';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -209,7 +209,7 @@ export default function PurchaseReceiptModal({
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-primary-indigo to-primary-pink p-[1px] shadow-sm">
                     <div className="w-full h-full bg-[#0c0c16] rounded-[11px] flex items-center justify-center p-1">
-                      <img src={faviconLogo} alt="CodeBazaar" className="w-full h-full object-contain" />
+                      <img src={websiteLogo} alt="CodeBazaar" className="w-full h-full object-contain" />
                     </div>
                   </div>
                   <div className="flex flex-col">
@@ -249,11 +249,11 @@ export default function PurchaseReceiptModal({
                   {/* Top Gradient Decorative Bar on the Receipt */}
                   <div className="h-1.5 w-full bg-gradient-to-r from-primary-indigo via-primary-pink to-primary-orange rounded-full mb-3 shadow-xs" />
 
-                  {/* Receipt Header with Centered Favicon Logo (Brand text removed) */}
+                  {/* Receipt Header with Centered Website Logo */}
                   <div className="text-center pb-3 border-b-2 border-dashed border-purple-200 flex flex-col items-center">
-                    {/* Centered Favicon Emblem */}
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-primary-indigo/15 via-primary-pink/15 to-primary-orange/15 p-1.5 flex items-center justify-center border border-purple-200 shadow-xs mb-2">
-                      <img src={faviconLogo} alt="CodeBazaar Logo" className="w-full h-full object-contain" />
+                    {/* Centered Website Logo Emblem */}
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary-indigo/15 via-primary-pink/15 to-primary-orange/15 p-1.5 flex items-center justify-center border border-purple-200 shadow-xs mb-2">
+                      <img src={websiteLogo} alt="CodeBazaar Logo" className="w-full h-full object-contain" />
                     </div>
                     
                     <div className="flex items-center justify-center gap-1.5 text-[10.5px] font-black uppercase tracking-[0.2em] text-purple-950 font-mono">
