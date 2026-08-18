@@ -257,13 +257,8 @@ export default function ProjectPreviewModal({
             </p>
           </div>
 
-          {/* Description text box */}
-          <div className="bg-[#121021] border border-white/15 rounded-2xl p-5 text-zinc-200 text-sm leading-relaxed font-normal shadow-lg">
-            {project.longDescription || project.description}
-          </div>
-
-          {/* Price & Purchase Hero Card */}
-          <div className="bg-[#15122b] border border-purple-500/40 shadow-[0_12px_40px_rgba(0,0,0,0.8)] rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden">
+          {/* Price & Purchase Hero Card (Moved UP for instant visibility on mobile & desktop) */}
+          <div className="bg-[#15122b] border border-purple-500/40 shadow-[0_12px_40px_rgba(0,0,0,0.8)] rounded-3xl p-5 sm:p-6 flex flex-col gap-4 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl pointer-events-none" />
             
             <div className="flex items-baseline justify-between">
@@ -276,7 +271,7 @@ export default function ProjectPreviewModal({
               </span>
             </div>
 
-            <div className="flex flex-col gap-2.5 pt-2">
+            <div className="flex flex-col gap-2.5 pt-1">
               <ProductDownloadButton
                 productId={project.id}
                 price={project.price}
@@ -297,6 +292,11 @@ export default function ProjectPreviewModal({
                 </a>
               )}
             </div>
+          </div>
+
+          {/* Description text box */}
+          <div className="bg-[#121021] border border-white/15 rounded-2xl p-5 text-zinc-200 text-sm leading-relaxed font-normal shadow-lg">
+            {project.longDescription || project.description}
           </div>
 
           {/* Technical Details panel */}
