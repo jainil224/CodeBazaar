@@ -1,4 +1,4 @@
-import { Code2, Download, Heart, ShoppingBag, Search, ArrowLeft, ArrowRight, Maximize2 } from 'lucide-react';
+import { Code2, Download, Heart, ShoppingBag, Search, ArrowRight, Maximize2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { loadRazorpay } from '../utils/razorpayLoader';
@@ -30,7 +30,6 @@ export default function FeaturedProjects({
   onPurchaseSuccess,
   products,
   isFullCatalogView = false,
-  onBackClick,
   onViewAllClick,
 }: FeaturedProjectsProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -236,21 +235,8 @@ export default function FeaturedProjects({
 
   return (
     <>
-      <section id="projects" className="py-24 relative z-10 w-full overflow-hidden bg-transparent">
-        <div className="relative z-10 max-w-[1200px] mx-auto px-6">
-          {/* Back button (Only if full catalog view) */}
-          {isFullCatalogView && onBackClick && (
-            <div className="mb-8 flex justify-start">
-              <button
-                type="button"
-                onClick={onBackClick}
-                className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition-colors cursor-pointer bg-white/5 border border-white/10 px-4.5 py-2.5 rounded-xl hover:bg-white/10"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to Home</span>
-              </button>
-            </div>
-          )}
+      <section id="projects" className={`${isFullCatalogView ? "pt-6 sm:pt-10 pb-20" : "py-24"} relative z-10 w-full overflow-hidden bg-transparent`}>
+        <div className="relative z-10 max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Title */}
           <motion.div
@@ -258,7 +244,7 @@ export default function FeaturedProjects({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center mb-16"
+            className={`text-center ${isFullCatalogView ? "mb-8 sm:mb-10" : "mb-16"}`}
           >
             <h2 className="text-xs uppercase tracking-widest font-bold text-primary-indigo font-mono">
               {isFullCatalogView ? "Complete Catalog" : "Bazaar Showroom"}
@@ -266,9 +252,9 @@ export default function FeaturedProjects({
             <h3 className="text-3xl sm:text-4xl font-bold text-white mt-2">
               {isFullCatalogView ? "All Project Templates" : "Featured Project Templates"}
             </h3>
-            <p className="text-white/60 max-w-[600px] mx-auto mt-4 text-base">
+            <p className="text-white/60 max-w-[640px] mx-auto mt-3 text-sm sm:text-base">
               {isFullCatalogView
-                ? `Browse all ${products.length} production-ready digital products and templates.`
+                ? `Browse all ${products.length} production-ready digital products and templates. Instant code download for flat ₹50.`
                 : "Get production-ready, beautifully designed project bases for just ₹50. Instant source code download."
               }
             </p>
@@ -280,7 +266,7 @@ export default function FeaturedProjects({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-            className="flex flex-col md:flex-row items-center justify-between gap-5 mb-12 p-3 bg-white/[0.03] border border-white/10 rounded-[28px] backdrop-blur-md"
+            className={`flex flex-col md:flex-row items-center justify-between gap-4 ${isFullCatalogView ? "mb-8" : "mb-12"} p-3 bg-white/[0.03] border border-white/10 rounded-[24px] sm:rounded-[28px] backdrop-blur-md`}
           >
             {/* Categories */}
             <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
@@ -288,7 +274,7 @@ export default function FeaturedProjects({
                 <button
                   key={cat}
                   onClick={() => handleCategoryClick(cat)}
-                  className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-all ${activeCategory === cat
+                  className={`px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-all ${activeCategory === cat
                       ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/30 border border-purple-500'
                       : 'text-white/60 hover:text-white bg-white/5 border border-white/5 hover:border-white/10'
                     }`}
@@ -308,7 +294,7 @@ export default function FeaturedProjects({
                 placeholder="Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 focus:border-purple-400 rounded-xl pl-11 pr-4 py-2.5 text-sm outline-none transition-colors text-white placeholder-white/40 font-sans"
+                className="w-full bg-white/5 border border-white/10 focus:border-purple-400 rounded-xl pl-11 pr-4 py-2 sm:py-2.5 text-sm outline-none transition-colors text-white placeholder-white/40 font-sans"
               />
             </div>
           </motion.div>
@@ -323,11 +309,11 @@ export default function FeaturedProjects({
               hidden: {},
               visible: {
                 transition: {
-                  staggerChildren: 0.1,
+                  staggerChildren: 0.08,
                 }
               }
             }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            className={`grid gap-6 sm:gap-7 ${isFullCatalogView ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"}`}
           >
             {(isFullCatalogView ? filteredProducts : filteredProducts.slice(0, 4)).map((project) => {
               const isPurchased = purchasedIds.includes(project.id);
@@ -461,6 +447,24 @@ export default function FeaturedProjects({
               );
             })}
           </motion.div>
+
+          {/* Empty search results state */}
+          {filteredProducts.length === 0 && (
+            <div className="text-center py-16 px-4 bg-white/[0.02] border border-white/5 rounded-3xl mt-4 max-w-[600px] mx-auto">
+              <Code2 className="w-12 h-12 text-white/20 mx-auto mb-3" />
+              <h4 className="text-lg font-bold text-white mb-1.5">No templates found</h4>
+              <p className="text-xs text-white/50 mb-5">
+                No templates matched "{searchQuery}" in category "{activeCategory}".
+              </p>
+              <button
+                type="button"
+                onClick={() => { setSearchQuery(''); setActiveCategory('All'); }}
+                className="px-4.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-purple-900/30"
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
 
           {!isFullCatalogView && filteredProducts.length > 4 && (
             <div className="flex justify-center mt-12">

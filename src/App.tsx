@@ -429,7 +429,7 @@ export default function App() {
           <div className="min-h-screen flex flex-col justify-between">
             {/* Standalone Templates Page Navigation Header */}
             <div className="sticky top-0 z-40 px-4 sm:px-8 py-4 bg-[#0c0c14]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl">
-              <div className="max-w-[1240px] mx-auto flex items-center justify-between gap-4">
+              <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-4">
                 {/* Left: Brand & Back */}
                 <div className="flex items-center gap-4 sm:gap-6">
                   <button
