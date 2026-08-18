@@ -416,19 +416,20 @@ export default function App() {
           <AnimatedGradientBackground containerClassName="fixed inset-0 z-0 pointer-events-none" />
 
           {/* Standalone Header */}
-          <div className="relative z-20 px-6 py-4 bg-[#0c0c14]/80 backdrop-blur-md border-b border-white/10 flex items-center justify-between">
+          <div className="relative z-20 px-4 sm:px-6 py-3 sm:py-4 bg-[#0c0c14]/90 backdrop-blur-md border-b border-white/10 flex items-center justify-between gap-3">
             <button
               onClick={() => {
                 window.history.pushState({}, '', window.location.pathname);
                 setCurrentPreviewId(null);
               }}
-              className="flex items-center gap-2 px-4.5 py-2.5 bg-purple-500/10 border border-purple-500/30 hover:bg-purple-600 hover:border-purple-500 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider text-purple-300 transition-all duration-300 active:scale-95 shadow-[0_0_15px_rgba(139,92,246,0.1)] hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] cursor-pointer"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4.5 py-2 sm:py-2.5 bg-purple-500/10 border border-purple-500/30 hover:bg-purple-600 hover:border-purple-500 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider text-purple-300 transition-all duration-300 active:scale-95 shadow-[0_0_15px_rgba(139,92,246,0.1)] hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] cursor-pointer shrink-0"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Marketplace</span>
+              <span>Back</span>
+              <span className="hidden sm:inline">to Marketplace</span>
             </button>
-            <div className="font-mono text-xs text-white/60 font-semibold truncate max-w-[300px]">
-              {targetProduct.title} · Full Preview Page
+            <div className="font-mono text-[11px] sm:text-xs text-white/60 font-semibold truncate text-right">
+              {targetProduct.title}
             </div>
           </div>
 
