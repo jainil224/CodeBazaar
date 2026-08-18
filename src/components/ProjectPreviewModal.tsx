@@ -137,31 +137,31 @@ export default function ProjectPreviewModal({
         <div className="flex-1 flex flex-col gap-6">
           
           {/* Browser frame mockup */}
-          <div className="bg-white/[0.02] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col backdrop-blur-md">
+          <div className="bg-[#121021] border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
             {/* Browser top-bar */}
-            <div className="bg-white/[0.03] border-b border-white/10 px-4 py-3 flex items-center justify-between shrink-0 select-none">
+            <div className="bg-[#18162b] border-b border-white/10 px-4 py-3 flex items-center justify-between shrink-0 select-none">
               {/* macOS traffic light dots */}
               <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/80 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                <div className="w-3 h-3 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                <div className="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
               </div>
               
               {/* Address input */}
-              <div className="bg-black/40 border border-white/10 text-white/50 text-[11px] font-mono rounded-lg px-4 py-1.5 w-64 text-center truncate shadow-inner flex items-center justify-center gap-1.5">
-                <span className="text-emerald-400 text-[10px]">🔒</span>
+              <div className="bg-black/60 border border-white/15 text-zinc-300 text-[11px] font-mono rounded-lg px-4 py-1.5 w-64 text-center truncate shadow-inner flex items-center justify-center gap-1.5">
+                <span className="text-emerald-400 text-[11px]">🔒</span>
                 <span>codebazaar.dev/preview/{project.id}</span>
               </div>
               
               {/* Right badge */}
-              <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2.5 py-0.5 rounded-full">
-                <Sparkles className="w-3 h-3" />
+              <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-purple-300 bg-purple-500/20 border border-purple-500/40 px-2.5 py-0.5 rounded-full shadow-sm">
+                <Sparkles className="w-3 h-3 text-purple-300" />
                 <span>Live View</span>
               </div>
             </div>
 
             {/* Screenshot viewport */}
-            <div className="aspect-video relative bg-black/40 overflow-hidden flex items-center justify-center group">
+            <div className="aspect-video relative bg-black/60 overflow-hidden flex items-center justify-center group">
               <img
                 src={activeImage}
                 alt={project.title}
@@ -177,10 +177,10 @@ export default function ProjectPreviewModal({
                 <button
                   key={idx}
                   onClick={() => setActiveImage(img)}
-                  className={`aspect-video rounded-2xl overflow-hidden bg-black/40 border transition-all cursor-pointer ${
+                  className={`aspect-video rounded-2xl overflow-hidden bg-black/60 border-2 transition-all cursor-pointer ${
                     activeImage === img
-                      ? 'border-purple-500 ring-2 ring-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.3)]'
-                      : 'border-white/10 hover:border-white/30 opacity-70 hover:opacity-100'
+                      ? 'border-purple-400 ring-2 ring-purple-400/40 shadow-[0_0_20px_rgba(168,85,247,0.4)]'
+                      : 'border-white/15 hover:border-white/40 opacity-80 hover:opacity-100'
                   }`}
                 >
                   <img
@@ -194,21 +194,21 @@ export default function ProjectPreviewModal({
           )}
 
           {/* Key Deliverables & Highlights */}
-          <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-6 backdrop-blur-md">
-            <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-purple-400 flex items-center gap-2 mb-4">
-              <Layers className="w-4 h-4" />
+          <div className="bg-[#131124] border border-purple-500/25 rounded-3xl p-6 shadow-xl">
+            <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-purple-300 flex items-center gap-2 mb-4">
+              <Layers className="w-4 h-4 text-purple-400" />
               <span>What's Included In This Template</span>
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               {(project.features && project.features.length > 0 ? project.features : [
                 'Full React / Next.js source code repository',
                 'Modular component architecture & Tailwind CSS styles',
                 'Instant ZIP package download with full commercial license',
                 'Lifetime access with zero recurring subscription fees',
               ]).map((feat, idx) => (
-                <div key={idx} className="flex items-start gap-2.5 text-xs text-white/80">
+                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-100 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>{feat}</span>
+                  <span className="leading-snug">{feat}</span>
                 </div>
               ))}
             </div>
@@ -221,7 +221,7 @@ export default function ProjectPreviewModal({
           
           {/* Top metadata actions */}
           <div className="flex items-center justify-between shrink-0">
-            <span className="bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[10px] font-extrabold tracking-wider uppercase px-3.5 py-1 rounded-full font-mono">
+            <span className="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[11px] font-extrabold tracking-wider uppercase px-3.5 py-1 rounded-full font-mono shadow-sm">
               {project.techStack?.[0]?.category || 'Landing Page'}
             </span>
             
@@ -229,18 +229,18 @@ export default function ProjectPreviewModal({
               {/* Share button */}
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-semibold text-white/70 hover:text-white transition-all cursor-pointer active:scale-95"
+                className="flex items-center gap-1.5 bg-[#18162b] hover:bg-[#201d3a] border border-white/15 rounded-xl px-3.5 py-2 text-xs font-semibold text-zinc-200 hover:text-white transition-all cursor-pointer active:scale-95 shadow-sm"
               >
-                <Share2 className="w-3.5 h-3.5" />
+                <Share2 className="w-3.5 h-3.5 text-purple-300" />
                 <span>{shareCopied ? 'Copied Link!' : 'Share'}</span>
               </button>
               
               {/* Wishlist toggle */}
               <button
                 onClick={handleToggleFavorite}
-                className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-semibold text-white/70 hover:text-white transition-all cursor-pointer active:scale-95"
+                className="flex items-center gap-1.5 bg-[#18162b] hover:bg-[#201d3a] border border-white/15 rounded-xl px-3.5 py-2 text-xs font-semibold text-zinc-200 hover:text-white transition-all cursor-pointer active:scale-95 shadow-sm"
               >
-                <Heart className={`w-3.5 h-3.5 ${isFavorited ? 'fill-red-500 text-red-500' : 'text-white/50'}`} />
+                <Heart className={`w-3.5 h-3.5 ${isFavorited ? 'fill-red-500 text-red-500' : 'text-zinc-400'}`} />
                 <span>{isFavorited ? 'Saved' : 'Wishlist'}</span>
               </button>
             </div>
@@ -251,27 +251,27 @@ export default function ProjectPreviewModal({
             <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight">
               {project.title}
             </h1>
-            <p className="text-white/40 text-xs mt-2 font-mono flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <p className="text-purple-300/80 text-xs mt-2 font-mono flex items-center gap-2 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
               <span>Production Ready · Flat ₹50 Instant License</span>
             </p>
           </div>
 
           {/* Description text box */}
-          <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-4.5 text-white/70 text-sm leading-relaxed">
+          <div className="bg-[#121021] border border-white/15 rounded-2xl p-5 text-zinc-200 text-sm leading-relaxed font-normal shadow-lg">
             {project.longDescription || project.description}
           </div>
 
           {/* Price & Purchase Hero Card */}
-          <div className="bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.5)] rounded-3xl p-6 flex flex-col gap-4 backdrop-blur-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="bg-[#15122b] border border-purple-500/40 shadow-[0_12px_40px_rgba(0,0,0,0.8)] rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl pointer-events-none" />
             
             <div className="flex items-baseline justify-between">
               <div>
                 <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">{project.price}</span>
-                <span className="text-white/40 text-[11px] font-mono block mt-0.5 uppercase tracking-wider">Lifetime Developer License</span>
+                <span className="text-zinc-400 text-[11px] font-mono block mt-0.5 uppercase tracking-wider font-semibold">Lifetime Developer License</span>
               </div>
-              <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
+              <span className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
                 Instant Download
               </span>
             </div>
@@ -282,7 +282,7 @@ export default function ProjectPreviewModal({
                 price={project.price}
                 productTitle={project.title}
                 onPurchase={onPurchase}
-                className="w-full shadow-purple-900/40"
+                className="w-full shadow-purple-900/50"
               />
 
               {project.previewUrl && (
@@ -290,7 +290,7 @@ export default function ProjectPreviewModal({
                   href={project.previewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider border border-white/10 transition-all active:scale-95"
+                  className="w-full bg-[#1e1b38] hover:bg-[#28244b] text-white font-bold py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider border border-white/15 transition-all active:scale-95 shadow-md"
                 >
                   <ExternalLink className="w-4 h-4 text-purple-400" />
                   <span>Open Live Demo</span>
@@ -300,20 +300,20 @@ export default function ProjectPreviewModal({
           </div>
 
           {/* Technical Details panel */}
-          <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-5 flex flex-col gap-4 backdrop-blur-md">
-            <h3 className="text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 font-mono text-purple-400">
-              <Code className="w-4 h-4" />
+          <div className="bg-[#131124] border border-white/15 rounded-3xl p-6 flex flex-col gap-4 shadow-xl">
+            <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-purple-300 flex items-center gap-2">
+              <Code className="w-4 h-4 text-purple-400" />
               <span>Technical Specifications</span>
             </h3>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               <div>
-                <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider block mb-2 font-mono">Tech Stack</span>
-                <div className="flex flex-wrap gap-1.5">
+                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block mb-2 font-mono">Tech Stack</span>
+                <div className="flex flex-wrap gap-2">
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-white/5 border border-white/10 text-white/80 text-xs font-semibold px-3 py-1 rounded-xl"
+                      className="bg-white/10 border border-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-xl shadow-sm"
                     >
                       {tag}
                     </span>
@@ -322,18 +322,18 @@ export default function ProjectPreviewModal({
               </div>
 
               <div>
-                <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider block mb-1 font-mono">System Requirements</span>
-                <p className="text-white/70 text-xs font-mono">{project.systemRequirements || 'Node.js >= 18.x, Modern Web Browser'}</p>
+                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block mb-1 font-mono">System Requirements</span>
+                <p className="text-zinc-200 text-xs font-mono font-medium">{project.systemRequirements || 'Node.js >= 18.x, Modern Web Browser'}</p>
               </div>
             </div>
           </div>
 
           {/* Safe Escrow Box */}
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex gap-3 items-start backdrop-blur-sm">
+          <div className="bg-[#0d1f17] border border-emerald-500/40 rounded-2xl p-4.5 flex gap-3.5 items-start shadow-lg">
             <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <div>
               <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-wider font-mono">Secure Direct Source Download</h4>
-              <p className="text-emerald-200/70 text-[11px] leading-relaxed mt-1">
+              <p className="text-emerald-100/90 text-xs leading-relaxed mt-1 font-sans">
                 Your payment is verified securely via Razorpay. The complete ZIP archive and source code files are unlocked immediately upon purchase.
               </p>
             </div>
@@ -351,7 +351,7 @@ export default function ProjectPreviewModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[9998] flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-xl overflow-y-auto"
+        className="fixed inset-0 z-[9998] flex items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-2xl overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -360,7 +360,7 @@ export default function ProjectPreviewModal({
         <div className="absolute inset-0 cursor-default" onClick={onClose} />
 
         <motion.div
-          className="relative w-full max-w-6xl bg-[#0c0c14] text-white rounded-none sm:rounded-3xl shadow-2xl flex flex-col max-h-none sm:max-h-[92vh] overflow-hidden border border-white/10 z-10"
+          className="relative w-full max-w-6xl bg-[#0c0c14] text-white rounded-none sm:rounded-3xl shadow-2xl flex flex-col max-h-none sm:max-h-[92vh] overflow-hidden border border-white/15 z-10"
           initial={{ scale: 0.95, y: 15 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.95, y: 15 }}
