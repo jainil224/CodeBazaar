@@ -464,14 +464,19 @@ export default function FeaturedProjects({
 
           {!isFullCatalogView && filteredProducts.length > 4 && (
             <div className="flex justify-center mt-12">
-              <button
-                type="button"
-                onClick={onViewAllClick}
-                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-xs font-bold uppercase tracking-wider px-8 py-4.5 rounded-2xl flex items-center gap-2 transition-all hover:scale-103 active:scale-95 cursor-pointer shadow-lg shadow-black/30"
+              <a
+                href="?view=templates"
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && e.button === 0) {
+                    e.preventDefault();
+                    onViewAllClick?.();
+                  }
+                }}
+                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-xs font-bold uppercase tracking-wider px-8 py-4.5 rounded-2xl flex items-center gap-2.5 transition-all hover:scale-103 active:scale-95 cursor-pointer shadow-lg shadow-black/30 text-decoration-none group"
               >
-                <span>View All {filteredProducts.length} Templates</span>
-                <ArrowRight className="w-4 h-4 text-purple-400" />
-              </button>
+                <span>View All {products.length} Templates</span>
+                <ArrowRight className="w-4 h-4 text-purple-400 group-hover:translate-x-1 transition-transform" />
+              </a>
             </div>
           )}
         </div>

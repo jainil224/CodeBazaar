@@ -10,7 +10,8 @@ import AdminDashboard from '@/components/AdminDashboard';
 import AnimatedGradientBackground from '@/components/ui/animated-gradient-background';
 import ProjectPlayground from '@/components/ProjectPlayground';
 import ProjectPreviewModal from '@/components/ProjectPreviewModal';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, User, Package, LogOut, ChevronDown } from 'lucide-react';
+import siteLogo from '@/assets/logo.svg';
 import { useAuth } from '@/context/AuthContext';
 import { doc, collection, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
@@ -52,7 +53,12 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isMyPurchasesOpen, setIsMyPurchasesOpen] = useState(false);
-  const [isAllTemplatesOpen, setIsAllTemplatesOpen] = useState(false);
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const [isAllTemplatesOpen, setIsAllTemplatesOpen] = useState<boolean>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const path = window.location.pathname;
+    return path === '/templates' || params.get('view') === 'templates' || params.get('view') === 'all-templates';
+  });
   const [globalReceiptData, setGlobalReceiptData] = useState<PurchaseReceiptData | null>(null);
   const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
   const [currentPlaygroundId, setCurrentPlaygroundId] = useState<string | null>(() => {
@@ -124,7 +130,7 @@ export default function App() {
     trackEvent('page_view', { pagePath: '/', pageTitle: 'CodeBazaar Home' });
   }, [authResolved]); // Fires exactly once after auth resolves
 
-  // Check URL route for /admin or view=admin, purchases, etc.
+  // Check URL route for /admin, /templates, /purchases, etc.
   useEffect(() => {
     const handleUrlRoute = () => {
       const path = window.location.pathname;
@@ -132,6 +138,12 @@ export default function App() {
       
       const isAdminRoute = path === '/admin' || path === '/admin/dashboard' || params.get('view') === 'admin';
       const isPurchasesRoute = path === '/my-purchases' || path === '/purchases' || params.get('view') === 'purchases';
+      const isTemplatesRoute = path === '/templates' || params.get('view') === 'templates' || params.get('view') === 'all-templates';
+      const playgroundParam = params.get('project');
+      const previewParam = params.get('preview') || params.get('details');
+
+      setCurrentPlaygroundId(playgroundParam);
+      setCurrentPreviewId(previewParam);
 
       if (isAdminRoute) {
         if (currentUser?.role === 'admin') {
@@ -152,12 +164,19 @@ export default function App() {
           setPendingRedirect('purchases');
           setIsAuthOpen(true);
         }
+      } else if (isTemplatesRoute) {
+        setIsAllTemplatesOpen(true);
+      } else {
+        setIsAllTemplatesOpen(false);
       }
     };
 
     if (authResolved) {
       handleUrlRoute();
     }
+
+    window.addEventListener('popstate', handleUrlRoute);
+    return () => window.removeEventListener('popstate', handleUrlRoute);
   }, [currentUser, authResolved]);
 
   // Handle post-login redirection actions
@@ -177,7 +196,7 @@ export default function App() {
     }
   }, [currentUser, pendingRedirect]);
 
-  // Track dashboard & purchases overlay views
+  // Track dashboard, purchases, and templates page views
   useEffect(() => {
     if (isAdminOpen) {
       trackEvent('page_view', { pagePath: '/admin', pageTitle: 'Admin Dashboard' });
@@ -189,6 +208,24 @@ export default function App() {
       trackEvent('page_view', { pagePath: '/my-purchases', pageTitle: 'My Purchases' });
     }
   }, [isMyPurchasesOpen]);
+
+  useEffect(() => {
+    if (isAllTemplatesOpen) {
+      trackEvent('page_view', { pagePath: '/templates', pageTitle: 'All Templates - CodeBazaar' });
+    }
+  }, [isAllTemplatesOpen]);
+
+  const handleOpenTemplatesPage = () => {
+    window.history.pushState({}, '', '?view=templates');
+    setIsAllTemplatesOpen(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBackToHome = () => {
+    window.history.pushState({}, '', window.location.pathname.includes('/templates') ? '/' : window.location.pathname);
+    setIsAllTemplatesOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleLogout = async () => {
     try {
@@ -389,17 +426,121 @@ export default function App() {
       {/* Main Content wrapper */}
       <div className="relative z-10">
         {isAllTemplatesOpen ? (
-          <div className="py-12">
-            <FeaturedProjects 
-              currentUser={currentUser}
-              purchasedIds={purchasedIds}
-              onTriggerAuth={() => setIsAuthOpen(true)}
-              onPurchaseSuccess={handlePurchaseSuccess}
-              products={products}
-              isFullCatalogView={true}
-              onBackClick={() => setIsAllTemplatesOpen(false)}
-              onViewAllClick={() => {}}
-            />
+          <div className="min-h-screen flex flex-col justify-between">
+            {/* Standalone Templates Page Navigation Header */}
+            <div className="sticky top-0 z-40 px-4 sm:px-8 py-4 bg-[#0c0c14]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+              <div className="max-w-[1240px] mx-auto flex items-center justify-between gap-4">
+                {/* Left: Brand & Back */}
+                <div className="flex items-center gap-4 sm:gap-6">
+                  <button
+                    onClick={handleBackToHome}
+                    className="flex items-center gap-2 select-none group cursor-pointer bg-transparent border-none p-0 text-left"
+                    title="Return to Home"
+                  >
+                    <img src={siteLogo} alt="CodeBazaar Logo" className="w-10 h-10 max-sm:w-8 max-sm:h-8 group-hover:scale-105 transition-transform" />
+                    <span className="font-display text-2xl text-white tracking-tight leading-none max-sm:hidden">
+                      codebazaar
+                    </span>
+                  </button>
+
+                  <div className="h-6 w-px bg-white/10 max-sm:hidden" />
+
+                  <button
+                    type="button"
+                    onClick={handleBackToHome}
+                    className="flex items-center gap-2 px-3.5 sm:px-4.5 py-2 sm:py-2.5 bg-purple-500/10 border border-purple-500/30 hover:bg-purple-600 hover:border-purple-500 hover:text-white rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wider text-purple-300 transition-all duration-300 active:scale-95 shadow-[0_0_15px_rgba(139,92,246,0.1)] hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>Back to Home</span>
+                  </button>
+                </div>
+
+                {/* Right: Auth & Account actions */}
+                <div className="flex items-center gap-3">
+                  {currentUser ? (
+                    <div className="relative">
+                      <button
+                        onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
+                        className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-[11px] font-semibold uppercase tracking-[0.06em] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full flex items-center gap-2 transition-all cursor-pointer select-none shrink-0"
+                      >
+                        {currentUser.photoURL ? (
+                          <img
+                            src={currentUser.photoURL}
+                            alt={currentUser.name}
+                            className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover shrink-0"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold font-mono shrink-0">
+                            {currentUser.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <span className="max-sm:hidden">{currentUser.name.split(' ')[0]}</span>
+                        <ChevronDown className={`w-3.5 h-3.5 text-white/50 transition-transform duration-300 ${isAccountDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {isAccountDropdownOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setIsAccountDropdownOpen(false)} />
+                          <div className="absolute right-0 mt-3 w-64 bg-[#0c0c14] border border-white/10 rounded-2xl p-4 shadow-2xl backdrop-blur-xl flex flex-col gap-2 z-50 text-left">
+                            <div className="px-2 py-1">
+                              <p className="font-bold text-white text-xs truncate">{currentUser.name}</p>
+                              <p className="text-[10px] text-white/40 font-mono truncate">{currentUser.email}</p>
+                            </div>
+                            <div className="border-b border-white/5 my-1" />
+                            {currentUser.role === 'admin' && (
+                              <button
+                                onClick={() => { setIsAccountDropdownOpen(false); setIsAdminOpen(true); }}
+                                className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-white/60 hover:text-white px-2.5 py-2 rounded-lg hover:bg-white/5 transition-all text-left cursor-pointer"
+                              >
+                                <User className="w-4 h-4 text-pink-400" />
+                                <span>Admin Panel</span>
+                              </button>
+                            )}
+                            <button
+                              onClick={() => { setIsAccountDropdownOpen(false); setIsMyPurchasesOpen(true); }}
+                              className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-white/60 hover:text-white px-2.5 py-2 rounded-lg hover:bg-white/5 transition-all text-left cursor-pointer"
+                            >
+                              <Package className="w-4 h-4 text-purple-400" />
+                              <span>My Orders</span>
+                            </button>
+                            <button
+                              onClick={() => { setIsAccountDropdownOpen(false); handleLogout(); }}
+                              className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-red-400 hover:text-red-300 px-2.5 py-2 rounded-lg hover:bg-red-500/10 transition-all text-left cursor-pointer"
+                            >
+                              <LogOut className="w-4 h-4" />
+                              <span>Logout</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setIsAuthOpen(true)}
+                      className="bg-white text-black font-sans text-[11px] font-bold uppercase tracking-[0.06em] px-4.5 py-2.5 rounded-full transition-all hover:bg-white/90 active:scale-95 shadow-[0_4px_12px_rgba(255,255,255,0.1)] cursor-pointer"
+                    >
+                      Login / Sign Up
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Catalog Projects Grid - Only Templates Visible */}
+            <div className="flex-1">
+              <FeaturedProjects 
+                currentUser={currentUser}
+                purchasedIds={purchasedIds}
+                onTriggerAuth={() => setIsAuthOpen(true)}
+                onPurchaseSuccess={handlePurchaseSuccess}
+                products={products}
+                isFullCatalogView={true}
+                onBackClick={handleBackToHome}
+                onViewAllClick={() => {}}
+              />
+            </div>
           </div>
         ) : (
           <>
@@ -423,7 +564,7 @@ export default function App() {
               onPurchaseSuccess={handlePurchaseSuccess}
               products={products}
               isFullCatalogView={false}
-              onViewAllClick={() => setIsAllTemplatesOpen(true)}
+              onViewAllClick={handleOpenTemplatesPage}
             />
 
             {/* What we deliver guarantees */}
