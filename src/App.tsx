@@ -25,6 +25,7 @@ import { trackEvent } from '@/lib/analytics';
 import PurchaseReceiptModal, { type PurchaseReceiptData } from '@/components/PurchaseReceiptModal';
 import { downloadProjectZip } from '@/utils/downloadHelper';
 import { isTestUser, generateTestPaymentId } from '@/utils/testConfig';
+import { updateSEO } from '@/helpers/seo-helper';
 
 
 interface Transaction {
@@ -212,8 +213,44 @@ export default function App() {
   useEffect(() => {
     if (isAllTemplatesOpen) {
       trackEvent('page_view', { pagePath: '/templates', pageTitle: 'All Templates - CodeBazaar' });
+      updateSEO({
+        title: 'All Project Templates & Codebases | CodeBazaar',
+        description: 'Browse all production-ready React, Next.js, and SaaS templates for flat ₹50. Instant source code download with commercial license.',
+        canonicalPath: '/?view=templates',
+      });
+    } else if (currentPreviewId) {
+      const targetProduct = products.find(p => p.id === currentPreviewId) || DEFAULT_PRODUCTS.find(p => p.id === currentPreviewId);
+      if (targetProduct) {
+        updateSEO({
+          title: `${targetProduct.title} — Source Code Template | CodeBazaar`,
+          description: targetProduct.description,
+          canonicalPath: `/?preview=${targetProduct.id}`,
+          ogImage: targetProduct.imageUrl || targetProduct.detail?.imageUrl,
+          ogType: 'product',
+          schema: {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": targetProduct.title,
+            "description": targetProduct.description,
+            "image": targetProduct.imageUrl || targetProduct.detail?.imageUrl,
+            "offers": {
+              "@type": "Offer",
+              "price": "50",
+              "priceCurrency": "INR",
+              "availability": "https://schema.org/InStock",
+              "url": `https://code-bazaar.vercel.app/?preview=${targetProduct.id}`
+            }
+          }
+        });
+      }
+    } else {
+      updateSEO({
+        title: 'CodeBazaar — Flat ₹50 Code Marketplace | React, Next.js & UI Templates',
+        description: 'Download production-ready React, Next.js, and full-stack project templates for flat ₹50. Instant source code ZIP download with commercial license.',
+        canonicalPath: '/',
+      });
     }
-  }, [isAllTemplatesOpen]);
+  }, [isAllTemplatesOpen, currentPreviewId, products]);
 
   const handleOpenTemplatesPage = () => {
     window.history.pushState({}, '', '?view=templates');
