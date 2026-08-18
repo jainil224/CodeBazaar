@@ -266,15 +266,15 @@ export default function FeaturedProjects({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-            className={`flex flex-col md:flex-row items-center justify-between gap-4 ${isFullCatalogView ? "mb-8" : "mb-12"} p-3 bg-white/[0.03] border border-white/10 rounded-[24px] sm:rounded-[28px] backdrop-blur-md`}
+            className={`flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4 ${isFullCatalogView ? "mb-6 sm:mb-8" : "mb-10 sm:mb-12"} p-2.5 sm:p-3 bg-white/[0.03] border border-white/10 rounded-[20px] sm:rounded-[28px] backdrop-blur-md`}
           >
-            {/* Categories */}
-            <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
+            {/* Categories (Smooth horizontal scroll on mobile) */}
+            <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0 scroll-smooth -mx-1 px-1 flex-nowrap md:flex-wrap">
               {['All', 'Landing Page', 'SaaS setup', 'AI Interface', 'E-Commerce', 'Portfolio'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => handleCategoryClick(cat)}
-                  className={`px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-all ${activeCategory === cat
+                  className={`px-3.5 sm:px-4 py-2 sm:py-2.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-all whitespace-nowrap shrink-0 ${activeCategory === cat
                       ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/30 border border-purple-500'
                       : 'text-white/60 hover:text-white bg-white/5 border border-white/5 hover:border-white/10'
                     }`}
@@ -285,7 +285,7 @@ export default function FeaturedProjects({
             </div>
 
             {/* Search Input */}
-            <div className="relative w-full md:w-[300px] shrink-0">
+            <div className="relative w-full md:w-[280px] lg:w-[320px] shrink-0">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
                 <Search className="w-4 h-4" />
               </span>
@@ -294,7 +294,7 @@ export default function FeaturedProjects({
                 placeholder="Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 focus:border-purple-400 rounded-xl pl-11 pr-4 py-2 sm:py-2.5 text-sm outline-none transition-colors text-white placeholder-white/40 font-sans"
+                className="w-full bg-white/5 border border-white/10 focus:border-purple-400 rounded-xl pl-11 pr-4 py-2.5 sm:py-2.5 text-xs sm:text-sm outline-none transition-colors text-white placeholder-white/40 font-sans"
               />
             </div>
           </motion.div>
@@ -313,7 +313,7 @@ export default function FeaturedProjects({
                 }
               }
             }}
-            className={`grid gap-6 sm:gap-7 ${isFullCatalogView ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"}`}
+            className={`grid gap-5 sm:gap-7 ${isFullCatalogView ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2"}`}
           >
             {(isFullCatalogView ? filteredProducts : filteredProducts.slice(0, 4)).map((project) => {
               const isPurchased = purchasedIds.includes(project.id);
@@ -326,11 +326,11 @@ export default function FeaturedProjects({
                     hidden: { opacity: 0, y: 30 },
                     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
                   }}
-                  className="bg-white text-zinc-900 rounded-[32px] overflow-hidden flex flex-col justify-between border border-zinc-200/80 shadow-[0_4px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_45px_rgba(105,56,255,0.15)] hover:border-violet-300 transition-all duration-300 group"
+                  className="bg-white text-zinc-900 rounded-[28px] sm:rounded-[32px] overflow-hidden flex flex-col justify-between border border-zinc-200/80 shadow-[0_4px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_45px_rgba(105,56,255,0.15)] hover:border-violet-300 transition-all duration-300 group"
                 >
                   {/* Media Box */}
                   <div
-                    className="relative w-full h-[240px] sm:h-[265px] overflow-hidden cursor-pointer bg-zinc-50 border-b border-zinc-100 flex items-center justify-center"
+                    className="relative w-full h-[200px] sm:h-[240px] md:h-[260px] overflow-hidden cursor-pointer bg-zinc-50 border-b border-zinc-100 flex items-center justify-center"
                     onClick={() => handleOpenPreview(project)}
                   >
                     {project.imageUrl ? (
@@ -349,52 +349,52 @@ export default function FeaturedProjects({
                     {/* Floating Heart / Like Button */}
                     <button
                       onClick={(e) => toggleFavorite(project.id, e)}
-                      className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.15)] border border-zinc-100 flex items-center justify-center transition-all duration-200 z-10 hover:scale-105 active:scale-95"
+                      className="absolute top-3 sm:top-4 right-3 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.15)] border border-zinc-100 flex items-center justify-center transition-all duration-200 z-10 hover:scale-105 active:scale-95"
                     >
                       <Heart
-                        className={`w-5 h-5 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-zinc-400 hover:text-red-500'
+                        className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-zinc-400 hover:text-red-500'
                           }`}
                       />
                     </button>
                   </div>
 
                   {/* Card Content */}
-                  <div className="p-6 flex flex-col gap-4 flex-1">
+                  <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 flex-1">
                     {/* Category & Version Pill Line */}
                     <div className="flex items-center justify-between text-xs">
-                      <span className="bg-violet-50 text-violet-600 border border-violet-100 text-[10px] font-extrabold tracking-wider uppercase px-3 py-1 rounded-full">
+                      <span className="bg-violet-50 text-violet-600 border border-violet-100 text-[10px] font-extrabold tracking-wider uppercase px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full">
                         {project.category}
                       </span>
-                      <span className="text-zinc-400 font-mono font-medium">
+                      <span className="text-zinc-400 font-mono font-medium text-[11px] sm:text-xs">
                         {project.version}
                       </span>
                     </div>
 
                     {/* Title */}
                     <h4
-                      className="text-xl font-bold text-zinc-950 hover:text-violet-600 transition-colors leading-tight cursor-pointer"
+                      className="text-lg sm:text-xl font-bold text-zinc-950 hover:text-violet-600 transition-colors leading-snug cursor-pointer"
                       onClick={() => handleOpenPreview(project)}
                     >
                       {project.title}
                     </h4>
 
                     {/* Description */}
-                    <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2">
+                    <p className="text-zinc-500 text-xs sm:text-sm leading-relaxed line-clamp-2">
                       {project.description}
                     </p>
 
                     {/* Tags */}
-                    <div className="flex flex-wrap gap-1.5 mt-1">
+                    <div className="flex flex-wrap gap-1 sm:gap-1.5 mt-auto pt-1">
                       {project.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="bg-zinc-50 border border-zinc-100/80 text-zinc-600 text-[11px] font-medium py-1 px-3 rounded-full"
+                          className="bg-zinc-50 border border-zinc-100/80 text-zinc-600 text-[10px] sm:text-[11px] font-medium py-0.5 sm:py-1 px-2.5 sm:px-3 rounded-full"
                         >
                           {tag}
                         </span>
                       ))}
                       {project.tags.length > 3 && (
-                        <span className="bg-zinc-50 border border-zinc-100/80 text-zinc-400 text-[11px] font-medium py-1 px-3 rounded-full">
+                        <span className="bg-zinc-50 border border-zinc-100/80 text-zinc-400 text-[10px] sm:text-[11px] font-medium py-0.5 sm:py-1 px-2.5 sm:px-3 rounded-full">
                           +{project.tags.length - 3} more
                         </span>
                       )}
@@ -402,43 +402,43 @@ export default function FeaturedProjects({
                   </div>
 
                   {/* Card Footer */}
-                  <div className="px-6 py-5 border-t border-zinc-100 flex items-center justify-between gap-4 bg-zinc-50/50">
+                  <div className="px-4 sm:px-6 py-3.5 sm:py-5 border-t border-zinc-100 flex items-center justify-between gap-2 sm:gap-4 bg-zinc-50/50">
                     {/* Left: Price & Download label */}
-                    <div className="text-left">
-                      <div className="text-2xl font-black text-zinc-950 tracking-tight">{project.price}</div>
-                      <span className="text-emerald-600 text-[10px] font-bold uppercase tracking-wider block mt-0.5">
+                    <div className="text-left shrink-0">
+                      <div className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight">{project.price}</div>
+                      <span className="text-emerald-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider block mt-0.5">
                         Instant Download
                       </span>
                     </div>
 
                     {/* Right: Actions */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
 
                       {/* Open Preview in New Page button */}
                       <button
                         onClick={(e) => handleOpenPreviewInNewTab(project, e)}
-                        className="w-12 h-12 rounded-2xl border border-zinc-200 bg-white hover:bg-violet-50 text-zinc-600 hover:text-violet-600 flex items-center justify-center transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative group/btn cursor-pointer"
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl border border-zinc-200 bg-white hover:bg-violet-50 text-zinc-600 hover:text-violet-600 flex items-center justify-center transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] relative group/btn cursor-pointer shrink-0"
                         title="Open Product Preview in New Page"
                       >
-                        <Maximize2 className="w-5 h-5 transition-transform group-hover/btn:scale-110" />
+                        <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover/btn:scale-110" />
                       </button>
 
                       {/* Main Button (Explore / Download) */}
                       {isPurchased ? (
                         <button
                           onClick={(e) => handleDownload(project, e)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-3 rounded-2xl flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.2)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.3)] transition-all text-sm group"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.2)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.3)] transition-all text-xs sm:text-sm group shrink-0"
                         >
-                          <Download className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
-                          Download
+                          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
+                          <span>Download</span>
                         </button>
                       ) : (
                         <button
                           onClick={() => handleOpenPreview(project)}
-                          className="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-3 rounded-2xl flex items-center gap-2 shadow-[0_4px_15px_rgba(109,40,217,0.2)] hover:shadow-[0_6px_20px_rgba(109,40,217,0.3)] transition-all text-sm group"
+                          className="bg-violet-600 hover:bg-violet-700 text-white font-bold px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2 shadow-[0_4px_15px_rgba(109,40,217,0.2)] hover:shadow-[0_6px_20px_rgba(109,40,217,0.3)] transition-all text-xs sm:text-sm group shrink-0"
                         >
-                          <ShoppingBag className="w-4 h-4 text-violet-200 group-hover:scale-110 transition-transform" />
-                          Explore
+                          <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-200 group-hover:scale-110 transition-transform" />
+                          <span>Explore</span>
                         </button>
                       )}
                     </div>
@@ -450,9 +450,9 @@ export default function FeaturedProjects({
 
           {/* Empty search results state */}
           {filteredProducts.length === 0 && (
-            <div className="text-center py-16 px-4 bg-white/[0.02] border border-white/5 rounded-3xl mt-4 max-w-[600px] mx-auto">
-              <Code2 className="w-12 h-12 text-white/20 mx-auto mb-3" />
-              <h4 className="text-lg font-bold text-white mb-1.5">No templates found</h4>
+            <div className="text-center py-12 sm:py-16 px-4 bg-white/[0.02] border border-white/5 rounded-3xl mt-4 max-w-[600px] mx-auto">
+              <Code2 className="w-10 h-10 sm:w-12 sm:h-12 text-white/20 mx-auto mb-3" />
+              <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">No templates found</h4>
               <p className="text-xs text-white/50 mb-5">
                 No templates matched "{searchQuery}" in category "{activeCategory}".
               </p>
@@ -467,7 +467,7 @@ export default function FeaturedProjects({
           )}
 
           {!isFullCatalogView && filteredProducts.length > 4 && (
-            <div className="flex justify-center mt-12">
+            <div className="flex justify-center mt-8 sm:mt-12 px-4">
               <a
                 href="?view=templates"
                 onClick={(e) => {
@@ -476,10 +476,10 @@ export default function FeaturedProjects({
                     onViewAllClick?.();
                   }
                 }}
-                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-xs font-bold uppercase tracking-wider px-8 py-4.5 rounded-2xl flex items-center gap-2.5 transition-all hover:scale-103 active:scale-95 cursor-pointer shadow-lg shadow-black/30 text-decoration-none group"
+                className="w-full sm:w-auto max-w-sm justify-center bg-white/5 border border-white/10 hover:bg-white/10 text-white font-sans text-xs font-bold uppercase tracking-wider px-6 sm:px-8 py-3.5 sm:py-4.5 rounded-2xl flex items-center gap-2.5 transition-all hover:scale-103 active:scale-95 cursor-pointer shadow-lg shadow-black/30 text-decoration-none group select-none text-center"
               >
                 <span>View All {products.length} Templates</span>
-                <ArrowRight className="w-4 h-4 text-purple-400 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-purple-400 group-hover:translate-x-1 transition-transform shrink-0" />
               </a>
             </div>
           )}
