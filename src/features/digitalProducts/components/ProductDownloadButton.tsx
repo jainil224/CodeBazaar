@@ -154,13 +154,13 @@ export default function ProductDownloadButton({
   };
 
   return (
-    <div className="flex flex-col gap-2 w-full text-slate-800">
+    <div className="flex flex-col gap-2 w-full text-white">
       <button
         onClick={purchaseStatus === 'purchased' ? handleDownload : onPurchase}
         disabled={purchaseStatus === 'checking' || downloadState === 'preparing' || downloadState === 'downloading'}
         className={`w-full py-3.5 px-6 rounded-2xl font-bold flex items-center justify-center gap-2.5 text-sm transition-all duration-300 group cursor-pointer shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${purchaseStatus === 'purchased'
-            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-950/20'
-            : 'bg-violet-600 hover:bg-violet-700 text-white shadow-violet-950/20'
+            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_25px_rgba(16,185,129,0.35)]'
+            : 'bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:brightness-110 text-white shadow-[0_0_25px_rgba(147,51,234,0.35)]'
           } ${className}`}
       >
         {getButtonIcon()}
@@ -169,7 +169,7 @@ export default function ProductDownloadButton({
 
       {/* Show file details if purchased */}
       {purchaseStatus === 'purchased' && fileMeta && (
-        <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs text-slate-500 font-medium">
+        <div className="flex items-center justify-between px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white/60 font-mono">
           <span className="truncate max-w-[200px]" title={fileMeta.fileName}>
             File: {fileMeta.fileName}
           </span>
@@ -179,7 +179,7 @@ export default function ProductDownloadButton({
 
       {/* Show Error Message */}
       {errorMessage && (
-        <p className="text-xs font-semibold text-red-500 text-center mt-1 flex items-center justify-center gap-1">
+        <p className="text-xs font-semibold text-red-400 text-center mt-1 flex items-center justify-center gap-1 font-mono">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           {errorMessage}
         </p>
