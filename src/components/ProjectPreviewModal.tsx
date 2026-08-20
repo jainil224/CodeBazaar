@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Share2, Heart, ExternalLink, ShieldCheck, Code, Maximize2, CheckCircle2, Sparkles, Layers, ZoomIn, Folder, Terminal, Zap, Smartphone, FileCode2 } from 'lucide-react';
+import { X, Share2, Heart, ExternalLink, ShieldCheck, Code, Maximize2, CheckCircle2, Sparkles, Layers, ZoomIn, Zap, Smartphone, FileCode2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductDownloadButton from '@/features/digitalProducts/components/ProductDownloadButton';
 import { trackEvent } from '@/lib/analytics';
@@ -271,57 +271,6 @@ export default function ProjectPreviewModal({
                 </div>
                 <span className="text-lg font-black text-white">Lifetime</span>
                 <span className="text-[10px] text-zinc-400 font-mono">Unlimited Projects</span>
-              </div>
-            </div>
-          </div>
-
-          {/* ── INCLUDED REPOSITORY FILES & QUICKSTART ────────────── */}
-          <div className="bg-[#121021] border border-white/15 rounded-3xl p-5 sm:p-6 shadow-xl shrink-0 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            {/* Repository structure */}
-            <div className="flex flex-col gap-2.5">
-              <h4 className="text-xs uppercase font-mono font-bold tracking-wider text-zinc-300 flex items-center gap-2">
-                <Folder className="w-3.5 h-3.5 text-purple-400" />
-                <span>Package Contents</span>
-              </h4>
-              <div className="bg-black/50 border border-white/10 rounded-2xl p-3.5 flex flex-col gap-2 font-mono text-[11px] text-zinc-300">
-                <div className="flex items-center gap-2 text-purple-300">
-                  <Folder className="w-3.5 h-3.5 fill-purple-400/20" />
-                  <span>/src/components — Modular UI units</span>
-                </div>
-                <div className="flex items-center gap-2 text-purple-300">
-                  <Folder className="w-3.5 h-3.5 fill-purple-400/20" />
-                  <span>/src/assets — Icons & styling tokens</span>
-                </div>
-                <div className="flex items-center gap-2 text-zinc-400">
-                  <FileCode2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>tailwind.config.ts / index.css</span>
-                </div>
-                <div className="flex items-center gap-2 text-zinc-400">
-                  <FileCode2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>package.json & README.md guide</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quickstart 3-step guide */}
-            <div className="flex flex-col gap-2.5">
-              <h4 className="text-xs uppercase font-mono font-bold tracking-wider text-zinc-300 flex items-center gap-2">
-                <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Quickstart Guide</span>
-              </h4>
-              <div className="bg-black/50 border border-white/10 rounded-2xl p-3.5 flex flex-col justify-between gap-2 text-[11px] font-mono">
-                <div className="flex items-center gap-2 text-zinc-300">
-                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-[10px] shrink-0">1</span>
-                  <span>Extract downloaded ZIP archive</span>
-                </div>
-                <div className="flex items-center gap-2 text-zinc-300">
-                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-[10px] shrink-0">2</span>
-                  <span className="text-emerald-400">npm install</span>
-                </div>
-                <div className="flex items-center gap-2 text-zinc-300">
-                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-[10px] shrink-0">3</span>
-                  <span className="text-cyan-400">npm run dev</span>
-                </div>
               </div>
             </div>
           </div>
