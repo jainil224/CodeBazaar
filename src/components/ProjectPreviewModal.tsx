@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Share2, Heart, ExternalLink, ShieldCheck, Code, Maximize2, CheckCircle2, Sparkles, Layers } from 'lucide-react';
+import { X, Share2, Heart, ExternalLink, ShieldCheck, Code, Maximize2, CheckCircle2, Sparkles, Layers, ZoomIn, Folder, Terminal, Zap, Smartphone, FileCode2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductDownloadButton from '@/features/digitalProducts/components/ProductDownloadButton';
 import { trackEvent } from '@/lib/analytics';
@@ -52,6 +52,7 @@ export default function ProjectPreviewModal({
 }: ProjectPreviewModalProps) {
   const [activeImage, setActiveImage] = useState<string>('');
   const [shareCopied, setShareCopied] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // Sync active image when project opens
   useEffect(() => {
@@ -133,7 +134,7 @@ export default function ProjectPreviewModal({
         <div className="flex-1 flex flex-col gap-4 sm:gap-6">
           
           {/* Browser frame mockup */}
-          <div className="bg-[#121021] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+          <div className="bg-[#121021] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col shrink-0">
             {/* Browser top-bar */}
             <div className="bg-[#18162b] border-b border-white/10 px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shrink-0 select-none">
               {/* macOS traffic light dots */}
@@ -144,9 +145,9 @@ export default function ProjectPreviewModal({
               </div>
               
               {/* Address input */}
-              <div className="bg-black/60 border border-white/15 text-zinc-300 text-[10px] sm:text-[11px] font-mono rounded-lg px-3 sm:px-4 py-1 sm:py-1.5 max-w-[180px] sm:max-w-none sm:w-64 text-center truncate shadow-inner flex items-center justify-center gap-1.5">
+              <div className="bg-black/60 border border-white/15 text-zinc-300 text-[10px] sm:text-[11px] font-mono rounded-lg px-3 sm:px-4 py-1 sm:py-1.5 max-w-[200px] sm:max-w-none sm:w-72 text-center truncate shadow-inner flex items-center justify-center gap-1.5">
                 <span className="text-emerald-400 text-[10px]">🔒</span>
-                <span>codebazaar.dev/preview/{project.id}</span>
+                <span className="truncate">codebazaar.dev/preview/{project.id}</span>
               </div>
               
               {/* Right badge */}
@@ -156,57 +157,172 @@ export default function ProjectPreviewModal({
               </div>
             </div>
 
-            {/* Screenshot viewport */}
-            <div className="aspect-video relative bg-black/60 overflow-hidden flex items-center justify-center group">
+            {/* Screenshot viewport (Proper aspect & ambient background so full image is visible without cut-off) */}
+            <div className="relative bg-[#080712] overflow-hidden flex items-center justify-center min-h-[260px] sm:min-h-[380px] max-h-[520px] aspect-video group select-none">
+              {/* Ambient blurred backdrop for aesthetic fit */}
+              <img
+                src={activeImage}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-30 scale-110 pointer-events-none"
+              />
+              {/* Foreground crisp screenshot */}
               <img
                 src={activeImage}
                 alt={project.title}
-                className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-102"
+                className="relative z-10 w-full h-full object-contain object-top drop-shadow-2xl transition-transform duration-500 group-hover:scale-[1.01]"
               />
+
+              {/* Full view overlay button */}
+              <button
+                onClick={() => setIsLightboxOpen(true)}
+                className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/80 hover:bg-black/95 text-white/90 hover:text-white text-xs font-semibold backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 shadow-xl cursor-pointer"
+                title="View Full Resolution Image"
+              >
+                <ZoomIn className="w-3.5 h-3.5 text-purple-300" />
+                <span>Full View</span>
+              </button>
             </div>
           </div>
 
           {/* Thumbnail Selector Carousel */}
           {gallery.length > 1 && (
-            <div className="grid grid-cols-4 gap-2 sm:gap-3">
+            <div className="grid grid-cols-4 gap-2 sm:gap-3 shrink-0">
               {gallery.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImage(img)}
-                  className={`aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black/60 border-2 transition-all cursor-pointer ${
+                  className={`aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-[#0a0914] border-2 transition-all cursor-pointer ${
                     activeImage === img
                       ? 'border-purple-400 ring-2 ring-purple-400/40 shadow-[0_0_20px_rgba(168,85,247,0.4)]'
-                      : 'border-white/15 hover:border-white/40 opacity-80 hover:opacity-100'
+                      : 'border-white/15 hover:border-white/40 opacity-75 hover:opacity-100'
                   }`}
                 >
                   <img
                     src={img}
                     alt={`Preview thumbnail ${idx + 1}`}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-contain object-top"
                   />
                 </button>
               ))}
             </div>
           )}
 
-          {/* Key Deliverables & Highlights - Visible on Desktop left column only */}
-          <div className="hidden lg:block bg-[#131124] border border-purple-500/25 rounded-3xl p-6 shadow-xl">
+          {/* ── WHAT'S INCLUDED IN THIS TEMPLATE ────────────────── */}
+          <div className="bg-[#131124] border border-purple-500/25 rounded-3xl p-5 sm:p-6 shadow-xl shrink-0">
             <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-purple-300 flex items-center gap-2 mb-4">
               <Layers className="w-4 h-4 text-purple-400" />
               <span>What's Included In This Template</span>
             </h3>
-            <div className="grid grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
               {(project.features && project.features.length > 0 ? project.features : [
                 'Full React / Next.js source code repository',
                 'Modular component architecture & Tailwind CSS styles',
                 'Instant ZIP package download with full commercial license',
                 'Lifetime access with zero recurring subscription fees',
               ]).map((feat, idx) => (
-                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-100 font-medium">
+                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-100 font-medium bg-white/[0.02] border border-white/5 p-2.5 rounded-xl">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span className="leading-snug">{feat}</span>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* ── KEY HIGHLIGHTS & ARCHITECTURE METRICS ───────────── */}
+          <div className="bg-[#121021] border border-white/15 rounded-3xl p-5 sm:p-6 shadow-xl shrink-0 flex flex-col gap-4">
+            <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-purple-300 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span>Core Architecture & Highlights</span>
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-mono font-bold">
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Build Speed</span>
+                </div>
+                <span className="text-lg font-black text-white">&lt; 1s</span>
+                <span className="text-[10px] text-zinc-400 font-mono">Vite / Fast Bundler</span>
+              </div>
+
+              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-mono font-bold">
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Responsive</span>
+                </div>
+                <span className="text-lg font-black text-white">100%</span>
+                <span className="text-[10px] text-zinc-400 font-mono">Mobile, Tablet, Desktop</span>
+              </div>
+
+              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono font-bold">
+                  <FileCode2 className="w-3.5 h-3.5" />
+                  <span>Source Code</span>
+                </div>
+                <span className="text-lg font-black text-white">Clean</span>
+                <span className="text-[10px] text-zinc-400 font-mono">TypeScript / Tailwind</span>
+              </div>
+
+              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-purple-400 text-xs font-mono font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>License</span>
+                </div>
+                <span className="text-lg font-black text-white">Lifetime</span>
+                <span className="text-[10px] text-zinc-400 font-mono">Unlimited Projects</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── INCLUDED REPOSITORY FILES & QUICKSTART ────────────── */}
+          <div className="bg-[#121021] border border-white/15 rounded-3xl p-5 sm:p-6 shadow-xl shrink-0 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {/* Repository structure */}
+            <div className="flex flex-col gap-2.5">
+              <h4 className="text-xs uppercase font-mono font-bold tracking-wider text-zinc-300 flex items-center gap-2">
+                <Folder className="w-3.5 h-3.5 text-purple-400" />
+                <span>Package Contents</span>
+              </h4>
+              <div className="bg-black/50 border border-white/10 rounded-2xl p-3.5 flex flex-col gap-2 font-mono text-[11px] text-zinc-300">
+                <div className="flex items-center gap-2 text-purple-300">
+                  <Folder className="w-3.5 h-3.5 fill-purple-400/20" />
+                  <span>/src/components — Modular UI units</span>
+                </div>
+                <div className="flex items-center gap-2 text-purple-300">
+                  <Folder className="w-3.5 h-3.5 fill-purple-400/20" />
+                  <span>/src/assets — Icons & styling tokens</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-400">
+                  <FileCode2 className="w-3.5 h-3.5 text-amber-400" />
+                  <span>tailwind.config.ts / index.css</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-400">
+                  <FileCode2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>package.json & README.md guide</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quickstart 3-step guide */}
+            <div className="flex flex-col gap-2.5">
+              <h4 className="text-xs uppercase font-mono font-bold tracking-wider text-zinc-300 flex items-center gap-2">
+                <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Quickstart Guide</span>
+              </h4>
+              <div className="bg-black/50 border border-white/10 rounded-2xl p-3.5 flex flex-col justify-between gap-2 text-[11px] font-mono">
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-[10px] shrink-0">1</span>
+                  <span>Extract downloaded ZIP archive</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-[10px] shrink-0">2</span>
+                  <span className="text-emerald-400">npm install</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-[10px] shrink-0">3</span>
+                  <span className="text-cyan-400">npm run dev</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -397,32 +513,76 @@ export default function ProjectPreviewModal({
     </div>
   );
 
+  const lightboxModal = (
+    <AnimatePresence>
+      {isLightboxOpen && (
+        <motion.div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8 bg-black/95 backdrop-blur-2xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <button
+            onClick={() => setIsLightboxOpen(false)}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-2xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all cursor-pointer z-10"
+            title="Close Full View"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          
+          <motion.div
+            className="relative max-w-6xl max-h-[90vh] flex items-center justify-center overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl bg-[#090814]"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={activeImage}
+              alt={project.title}
+              className="w-auto h-auto max-w-full max-h-[85vh] object-contain rounded-xl select-none"
+            />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   if (isStandalone) {
-    return modalContent;
+    return (
+      <>
+        {modalContent}
+        {lightboxModal}
+      </>
+    );
   }
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-[9998] flex items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-2xl overflow-y-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        {/* Backdrop Click to Close */}
-        <div className="absolute inset-0 cursor-default" onClick={onClose} />
-
+    <>
+      <AnimatePresence>
         <motion.div
-          className="relative w-full max-w-6xl bg-[#0c0c14] text-white rounded-none sm:rounded-3xl shadow-2xl flex flex-col max-h-none sm:max-h-[92vh] overflow-hidden border border-white/15 z-10"
-          initial={{ scale: 0.95, y: 15 }}
-          animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.95, y: 15 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+          className="fixed inset-0 z-[9998] flex items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-2xl overflow-y-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
-          {modalContent}
+          {/* Backdrop Click to Close */}
+          <div className="absolute inset-0 cursor-default" onClick={onClose} />
+
+          <motion.div
+            className="relative w-full max-w-6xl bg-[#0c0c14] text-white rounded-none sm:rounded-3xl shadow-2xl flex flex-col max-h-none sm:max-h-[92vh] overflow-hidden border border-white/15 z-10"
+            initial={{ scale: 0.95, y: 15 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 15 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+          >
+            {modalContent}
+          </motion.div>
         </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>
+      {lightboxModal}
+    </>
   );
 }
 
