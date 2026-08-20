@@ -209,68 +209,104 @@ export default function ProjectPreviewModal({
           )}
 
           {/* ── WHAT'S INCLUDED IN THIS TEMPLATE ────────────────── */}
-          <div className="bg-[#131124] border border-purple-500/25 rounded-3xl p-5 sm:p-6 shadow-xl shrink-0">
-            <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-purple-300 flex items-center gap-2 mb-4">
-              <Layers className="w-4 h-4 text-purple-400" />
-              <span>What's Included In This Template</span>
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
+          <div className="bg-[#131124] border border-purple-500/20 hover:border-purple-500/35 rounded-3xl p-5 sm:p-6 shadow-xl shrink-0 transition-all duration-300">
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="p-1.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 shadow-sm">
+                <Layers className="w-4 h-4" />
+              </div>
+              <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-zinc-200">
+                What's Included In This Template
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {(project.features && project.features.length > 0 ? project.features : [
                 'Full React / Next.js source code repository',
                 'Modular component architecture & Tailwind CSS styles',
                 'Instant ZIP package download with full commercial license',
                 'Lifetime access with zero recurring subscription fees',
               ]).map((feat, idx) => (
-                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-100 font-medium bg-white/[0.02] border border-white/5 p-2.5 rounded-xl">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="leading-snug">{feat}</span>
+                <div
+                  key={idx}
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-[#181530]/70 border border-white/[0.07] hover:border-purple-500/40 hover:bg-[#1f1b3d] transition-all duration-200 group"
+                >
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  </div>
+                  <span className="text-xs sm:text-[13px] text-zinc-200 group-hover:text-white font-medium leading-snug">
+                    {feat}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* ── KEY HIGHLIGHTS & ARCHITECTURE METRICS ───────────── */}
-          <div className="bg-[#121021] border border-white/15 rounded-3xl p-5 sm:p-6 shadow-xl shrink-0 flex flex-col gap-4">
-            <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-purple-300 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span>Core Architecture & Highlights</span>
-            </h3>
+          <div className="bg-[#131124] border border-white/[0.08] hover:border-purple-500/30 rounded-3xl p-5 sm:p-6 shadow-xl shrink-0 transition-all duration-300">
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="p-1.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 shadow-sm">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-zinc-200">
+                Core Architecture & Highlights
+              </h3>
+            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
-                <div className="flex items-center gap-1.5 text-amber-400 text-xs font-mono font-bold">
-                  <Zap className="w-3.5 h-3.5" />
-                  <span>Build Speed</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {/* Build Speed */}
+              <div className="bg-[#181530]/70 border border-white/[0.07] hover:border-amber-500/40 hover:bg-[#1f1a3b] rounded-2xl p-3.5 flex flex-col justify-between transition-all duration-200 group">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-zinc-400 group-hover:text-zinc-300">Build Speed</span>
+                  <div className="p-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                    <Zap className="w-3 h-3" />
+                  </div>
                 </div>
-                <span className="text-lg font-black text-white">&lt; 1s</span>
-                <span className="text-[10px] text-zinc-400 font-mono">Vite / Fast Bundler</span>
+                <div className="mt-3">
+                  <div className="text-xl sm:text-2xl font-black text-white tracking-tight">&lt; 1s</div>
+                  <span className="text-[10px] text-zinc-400 font-mono block mt-0.5">Vite / Fast Bundler</span>
+                </div>
               </div>
 
-              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
-                <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-mono font-bold">
-                  <Smartphone className="w-3.5 h-3.5" />
-                  <span>Responsive</span>
+              {/* Responsive */}
+              <div className="bg-[#181530]/70 border border-white/[0.07] hover:border-cyan-500/40 hover:bg-[#17203b] rounded-2xl p-3.5 flex flex-col justify-between transition-all duration-200 group">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-zinc-400 group-hover:text-zinc-300">Responsive</span>
+                  <div className="p-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                    <Smartphone className="w-3 h-3" />
+                  </div>
                 </div>
-                <span className="text-lg font-black text-white">100%</span>
-                <span className="text-[10px] text-zinc-400 font-mono">Mobile, Tablet, Desktop</span>
+                <div className="mt-3">
+                  <div className="text-xl sm:text-2xl font-black text-white tracking-tight">100%</div>
+                  <span className="text-[10px] text-zinc-400 font-mono block mt-0.5">All Screen Sizes</span>
+                </div>
               </div>
 
-              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
-                <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono font-bold">
-                  <FileCode2 className="w-3.5 h-3.5" />
-                  <span>Source Code</span>
+              {/* Source Code */}
+              <div className="bg-[#181530]/70 border border-white/[0.07] hover:border-emerald-500/40 hover:bg-[#152331] rounded-2xl p-3.5 flex flex-col justify-between transition-all duration-200 group">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-zinc-400 group-hover:text-zinc-300">Source Code</span>
+                  <div className="p-1 rounded-lg bg-emerald-500/15 border border-emerald-400/30 text-emerald-400">
+                    <FileCode2 className="w-3 h-3" />
+                  </div>
                 </div>
-                <span className="text-lg font-black text-white">Clean</span>
-                <span className="text-[10px] text-zinc-400 font-mono">TypeScript / Tailwind</span>
+                <div className="mt-3">
+                  <div className="text-xl sm:text-2xl font-black text-white tracking-tight">Clean</div>
+                  <span className="text-[10px] text-zinc-400 font-mono block mt-0.5">Modular TypeScript</span>
+                </div>
               </div>
 
-              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
-                <div className="flex items-center gap-1.5 text-purple-400 text-xs font-mono font-bold">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>License</span>
+              {/* License */}
+              <div className="bg-[#181530]/70 border border-white/[0.07] hover:border-purple-500/40 hover:bg-[#20183b] rounded-2xl p-3.5 flex flex-col justify-between transition-all duration-200 group">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-zinc-400 group-hover:text-zinc-300">License</span>
+                  <div className="p-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-300">
+                    <ShieldCheck className="w-3 h-3" />
+                  </div>
                 </div>
-                <span className="text-lg font-black text-white">Lifetime</span>
-                <span className="text-[10px] text-zinc-400 font-mono">Unlimited Projects</span>
+                <div className="mt-3">
+                  <div className="text-xl sm:text-2xl font-black text-white tracking-tight">Lifetime</div>
+                  <span className="text-[10px] text-zinc-400 font-mono block mt-0.5">Unlimited Projects</span>
+                </div>
               </div>
             </div>
           </div>
@@ -391,9 +427,19 @@ export default function ProjectPreviewModal({
             </div>
           </div>
 
-          {/* Description text box */}
-          <div className="bg-[#121021] border border-white/15 rounded-2xl p-4 sm:p-5 text-zinc-200 text-xs sm:text-sm leading-relaxed font-normal shadow-lg">
-            {project.longDescription || project.description}
+          {/* ── DESCRIPTION TEXT BOX ───────────────────────────────── */}
+          <div className="bg-[#131124] border border-white/[0.08] hover:border-purple-500/25 rounded-3xl p-5 sm:p-6 shadow-xl transition-all duration-300 flex flex-col gap-2.5">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-zinc-200">
+                Template Overview
+              </h3>
+            </div>
+            <p className="text-zinc-300 text-xs sm:text-[13px] leading-relaxed font-normal">
+              {project.longDescription || project.description}
+            </p>
           </div>
 
           {/* Key Deliverables - Visible on Mobile view right after description */}
@@ -417,21 +463,25 @@ export default function ProjectPreviewModal({
             </div>
           </div>
 
-          {/* Technical Details panel */}
-          <div className="bg-[#131124] border border-white/15 rounded-2xl sm:rounded-3xl p-4.5 sm:p-6 flex flex-col gap-3.5 sm:gap-4 shadow-xl">
-            <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-purple-300 flex items-center gap-2">
-              <Code className="w-4 h-4 text-purple-400" />
-              <span>Technical Specifications</span>
-            </h3>
+          {/* ── TECHNICAL DETAILS PANEL ───────────────────────────── */}
+          <div className="bg-[#131124] border border-white/[0.08] hover:border-purple-500/25 rounded-3xl p-5 sm:p-6 flex flex-col gap-4 shadow-xl transition-all duration-300">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-300">
+                <Code className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-zinc-200">
+                Technical Specifications
+              </h3>
+            </div>
 
-            <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="flex flex-col gap-3.5">
               <div>
-                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block mb-1.5 font-mono">Tech Stack</span>
+                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block mb-2 font-mono">Tech Stack</span>
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-white/10 border border-white/20 text-white text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl shadow-sm"
+                      className="bg-[#181530] border border-white/[0.09] hover:border-purple-400/50 hover:bg-[#201b40] text-zinc-200 hover:text-white text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-xl shadow-sm transition-colors"
                     >
                       {tag}
                     </span>
@@ -439,19 +489,23 @@ export default function ProjectPreviewModal({
                 </div>
               </div>
 
-              <div>
+              <div className="pt-2 border-t border-white/[0.06]">
                 <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block mb-1 font-mono">System Requirements</span>
-                <p className="text-zinc-200 text-xs font-mono font-medium">{project.systemRequirements || 'Node.js >= 18.x, Modern Web Browser'}</p>
+                <p className="text-zinc-200 text-xs font-mono font-medium bg-black/40 border border-white/[0.06] px-3 py-2 rounded-xl">
+                  {project.systemRequirements || 'Node.js >= 18.x, modern browser'}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Safe Escrow Box */}
-          <div className="bg-[#0d1f17] border border-emerald-500/40 rounded-2xl p-4 sm:p-4.5 flex gap-3 sm:gap-3.5 items-start shadow-lg">
-            <ShieldCheck className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-400 shrink-0 mt-0.5" />
+          {/* ── SAFE ESCROW BOX ───────────────────────────────────── */}
+          <div className="bg-gradient-to-br from-[#0c1f17] to-[#07130e] border border-emerald-500/35 hover:border-emerald-500/50 rounded-2xl p-4 sm:p-4.5 flex gap-3 sm:gap-3.5 items-start shadow-lg transition-all duration-300">
+            <div className="p-1.5 rounded-xl bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 shrink-0 mt-0.5">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
             <div>
               <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-wider font-mono">Secure Direct Source Download</h4>
-              <p className="text-emerald-100/90 text-[11px] sm:text-xs leading-relaxed mt-1 font-sans">
+              <p className="text-emerald-100/80 text-[11px] sm:text-xs leading-relaxed mt-1 font-sans">
                 Your payment is verified securely via Razorpay. The complete ZIP archive and source code files are unlocked immediately upon purchase.
               </p>
             </div>
