@@ -253,21 +253,37 @@ export default function ProjectPreviewModal({
             </p>
           </div>
 
-          {/* Price & Purchase Hero Card (Right below title for instantaneous mobile visibility) */}
-          <div className="bg-[#15122b] border border-purple-500/40 shadow-[0_12px_40px_rgba(0,0,0,0.8)] rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col gap-3.5 sm:gap-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl pointer-events-none" />
-            
-            <div className="flex items-baseline justify-between">
+          {/* ── PRICE & PURCHASE HERO CARD ─────────────────────────── */}
+          <div className="shrink-0 bg-gradient-to-b from-[#181533] via-[#141129] to-[#0f0d20] border border-purple-500/35 shadow-[0_16px_40px_rgba(0,0,0,0.6)] rounded-2xl sm:rounded-3xl p-4.5 sm:p-6 flex flex-col gap-4 relative overflow-hidden">
+            {/* Ambient background glow accents */}
+            <div className="absolute top-0 right-0 w-36 h-36 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-28 h-28 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Price Header Row */}
+            <div className="relative z-10 flex items-start justify-between gap-3">
               <div>
-                <span className="text-2xl sm:text-4xl font-black text-white tracking-tight">{project.price}</span>
-                <span className="text-zinc-400 text-[10px] sm:text-[11px] font-mono block mt-0.5 uppercase tracking-wider font-semibold">Lifetime Developer License</span>
+                <div className="flex items-baseline gap-2 sm:gap-2.5">
+                  <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">{project.price}</span>
+                  <span className="text-zinc-500 text-xs sm:text-sm line-through font-mono">₹499</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-md font-mono">
+                    90% OFF
+                  </span>
+                </div>
+                <span className="text-zinc-400 text-[10px] sm:text-[11px] font-mono block mt-1 uppercase tracking-wider font-semibold">
+                  Lifetime Developer License
+                </span>
               </div>
-              <span className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-bold uppercase tracking-wider px-2.5 sm:px-3 py-1 rounded-full shadow-sm">
-                Instant Download
-              </span>
+
+              <div className="shrink-0">
+                <span className="inline-flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 sm:px-3 py-1 rounded-full shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Instant Access
+                </span>
+              </div>
             </div>
 
-            <div className="flex flex-col gap-2 pt-1">
+            {/* Action Buttons Row */}
+            <div className="relative z-10 flex flex-col gap-2.5 pt-0.5">
               <ProductDownloadButton
                 productId={project.id}
                 price={project.price}
@@ -281,12 +297,32 @@ export default function ProjectPreviewModal({
                   href={project.previewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-[#1e1b38] hover:bg-[#28244b] text-white font-bold py-3 px-4 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider border border-white/15 transition-all active:scale-95 shadow-md"
+                  className="w-full bg-[#1e1b38] hover:bg-[#28244b] text-white/90 hover:text-white font-bold py-3 px-4 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-xs uppercase tracking-wider border border-white/15 hover:border-purple-500/40 transition-all active:scale-95 shadow-md cursor-pointer"
                 >
                   <ExternalLink className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-purple-400" />
                   <span>Open Live Demo</span>
                 </a>
               )}
+            </div>
+
+            {/* Trust & Assurance Micro-Features */}
+            <div className="relative z-10 pt-2.5 border-t border-white/10 grid grid-cols-2 gap-2 text-[10px] sm:text-[11px] text-zinc-300 font-medium">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>Instant ZIP Download</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>Full Source Code</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>Commercial Rights</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>Razorpay Secured</span>
+              </div>
             </div>
           </div>
 

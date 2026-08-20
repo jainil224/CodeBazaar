@@ -136,8 +136,8 @@ export default function ProductDownloadButton({
     if (downloadState === 'error') return 'Try Again';
 
     if (purchaseStatus === 'checking') return 'Checking access...';
-    if (purchaseStatus === 'purchased') return 'Download ZIP';
-    return `Buy Now • ${price}`;
+    if (purchaseStatus === 'purchased') return 'Download Source ZIP';
+    return `Instant Access • ${price}`;
   };
 
   const getButtonIcon = () => {
@@ -150,7 +150,7 @@ export default function ProductDownloadButton({
     if (purchaseStatus === 'purchased') {
       return <Download className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />;
     }
-    return <ShoppingBag className="w-4 h-4 text-violet-200 group-hover:scale-110 transition-transform" />;
+    return <ShoppingBag className="w-4 h-4 text-pink-200 group-hover:scale-110 transition-transform" />;
   };
 
   return (
@@ -158,9 +158,9 @@ export default function ProductDownloadButton({
       <button
         onClick={purchaseStatus === 'purchased' ? handleDownload : onPurchase}
         disabled={purchaseStatus === 'checking' || downloadState === 'preparing' || downloadState === 'downloading'}
-        className={`w-full py-3.5 px-6 rounded-2xl font-bold flex items-center justify-center gap-2.5 text-sm transition-all duration-300 group cursor-pointer shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${purchaseStatus === 'purchased'
+        className={`w-full py-3.5 px-6 rounded-xl sm:rounded-2xl font-bold flex items-center justify-center gap-2.5 text-sm sm:text-base transition-all duration-300 group cursor-pointer shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${purchaseStatus === 'purchased'
             ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_25px_rgba(16,185,129,0.35)]'
-            : 'bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:brightness-110 text-white shadow-[0_0_25px_rgba(147,51,234,0.35)]'
+            : 'bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:brightness-110 text-white shadow-[0_0_25px_rgba(147,51,234,0.4)]'
           } ${className}`}
       >
         {getButtonIcon()}
